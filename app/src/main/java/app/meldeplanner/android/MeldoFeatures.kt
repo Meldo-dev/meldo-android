@@ -5,10 +5,10 @@ import app.meldeplanner.android.ui.features.dashboard.DashboardFeature
 import app.meldeplanner.android.ui.features.exams.ExamsFeature
 import app.meldeplanner.android.ui.features.grades.GradesFeature
 import app.meldeplanner.android.ui.features.more.AboutFeature
-import app.meldeplanner.android.ui.features.more.DriveFeature
+import app.meldeplanner.android.ui.features.drive.DriveFeature
 import app.meldeplanner.android.ui.features.more.MoreFeature
 import app.meldeplanner.android.ui.features.more.SettingsFeature
-import app.meldeplanner.android.ui.features.more.StatusFeature
+import app.meldeplanner.android.surfaces.StatusFeature
 import app.meldeplanner.android.ui.features.onboarding.OnboardingFeature
 import app.meldeplanner.android.ui.features.participation.ParticipationFeature
 import app.meldeplanner.android.ui.features.statistics.StatisticsFeature
