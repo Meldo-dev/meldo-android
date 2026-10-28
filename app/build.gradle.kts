@@ -1,7 +1,9 @@
 plugins {
     id("meldo.android.app")
-    alias(libs.plugins.kotlin.serialization)
 }
+
+// The composition root: MainActivity, MeldoApp, the feature list (MeldoFeatures.kt) and
+// RootScreen, plus the manifest components, the OAuth client IDs, signing and R8.
 
 android {
     namespace = "app.meldeplanner.android"
@@ -55,7 +57,7 @@ dependencies {
     implementation(project(":core:state"))
     implementation(project(":core:ui"))
 
-    // The features in this build; MeldoFeatures.kt lists the same ones.
+    // The features and connected services in this build; MeldoFeatures.kt lists the same ones.
     implementation(project(":feature:calendar"))
     implementation(project(":feature:dashboard"))
     implementation(project(":feature:exams"))
@@ -71,11 +73,8 @@ dependencies {
     implementation(project(":integration:untis"))
     implementation(project(":integration:teams"))
     implementation(project(":integration:drive"))
+    implementation(project(":surfaces"))
 
-    implementation(libs.glance.appwidget)
-    implementation(libs.glance.material3)
-    implementation(libs.work.runtime)
-    implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.compose.material3.adaptive.navigation.suite)
 }

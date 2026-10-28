@@ -49,7 +49,7 @@ import androidx.glance.text.TextAlign
 import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
-import app.meldeplanner.android.R
+import app.meldeplanner.android.surfaces.R
 import app.meldeplanner.android.core.L
 import app.meldeplanner.android.core.Localization
 import app.meldeplanner.android.data.AppData

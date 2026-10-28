@@ -6,7 +6,7 @@ import android.content.Context
 import android.content.res.Configuration
 import android.graphics.drawable.Icon
 import androidx.compose.ui.graphics.toArgb
-import app.meldeplanner.android.R
+import app.meldeplanner.android.surfaces.R
 import app.meldeplanner.android.core.L
 import app.meldeplanner.android.data.SubjectColor
 import app.meldeplanner.android.ui.theme.color

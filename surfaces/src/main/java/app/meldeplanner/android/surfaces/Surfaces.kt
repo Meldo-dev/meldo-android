@@ -12,7 +12,7 @@ import android.service.quicksettings.TileService
 import androidx.compose.runtime.mutableStateOf
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.updateAll
-import app.meldeplanner.android.R
+import app.meldeplanner.android.surfaces.R
 import app.meldeplanner.android.core.L
 import app.meldeplanner.android.core.MeldeEngine
 import app.meldeplanner.android.core.MeldoCalendar

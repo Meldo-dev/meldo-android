@@ -17,7 +17,7 @@ import app.meldeplanner.android.ui.components.AppIcons
 class MeldoApp : Application(), ModelOwner {
     override val model: AppModel by lazy {
         AppModel(this, LocalStore.standard(this)).also {
-            SurfacesListener.install(it)
+            SurfacesListener.install(it, MainActivity::class.java)
             meldoFeatures.all.forEach { feature -> feature.install(it) }
         }
     }
