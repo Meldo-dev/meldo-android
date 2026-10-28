@@ -87,7 +87,7 @@ import app.meldeplanner.android.data.CardSize
 import app.meldeplanner.android.data.CardSlot
 import app.meldeplanner.android.data.DashboardCard
 import app.meldeplanner.android.data.defaultHomeLayout
-import app.meldeplanner.android.surfaces.Notifications
+import app.meldeplanner.android.core.Notifications
 import app.meldeplanner.android.ui.components.DS
 import app.meldeplanner.android.ui.components.LocalAppModel
 import app.meldeplanner.android.ui.components.MeldoMenu

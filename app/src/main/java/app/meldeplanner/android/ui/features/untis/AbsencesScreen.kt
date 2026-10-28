@@ -59,6 +59,9 @@ import app.meldeplanner.android.ui.navigation.LocalNavigator
 import app.meldeplanner.android.ui.navigation.MeldoScreen
 import app.meldeplanner.android.ui.theme.StateColors
 import java.text.NumberFormat
+import app.meldeplanner.android.model.AppModel
+import app.meldeplanner.android.ui.rows.lateMinutes
+import app.meldeplanner.android.ui.rows.AbsenceRow
 
 /** Absences from the WebUntis class register, with a summary. Port of AbsencesView.swift. */
 @Composable
@@ -153,83 +156,4 @@ private fun Summary(count: Int, label: String, color: Color, modifier: Modifier)
         )
         Text(label, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
-}
-
-/**
- * One absence; a tap or long press offers the Entschuldigung, like the iOS context menu.
- * [contentPadding] is the room around the content: none sideways by default, so the
- * row lines up with LessonRow inside a Card (Kalender); grouped lists pass their row inset.
- */
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun AbsenceRow(
-    absence: UntisAbsenceRecord,
-    calendar: MeldoCalendar,
-    modifier: Modifier = Modifier,
-    contentPadding: PaddingValues = PaddingValues(vertical = DS.spacingXS),
-) {
-    val navigator = LocalNavigator.current
-    var menu by remember { mutableStateOf(false) }
-    val color = if (absence.excused) StateColors.green() else StateColors.red()
-    Box(modifier) {
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .combinedClickable(role = Role.Button, onClick = { menu = true }, onLongClick = { menu = true })
-                .padding(contentPadding)
-                .semantics(mergeDescendants = true) {},
-            verticalAlignment = Alignment.Top,
-            horizontalArrangement = Arrangement.spacedBy(DS.spacingM),
-        ) {
-            // Same 36 dp leading badge as SubjectIcon in LessonRow, so texts line up.
-            StateBadge(if (absence.excused) "checkmark" else "exclamationmark.circle", color)
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Text(absenceDates(absence, calendar), style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
-                val secondary = MaterialTheme.colorScheme.onSurfaceVariant
-                Text(TimeText.range(absence.startMinute, absence.endMinute), style = MaterialTheme.typography.bodyMedium, color = secondary)
-                LocalAppModel.current.lateMinutes(absence)?.let { late ->
-                    Text(L("Verspätung · %lld Min.", late), style = MaterialTheme.typography.labelMedium, color = secondary)
-                }
-                if (absence.reason.isNotEmpty()) Text(absence.reason, style = MaterialTheme.typography.bodyMedium, color = secondary)
-                if (absence.text.isNotEmpty()) Text(absence.text, style = MaterialTheme.typography.bodyMedium, color = secondary)
-                Text(
-                    if (absence.excused) L("entschuldigt") else L("nicht entschuldigt"),
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.SemiBold,
-                    color = color,
-                )
-            }
-        }
-        MeldoMenu(
-            expanded = menu,
-            onDismiss = { menu = false },
-            groups = listOf(
-                listOf(
-                    MeldoMenuItem(L("Entschuldigung erstellen"), symbol = "doc.text") {
-                        navigator.push { ExcuseNoteScreen(absence) }
-                    },
-                ),
-            ),
-        )
-    }
-}
-
-/** "Di., 29. Sept." or a range, in the app language. */
-private fun absenceDates(absence: UntisAbsenceRecord, calendar: MeldoCalendar): String {
-    val skeleton = "EEEdMMM"
-    val first = formatDate(absence.firstDay, skeleton, calendar.zone)
-    if (calendar.isSameDay(absence.firstDay, absence.lastDay)) return first
-    return "$first–${formatDate(absence.lastDay, skeleton, calendar.zone)}"
-}
-
-/**
- * Minutes late, when the absence only covers the start of the day's first lesson
- * (WebUntis records a late arrival as a short absence). Port of iOS `lateMinutes`.
- */
-fun app.meldeplanner.android.model.AppModel.lateMinutes(absence: app.meldeplanner.android.data.UntisAbsenceRecord): Int? {
-    if (!calendar.isSameDay(absence.firstDay, absence.lastDay)) return null
-    val periods = data.untisTimetable?.periods ?: return null
-    val first = periods.filter { !it.cancelled && calendar.isSameDay(it.date, absence.firstDay) }.minByOrNull { it.startMinute } ?: return null
-    if (absence.startMinute != first.startMinute || absence.endMinute <= absence.startMinute || absence.endMinute >= first.endMinute) return null
-    return absence.endMinute - absence.startMinute
 }

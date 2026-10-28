@@ -33,11 +33,19 @@ import app.meldeplanner.android.ui.components.DS
 import app.meldeplanner.android.ui.components.LocalAppModel
 import app.meldeplanner.android.ui.components.TimeText
 import app.meldeplanner.android.ui.components.WeekdayText
-import app.meldeplanner.android.ui.features.grades.GradesScreen
-import app.meldeplanner.android.ui.features.statistics.BarChart
-import app.meldeplanner.android.ui.features.tasks.TaskEditorScreen
+import app.meldeplanner.android.ui.charts.BarChart
 import app.meldeplanner.android.ui.navigation.LocalNavigator
 import java.time.Instant
+import app.meldeplanner.android.ui.rows.rememberTickingNow
+import app.meldeplanner.android.ui.rows.DateText
+import app.meldeplanner.android.ui.rows.CardTaskRow
+import app.meldeplanner.android.ui.rows.CardLink
+import app.meldeplanner.android.ui.rows.CardBlockStyle
+import app.meldeplanner.android.ui.rows.digits
+import app.meldeplanner.android.ui.rows.NumberText
+import app.meldeplanner.android.ui.rows.BlockRow
+import app.meldeplanner.android.ui.navigation.Link
+import app.meldeplanner.android.ui.navigation.rememberLink
 
 // Port of meldo-ios/MeldePlanner/Features/Dashboard/MoreCards.swift.
 
@@ -169,9 +177,7 @@ internal fun TodosCard(now: Instant, size: CardSize) {
             }
         }
         if (size != CardSize.small) {
-            CardButton(L("To-do hinzufügen"), "plus") {
-                navigator.push { TaskEditorScreen(task = null, kind = TaskKind.todo, onDismiss = { navigator.pop() }) }
-            }
+            rememberLink(Link.NewTask(TaskKind.todo))?.let { CardButton(L("To-do hinzufügen"), "plus", it) }
         }
     }
 }
@@ -209,6 +215,6 @@ internal fun GradesCard(size: CardSize) {
                 color = secondary,
             )
         }
-        CardLink(L("Notenrechner"), onClick = { navigator.push { GradesScreen() } })
+        rememberLink(Link.Page("grades"))?.let { CardLink(L("Notenrechner"), onClick = it) }
     }
 }

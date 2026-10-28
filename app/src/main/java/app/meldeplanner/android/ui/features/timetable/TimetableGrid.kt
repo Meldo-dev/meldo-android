@@ -78,13 +78,15 @@ import app.meldeplanner.android.ui.components.sfSymbol
 import kotlinx.coroutines.delay
 import java.time.Instant
 import java.time.temporal.IsoFields
+import app.meldeplanner.android.ui.timetable.UntisColors
+import app.meldeplanner.android.ui.timetable.TimetableDates
+import app.meldeplanner.android.ui.timetable.FitText
+import app.meldeplanner.android.ui.timetable.BlockStyle
+import app.meldeplanner.android.ui.timetable.isRegularWidth
+import app.meldeplanner.android.ui.timetable.EmptyStateCard
 
 /** How much a block shows: week on a phone, week on a tablet / 2–3 days, one day. */
 enum class BlockDetail { compact, medium, full }
-
-/** iOS regular horizontal size class. */
-@Composable
-internal fun isRegularWidth(): Boolean = LocalConfiguration.current.screenWidthDp >= 600
 
 private val tabularDigits = TextStyle(fontFeatureSettings = "tnum")
 
@@ -220,51 +222,6 @@ private fun LimitNotice(limit: Instant) {
         title = L("Noch nicht freigegeben"),
         text = L("Deine Schule zeigt den Stundenplan nur bis %@.", TimetableDates.dayMonth(limit, model.calendar)),
     )
-}
-
-/** `ContentUnavailableView` on a material card, centered over the content. */
-@Composable
-internal fun EmptyStateCard(
-    symbol: String,
-    title: String,
-    text: String?,
-    action: (@Composable () -> Unit)? = null,
-) {
-    Box(Modifier.fillMaxSize().padding(DS.spacingXL), contentAlignment = Alignment.Center) {
-        Surface(
-            shape = DS.cardShape,
-            color = MaterialTheme.colorScheme.surfaceContainerHigh,
-            tonalElevation = 2.dp,
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Column(
-                Modifier.padding(DS.spacingXL),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(DS.spacingS),
-            ) {
-                Icon(sfSymbol(symbol), null, Modifier.size(44.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                Text(
-                    title,
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.SemiBold,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.semantics { heading() },
-                )
-                if (text != null) {
-                    Text(
-                        text,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        textAlign = TextAlign.Center,
-                    )
-                }
-                if (action != null) {
-                    Spacer(Modifier.height(DS.spacingXS))
-                    action()
-                }
-            }
-        }
-    }
 }
 
 @Composable
@@ -498,7 +455,7 @@ private fun TimetableBlockView(block: TimetableBlock, detail: BlockDetail, narro
                 .weight(1f)
                 .fillMaxHeight()
                 .background(style.fill, shape)
-                .then(if (style.border != null) Modifier.border(2.dp, style.border, shape) else Modifier)
+                .then(style.border?.let { Modifier.border(2.dp, it, shape) } ?: Modifier)
                 // Large text must not run into the next lesson.
                 .clip(shape),
         ) {
@@ -629,42 +586,4 @@ private fun BlockLabel(
             .then(if (highlighted) Modifier.background(UntisColors.change, RoundedCornerShape(4.dp)) else Modifier)
             .padding(horizontal = if (highlighted) 3.dp else 0.dp),
     )
-}
-
-/** What the timetable colors mean (Untis colors). In the timetable's menu and the tour. */
-@Composable
-fun TimetableLegend(modifier: Modifier = Modifier, vertical: Boolean = false) {
-    if (vertical) {
-        Column(modifier.semantics(mergeDescendants = true) {}, verticalArrangement = Arrangement.spacedBy(DS.spacingS)) {
-            LegendItem(UntisColors.exam, L("Prüfung"), large = true)
-            LegendItem(UntisColors.change, L("Änderung"), large = true)
-            LegendItem(UntisColors.cancelled, L("Entfall"), large = true)
-            LegendItem(UntisColors.holiday, L("Ferien"), large = true)
-        }
-        return
-    }
-    androidx.compose.foundation.layout.FlowRow(
-        modifier.semantics(mergeDescendants = true) {},
-        horizontalArrangement = Arrangement.spacedBy(DS.spacingM),
-        verticalArrangement = Arrangement.spacedBy(DS.spacingXS),
-        itemVerticalAlignment = Alignment.CenterVertically,
-    ) {
-        LegendItem(UntisColors.exam, L("Prüfung"))
-        LegendItem(UntisColors.change, L("Änderung"))
-        LegendItem(UntisColors.cancelled, L("Entfall"))
-        LegendItem(UntisColors.holiday, L("Ferien"))
-    }
-}
-
-@Composable
-private fun LegendItem(color: Color, text: String, large: Boolean = false) {
-    Row(horizontalArrangement = Arrangement.spacedBy(if (large) DS.spacingS else DS.spacingXS), verticalAlignment = Alignment.CenterVertically) {
-        Box(Modifier.size(if (large) 14.dp else 12.dp).background(color, RoundedCornerShape(4.dp)))
-        FitText(
-            text,
-            style = if (large) MaterialTheme.typography.bodyLarge else MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurface,
-            minScale = 0.8f,
-        )
-    }
 }

@@ -27,6 +27,7 @@ import uniffi.melde_ffi.timetableOccurrencesOn
 import java.time.Duration
 import java.time.Instant
 import app.meldeplanner.android.model.meldoModel
+import app.meldeplanner.android.core.Notifications
 
 /** Result of [Surfaces.previewLiveLesson], `LessonActivity.PreviewResult` on iOS. */
 sealed interface LivePreviewResult {

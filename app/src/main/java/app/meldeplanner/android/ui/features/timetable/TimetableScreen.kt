@@ -55,8 +55,6 @@ import app.meldeplanner.android.ui.components.MeldoMenu
 import app.meldeplanner.android.ui.components.MeldoMenuItem
 import app.meldeplanner.android.ui.components.WeekdayText
 import app.meldeplanner.android.ui.components.sfSymbol
-import app.meldeplanner.android.ui.features.subjects.SubjectListScreen
-import app.meldeplanner.android.ui.features.tasks.TaskEditorScreen
 import app.meldeplanner.android.ui.navigation.LocalNavigator
 import app.meldeplanner.android.ui.navigation.MeldoScreen
 import app.meldeplanner.android.ui.theme.LocalBottomChrome
@@ -64,6 +62,12 @@ import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.ZoneOffset
 import java.time.temporal.ChronoUnit
+import app.meldeplanner.android.ui.timetable.isRegularWidth
+import app.meldeplanner.android.ui.timetable.TimetableLegend
+import app.meldeplanner.android.ui.timetable.EmptyStateCard
+import app.meldeplanner.android.ui.navigation.Link
+import app.meldeplanner.android.ui.navigation.rememberLink
+import app.meldeplanner.android.ui.navigation.LocalFeatures
 
 /** The views of the timetable menu. Raw values match iOS `@AppStorage("timetable.mode")`. */
 enum class TimetableMode(val dayCount: Int, val symbol: String) {
@@ -198,7 +202,8 @@ fun TimetableScreen() {
         navigator.push { LessonEditorScreen(lesson = null, weekday = weekday, onDismiss = { navigator.pop() }) }
     }
 
-    fun manageSubjects() = navigator.push { SubjectListScreen() }
+    val manageSubjects = rememberLink(Link.Page("subjects"))
+    val features = LocalFeatures.current
 
     MeldoScreen(
         title = L("Stundenplan"),
@@ -224,9 +229,9 @@ fun TimetableScreen() {
                                 }
                             }
                         },
-                        listOf(
+                        listOfNotNull(
                             MeldoMenuItem(L("Stunde hinzufügen"), "plus", enabled = model.subjects.isNotEmpty()) { createLesson() },
-                            MeldoMenuItem(L("Fächer"), "books.vertical") { manageSubjects() },
+                            manageSubjects?.let { MeldoMenuItem(L("Fächer"), "books.vertical") { it() } },
                             // The colors are explained here and in the tour, not in a bar over the grid.
                             MeldoMenuItem(L("Was bedeuten die Farben?"), "paintpalette") { showingColors = true },
                         ),
@@ -259,7 +264,7 @@ fun TimetableScreen() {
                             L("Füge die Stunden für %@ hinzu.", day)
                         },
                         action = {
-                            if (model.subjects.isEmpty()) {
+                            if (model.subjects.isEmpty() && manageSubjects != null) {
                                 Button(onClick = { manageSubjects() }, shapes = ButtonDefaults.shapes()) {
                                     Icon(sfSymbol("books.vertical"), null)
                                     Text(L("Fächer"), Modifier.padding(start = DS.spacingS))
@@ -290,11 +295,9 @@ fun TimetableScreen() {
         TimetableBlockSheet(
             block = block,
             onDismiss = { selected = null },
-            onHomework = { subjectID ->
+            onHomework = if (features.screen(Link.NewTask(TaskKind.homework)) == null) null else { subjectID ->
                 selected = null
-                navigator.push {
-                    TaskEditorScreen(task = null, kind = TaskKind.homework, subjectID = subjectID, onDismiss = { navigator.pop() })
-                }
+                features.screen(Link.NewTask(TaskKind.homework, subjectID))?.let(navigator::push)
             },
             onEdit = { lesson ->
                 selected = null

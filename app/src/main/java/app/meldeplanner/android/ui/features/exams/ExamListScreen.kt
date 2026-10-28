@@ -67,13 +67,13 @@ import app.meldeplanner.android.ui.components.MeldoMenu
 import app.meldeplanner.android.ui.components.MeldoMenuItem
 import app.meldeplanner.android.ui.components.rememberReduceMotion
 import app.meldeplanner.android.ui.components.sfSymbol
-import app.meldeplanner.android.ui.features.dashboard.UntisExamRow
+import app.meldeplanner.android.ui.rows.UntisExamRow
 import app.meldeplanner.android.ui.rows.meldoAnimateItem
 import app.meldeplanner.android.ui.rows.IconTile
 import app.meldeplanner.android.ui.rows.extend
 import app.meldeplanner.android.ui.rows.formRowShape
 import app.meldeplanner.android.ui.form.DayFormat
-import app.meldeplanner.android.ui.features.tasks.SwipeToDelete
+import app.meldeplanner.android.ui.rows.SwipeToDelete
 import app.meldeplanner.android.ui.form.rememberMinuteNow
 import app.meldeplanner.android.ui.navigation.LocalNavigator
 import app.meldeplanner.android.ui.navigation.MeldoScreen

@@ -95,6 +95,14 @@ import kotlinx.coroutines.launch
 import uniffi.melde_ffi.FfiUntisSchool
 import java.time.Duration
 import java.time.Instant
+import app.meldeplanner.android.ui.rows.connectRowColors
+import app.meldeplanner.android.ui.rows.connectRelativeTime
+import app.meldeplanner.android.ui.rows.ConnectSection
+import app.meldeplanner.android.ui.rows.ConnectNote
+import app.meldeplanner.android.ui.rows.ConnectList
+import app.meldeplanner.android.ui.rows.ConnectLabeledRow
+import app.meldeplanner.android.ui.rows.ConnectIconLabel
+import app.meldeplanner.android.ui.rows.ConnectActionRow
 
 /**
  * Connect WebUntis: find the school, sign in, import. Afterwards: status, refresh
@@ -575,87 +583,3 @@ private fun UntisStep(number: Int, text: String, active: Boolean) {
 }
 
 // region Form building blocks (iOS inset grouped List / Form)
-
-@Composable
-internal fun ConnectList(padding: PaddingValues, content: androidx.compose.foundation.lazy.LazyListScope.() -> Unit) {
-    LazyColumn(
-        modifier = Modifier.imePadding(),
-        // MeldoScreen's padding as content padding: the list scrolls under the translucent bars.
-        contentPadding = padding.extend(top = DS.spacingS, bottom = DS.spacingXL),
-        verticalArrangement = Arrangement.spacedBy(DS.spacingM),
-        content = content,
-    )
-}
-
-/** A grouped section (the shared [FormSection]): each child is one tonal segment. */
-@Composable
-internal fun ConnectSection(header: String? = null, footer: String? = null, content: @Composable () -> Unit) {
-    FormSection(header = header, footer = footer, content = content)
-}
-
-@Composable
-internal fun connectRowColors() = ListItemDefaults.colors(containerColor = Color.Transparent)
-
-/** `LabeledContent`: a label with its value on the trailing side. */
-@Composable
-internal fun ConnectLabeledRow(label: String, value: String) = ValueRow(label, value)
-
-/** A button row; shows an Expressive loading indicator while [working]. */
-@Composable
-internal fun ConnectActionRow(
-    text: String,
-    working: Boolean = false,
-    enabled: Boolean = true,
-    destructive: Boolean = false,
-    symbol: String? = null,
-    onClick: () -> Unit,
-) = ActionRow(text, symbol = symbol, enabled = enabled, destructive = destructive, working = working, onClick = onClick)
-
-@Composable
-internal fun ConnectNote(text: String, symbol: String, color: Color, inset: Boolean = true) {
-    Row(
-        Modifier.fillMaxWidth().padding(horizontal = if (inset) DS.spacingL else 0.dp, vertical = if (inset) DS.spacingS else 0.dp),
-        horizontalArrangement = Arrangement.spacedBy(DS.spacingS),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Icon(sfSymbol(symbol), null, Modifier.size(18.dp), tint = color)
-        Text(text, style = MaterialTheme.typography.bodyMedium, color = color)
-    }
-}
-
-@Composable
-internal fun ConnectIconLabel(text: String, symbol: String, headline: Boolean = false) {
-    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(DS.spacingS)) {
-        Icon(sfSymbol(symbol), null, Modifier.size(20.dp), tint = MaterialTheme.colorScheme.primary)
-        Text(
-            text,
-            style = if (headline) MaterialTheme.typography.titleMedium else MaterialTheme.typography.bodyLarge,
-            fontWeight = if (headline) FontWeight.SemiBold else null,
-        )
-    }
-}
-
-/** "vor 5 Minuten" in the app language, kept current (iOS `Text(date, style: .relative)`). */
-@Composable
-internal fun connectRelativeTime(instant: Instant): String {
-    val text by produceState(format(instant), instant) {
-        while (true) {
-            value = format(instant)
-            delay(30_000)
-        }
-    }
-    return text
-}
-
-private fun format(instant: Instant): String {
-    val formatter = RelativeDateTimeFormatter.getInstance(Localization.locale)
-    val seconds = Duration.between(instant, Instant.now()).seconds.coerceAtLeast(0)
-    return when {
-        seconds < 60 -> formatter.format(RelativeDateTimeFormatter.Direction.PLAIN, RelativeDateTimeFormatter.AbsoluteUnit.NOW)
-        seconds < 3600 -> formatter.format((seconds / 60).toDouble(), RelativeDateTimeFormatter.Direction.LAST, RelativeDateTimeFormatter.RelativeUnit.MINUTES)
-        seconds < 86_400 -> formatter.format((seconds / 3600).toDouble(), RelativeDateTimeFormatter.Direction.LAST, RelativeDateTimeFormatter.RelativeUnit.HOURS)
-        else -> formatter.format((seconds / 86_400).toDouble(), RelativeDateTimeFormatter.Direction.LAST, RelativeDateTimeFormatter.RelativeUnit.DAYS)
-    }
-}
-
-// endregion

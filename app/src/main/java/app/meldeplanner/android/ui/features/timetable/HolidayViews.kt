@@ -32,38 +32,13 @@ import app.meldeplanner.android.ui.components.DS
 import app.meldeplanner.android.ui.components.LocalAppModel
 import app.meldeplanner.android.ui.components.sfSymbol
 import app.meldeplanner.android.ui.form.groupShape
-import app.meldeplanner.android.ui.features.tasks.rowAnimation
+import app.meldeplanner.android.ui.rows.rowAnimation
 import app.meldeplanner.android.ui.navigation.MeldoScreen
 import app.meldeplanner.android.ui.theme.MeldoColors
+import app.meldeplanner.android.ui.timetable.UntisColors
+import app.meldeplanner.android.ui.timetable.EmptyStateCard
 
 private val tabular = TextStyle(fontFeatureSettings = "tnum")
-
-/** Banner for the timetable and calendar: "Herbstferien · 19.10.–01.11.". */
-@Composable
-fun HolidayBanner(holiday: Holiday, modifier: Modifier = Modifier) {
-    val model = LocalAppModel.current
-    Row(
-        modifier
-            .fillMaxWidth()
-            // Blue like WebUntis, so holidays look the same everywhere.
-            .background(UntisColors.holiday, RoundedCornerShape(DS.rowRadius))
-            .padding(DS.spacingM)
-            .semantics(mergeDescendants = true) {},
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(DS.spacingM),
-    ) {
-        Icon(sfSymbol("lock.fill"), null, tint = Color.White)
-        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            Text(holiday.name, style = MaterialTheme.typography.titleMedium, color = Color.White)
-            Text(
-                HolidayText.range(holiday, model.calendar),
-                style = MaterialTheme.typography.bodyMedium.merge(tabular),
-                color = Color.White,
-                modifier = Modifier.alpha(0.85f),
-            )
-        }
-    }
-}
 
 /**
  * Mehr → Ferien: the school's current and upcoming holidays. Past ones are left out,

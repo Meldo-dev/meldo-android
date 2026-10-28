@@ -63,6 +63,9 @@ object AbsencesFeature : MeldoFeature {
     @Composable
     override fun Page() = AbsencesScreen()
 
+    override fun screen(link: Link): (@Composable () -> Unit)? =
+        if (link is Link.ExcuseNote) ({ ExcuseNoteScreen(link.absence) }) else null
+
     override val settings: @Composable () -> Unit = { ExcuseSection() }
 }
 

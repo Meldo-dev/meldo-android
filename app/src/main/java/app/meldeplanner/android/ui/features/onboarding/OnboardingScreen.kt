@@ -59,13 +59,13 @@ import app.meldeplanner.android.ui.components.Mascot
 import app.meldeplanner.android.ui.components.MascotMood
 import app.meldeplanner.android.ui.components.rememberReduceMotion
 import app.meldeplanner.android.ui.components.sfSymbol
-import app.meldeplanner.android.ui.features.subjects.SubjectEditorScreen
-import app.meldeplanner.android.ui.features.timetable.TimetableLegend
-import app.meldeplanner.android.ui.features.untis.UntisConnectScreen
+import app.meldeplanner.android.ui.timetable.TimetableLegend
 import app.meldeplanner.android.ui.navigation.LocalNavigator
 import app.meldeplanner.android.ui.navigation.MeldoScreen
 import app.meldeplanner.android.ui.navigation.Navigator
 import kotlinx.coroutines.launch
+import app.meldeplanner.android.ui.navigation.Link
+import app.meldeplanner.android.ui.navigation.rememberLink
 
 /**
  * The first-run tour, port of meldo-ios/MeldePlanner/Features/Onboarding/OnboardingView.swift:
@@ -117,16 +117,9 @@ private fun Tour(navigator: Navigator) {
                     page < lastPage -> FeaturePageView(features[page - 2])
                     else -> SetupPage(
                         // The tour closes by itself once the WebUntis import succeeded.
-                        connectUntis = { navigator.push { UntisConnectScreen(onConnected = { model.finishOnboarding() }) } },
-                        addSubject = {
-                            navigator.push {
-                                SubjectEditorScreen(subject = null, onDismiss = {
-                                    navigator.pop()
-                                    // A saved subject is enough to start: Melden is now one tap away on Start.
-                                    if (model.subjects.isNotEmpty()) model.finishOnboarding()
-                                })
-                            }
-                        },
+                        connectUntis = rememberLink(Link.Page("untis", onDone = { model.finishOnboarding() })),
+                        // A saved subject is enough to start: Melden is now one tap away on Start.
+                        addSubject = rememberLink(Link.NewSubject(onDone = { if (model.subjects.isNotEmpty()) model.finishOnboarding() })),
                         later = { model.finishOnboarding() },
                     )
                 }
@@ -354,7 +347,7 @@ private fun FeaturePageView(feature: FeaturePage) {
 }
 
 @Composable
-private fun SetupPage(connectUntis: () -> Unit, addSubject: () -> Unit, later: () -> Unit) {
+private fun SetupPage(connectUntis: (() -> Unit)?, addSubject: (() -> Unit)?, later: () -> Unit) {
     OnboardingPage {
         OnboardingTitle(L("Wie startest du?"))
         Text(
@@ -362,17 +355,19 @@ private fun SetupPage(connectUntis: () -> Unit, addSubject: () -> Unit, later: (
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         Column(Modifier.padding(top = DS.spacingS), verticalArrangement = Arrangement.spacedBy(DS.spacingM)) {
-            Button(onClick = connectUntis, shapes = ButtonDefaults.shapes(), modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) {
-                Icon(sfSymbol("arrow.triangle.2.circlepath"), null, Modifier.size(20.dp))
-                Spacer(Modifier.size(DS.spacingS))
-                Text(L("Mit WebUntis verbinden"), fontWeight = FontWeight.SemiBold)
+            if (connectUntis != null) {
+                Button(onClick = connectUntis, shapes = ButtonDefaults.shapes(), modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) {
+                    Icon(sfSymbol("arrow.triangle.2.circlepath"), null, Modifier.size(20.dp))
+                    Spacer(Modifier.size(DS.spacingS))
+                    Text(L("Mit WebUntis verbinden"), fontWeight = FontWeight.SemiBold)
+                }
+                Text(
+                    L("Deine Anmeldung geht direkt an WebUntis, nie an Meldo, und bleibt verschlüsselt auf diesem Gerät."),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
             }
-            Text(
-                L("Deine Anmeldung geht direkt an WebUntis, nie an Meldo, und bleibt verschlüsselt auf diesem Gerät."),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            FilledTonalButton(onClick = addSubject, shapes = ButtonDefaults.shapes(), modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) {
+            if (addSubject != null) FilledTonalButton(onClick = addSubject, shapes = ButtonDefaults.shapes(), modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) {
                 Icon(sfSymbol("plus"), null, Modifier.size(20.dp))
                 Spacer(Modifier.size(DS.spacingS))
                 Text(L("Fach selbst anlegen"), fontWeight = FontWeight.SemiBold)

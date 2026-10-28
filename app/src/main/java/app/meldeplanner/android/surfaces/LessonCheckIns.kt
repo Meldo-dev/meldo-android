@@ -19,6 +19,7 @@ import uniffi.melde_ffi.timetableOccurrencesOn
 import java.time.Instant
 import java.time.LocalDate
 import app.meldeplanner.android.model.meldoModel
+import app.meldeplanner.android.core.Notifications
 
 /**
  * "Hast du dich gemeldet?" after each lesson, answerable from the notification

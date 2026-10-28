@@ -1,4 +1,4 @@
-package app.meldeplanner.android.ui.features.statistics
+package app.meldeplanner.android.ui.charts
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.Canvas
@@ -29,13 +29,13 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import app.meldeplanner.android.ui.components.rememberReduceMotion
-import kotlinx.coroutines.launch
 import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.log10
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.pow
+import kotlinx.coroutines.launch
 
 // Compose Canvas counterparts of the Swift Charts used on iOS (BarMark, LineMark +
 // PointMark). Axes follow Swift Charts' defaults: value labels on the trailing side
@@ -44,7 +44,7 @@ import kotlin.math.pow
 // bars/lines that grow in with the theme's spring (instant with Remove animations).
 
 /** Rounded tick values from 0 to at least [maxValue], like Swift Charts' automatic axis. */
-internal fun niceTicks(maxValue: Int, desired: Int = 3): List<Int> {
+fun niceTicks(maxValue: Int, desired: Int = 3): List<Int> {
     val top = max(maxValue, 1)
     val raw = top.toDouble() / desired
     val magnitude = 10.0.pow(floor(log10(raw)))

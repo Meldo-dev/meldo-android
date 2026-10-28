@@ -25,11 +25,14 @@ import app.meldeplanner.android.ui.components.Card
 import app.meldeplanner.android.ui.components.DS
 import app.meldeplanner.android.ui.components.LocalAppModel
 import app.meldeplanner.android.ui.components.sfSymbol
-import app.meldeplanner.android.ui.features.tasks.TaskEditorScreen
-import app.meldeplanner.android.ui.features.tasks.TaskListScreen
 import app.meldeplanner.android.ui.navigation.LocalNavigator
 import app.meldeplanner.android.ui.theme.StateColors
 import java.time.Instant
+import app.meldeplanner.android.ui.rows.CardTaskRow
+import app.meldeplanner.android.ui.rows.CardLink
+import app.meldeplanner.android.ui.rows.NumberText
+import app.meldeplanner.android.ui.navigation.Link
+import app.meldeplanner.android.ui.navigation.rememberLink
 
 /** Homework due soon, check-off in place, and the homework streak. Port of HomeworkCard.swift. */
 @Composable
@@ -39,14 +42,15 @@ fun HomeworkCard(now: Instant, size: CardSize = CardSize.medium) {
     val upcoming = model.upcomingHomework(now, limit = if (size == CardSize.large) 8 else 3)
     val streak = model.homeworkStreak(now)
     val secondary = MaterialTheme.colorScheme.onSurfaceVariant
-    val openAll = { navigator.push { TaskListScreen() } }
+    val openAll = rememberLink(Link.Page("tasks"))
+    val addHomework = rememberLink(Link.NewTask(TaskKind.homework))
     Card(title = L("Hausaufgaben"), symbol = "book") {
         if (size == CardSize.small) {
             Row(horizontalArrangement = Arrangement.spacedBy(DS.spacingS), verticalAlignment = Alignment.Bottom) {
                 NumberText(upcoming.size, MaterialTheme.typography.headlineLarge)
                 Text(L("bald fällig"), style = MaterialTheme.typography.bodySmall, color = secondary, modifier = Modifier.padding(bottom = 6.dp))
             }
-            CardLink(L("Alle"), onClick = openAll)
+            openAll?.let { CardLink(L("Alle"), onClick = it) }
         } else if (upcoming.isEmpty()) {
             Text(L("Für heute und morgen ist alles erledigt."), color = secondary)
         } else {
@@ -65,11 +69,9 @@ fun HomeworkCard(now: Instant, size: CardSize = CardSize.medium) {
                     color = tint,
                     modifier = Modifier.weight(1f),
                 )
-                CardLink(L("Alle"), onClick = openAll)
+                openAll?.let { CardLink(L("Alle"), onClick = it) }
             }
-            CardButton(L("Hausaufgabe eintragen"), "plus") {
-                navigator.push { TaskEditorScreen(task = null, kind = TaskKind.homework, onDismiss = { navigator.pop() }) }
-            }
+            addHomework?.let { CardButton(L("Hausaufgabe eintragen"), "plus", it) }
         }
     }
 }

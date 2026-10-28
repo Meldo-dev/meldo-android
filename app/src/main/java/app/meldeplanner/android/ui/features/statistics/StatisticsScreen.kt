@@ -16,7 +16,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.ui.semantics.semantics
-import app.meldeplanner.android.ui.features.dashboard.NumberText
+import app.meldeplanner.android.ui.rows.NumberText
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -44,6 +44,8 @@ import app.meldeplanner.android.ui.components.sfSymbol
 import app.meldeplanner.android.ui.navigation.MeldoScreen
 import uniffi.melde_ffi.FfiWeekSummary
 import java.time.Instant
+import app.meldeplanner.android.ui.charts.LineChart
+import app.meldeplanner.android.ui.charts.BarChart
 
 // Port of meldo-ios/MeldePlanner/Features/Statistics/StatisticsView.swift.
 

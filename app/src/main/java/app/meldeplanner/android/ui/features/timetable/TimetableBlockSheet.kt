@@ -44,6 +44,9 @@ import app.meldeplanner.android.ui.components.MeldoSegmented
 import app.meldeplanner.android.ui.components.SubjectIcon
 import app.meldeplanner.android.ui.components.TimeText
 import app.meldeplanner.android.ui.components.sfSymbol
+import app.meldeplanner.android.ui.timetable.UntisColors
+import app.meldeplanner.android.ui.timetable.TimetableDates
+import app.meldeplanner.android.ui.timetable.BlockStyle
 
 /**
  * Lesson details. Parallel groups get a tab each (like WebUntis); the student
@@ -54,7 +57,8 @@ import app.meldeplanner.android.ui.components.sfSymbol
 internal fun TimetableBlockSheet(
     block: TimetableBlock,
     onDismiss: () -> Unit,
-    onHomework: (String?) -> Unit,
+    /** Hausaufgabe eintragen; `null` when Aufgaben isn't in this build. */
+    onHomework: ((String?) -> Unit)?,
     onEdit: (Lesson) -> Unit,
 ) {
     val model = LocalAppModel.current
@@ -142,7 +146,7 @@ internal fun TimetableBlockSheet(
                 }
             }
             SheetSection {
-                SheetButton("book", L("Hausaufgabe eintragen")) { onHomework(shown.subjectID) }
+                if (onHomework != null) SheetButton("book", L("Hausaufgabe eintragen")) { onHomework(shown.subjectID) }
                 val lesson = shown.lessonID?.let { id -> model.lessons.firstOrNull { it.id == id } }
                 if (lesson != null) {
                     SheetButton("pencil", L("Bearbeiten")) { onEdit(lesson) }

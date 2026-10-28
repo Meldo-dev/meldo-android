@@ -46,6 +46,13 @@ import app.meldeplanner.android.ui.navigation.MeldoScreen
 import app.meldeplanner.android.ui.theme.StateColors
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import app.meldeplanner.android.ui.rows.connectRelativeTime
+import app.meldeplanner.android.ui.rows.ConnectSection
+import app.meldeplanner.android.ui.rows.ConnectNote
+import app.meldeplanner.android.ui.rows.ConnectList
+import app.meldeplanner.android.ui.rows.ConnectLabeledRow
+import app.meldeplanner.android.ui.rows.ConnectIconLabel
+import app.meldeplanner.android.ui.rows.ConnectActionRow
 
 /**
  * Connect Microsoft Teams: sign in on Microsoft's page, then assignments appear in
