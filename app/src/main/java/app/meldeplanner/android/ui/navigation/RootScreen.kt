@@ -21,8 +21,6 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.material3.NavigationBarItem
-import app.meldeplanner.android.model.teamsAvailable
-import app.meldeplanner.android.model.drivePasswordMissing
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.background
@@ -71,46 +69,7 @@ import app.meldeplanner.android.ui.components.DS
 import app.meldeplanner.android.ui.components.LocalAppModel
 import app.meldeplanner.android.ui.components.SectionHeader
 import app.meldeplanner.android.ui.components.sfSymbol
-import app.meldeplanner.android.ui.features.calendar.CalendarScreen
-import app.meldeplanner.android.ui.features.dashboard.DashboardScreen
-import app.meldeplanner.android.ui.features.exams.ExamListScreen
-import app.meldeplanner.android.ui.features.grades.GradesScreen
-import app.meldeplanner.android.ui.features.more.AboutScreen
-import app.meldeplanner.android.ui.features.more.GoogleDriveScreen
-import app.meldeplanner.android.ui.features.onboarding.OnboardingScreen
-import app.meldeplanner.android.ui.features.more.MoreScreen
-import app.meldeplanner.android.ui.features.more.SettingsScreen
-import app.meldeplanner.android.ui.features.more.StatusScreen
-import app.meldeplanner.android.ui.features.participation.MeldenButton
-import app.meldeplanner.android.ui.features.participation.SubjectPickerSheet
-import app.meldeplanner.android.ui.features.statistics.StatisticsScreen
-import app.meldeplanner.android.ui.features.subjects.SubjectListScreen
-import app.meldeplanner.android.ui.features.tasks.TaskListScreen
-import app.meldeplanner.android.ui.features.timetable.HolidayListScreen
-import app.meldeplanner.android.ui.features.timetable.TimetableScreen
-import app.meldeplanner.android.ui.features.untis.AbsencesScreen
-import app.meldeplanner.android.ui.features.untis.TeamsConnectScreen
-import app.meldeplanner.android.ui.features.untis.UntisConnectScreen
-
-enum class AppTab {
-    home, timetable, calendar, tasks, exams, statistics, more,
-    absences, holidays, untis, teams, drive, subjects, settings, status, about, grades,
-}
-
-private data class Destination(val tab: AppTab, val title: () -> String, val symbol: String)
-
-private val sidebarConnections = listOf(
-    Destination(AppTab.untis, { L("WebUntis") }, "arrow.triangle.2.circlepath"),
-    Destination(AppTab.teams, { L("Microsoft Teams") }, "person.3"),
-    Destination(AppTab.drive, { L("Google Drive") }, "externaldrive"),
-)
-
-private val sidebarApp = listOf(
-    Destination(AppTab.subjects, { L("Fächer") }, "books.vertical"),
-    Destination(AppTab.settings, { L("Einstellungen") }, "gearshape"),
-    Destination(AppTab.status, { L("Status") }, "stethoscope"),
-    Destination(AppTab.about, { L("Über Meldo") }, "info.circle"),
-)
+import app.meldeplanner.android.ui.components.SubjectPickerSheet
 
 /** Something the app was opened for (widget, tile, notification, shortcut). */
 enum class DeepLinkTarget { melden, homework }
@@ -118,27 +77,31 @@ enum class DeepLinkTarget { melden, homework }
 /**
  * Main navigation, port of RootView.swift. Phones show five tabs (the rest lives
  * under Mehr); wide screens (tablets, unfolded foldables) show a permanent drawer
- * with every destination, grouped into Schule and App, like the iPad sidebar. The
- * floating Melden button only appears on Start and Stundenplan.
+ * with every destination, grouped into Schule, Verbindungen and App, like the iPad
+ * sidebar. Every place comes from [features]; the floating Melden button (a feature's
+ * action) only appears on the bar's fixed places, Start and Stundenplan.
  */
 @Composable
-fun RootScreen(model: AppModel, deepLink: DeepLinkTarget?, onDeepLinkHandled: () -> Unit) {
+fun RootScreen(model: AppModel, features: Features, deepLink: DeepLinkTarget?, onDeepLinkHandled: () -> Unit) {
     // The screen chosen under Einstellungen › Leiste und Startseite (tablets have every place).
     val openWide = androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp >= 840
-    var tab by rememberSaveable { mutableStateOf(startTab(model.preferences, openWide)) }
+    var tab by rememberSaveable { mutableStateOf(features.startTab(model.preferences, openWide)?.id.orEmpty()) }
     var pickingSubject by remember { mutableStateOf(false) }
-    val navigators = remember { mutableMapOf<AppTab, Navigator>() }
-    fun navigator(t: AppTab) = navigators.getOrPut(t) { Navigator() }
+    val navigators = remember { mutableMapOf<String, Navigator>() }
+    fun navigator(t: String) = navigators.getOrPut(t) { Navigator() }
+    val home = features.fixedBar.firstOrNull()?.id
+    val action = features.all.firstNotNullOfOrNull { it.action }
+    fun hasAction(t: String) = action != null && features[t]?.placement == Placement.bar
 
     LaunchedEffect(deepLink) {
         when (deepLink) {
             // Any app can send this link, so it never records by itself: the student picks
             // the subject. Widgets, tile and notifications record through LogParticipation.
             DeepLinkTarget.melden -> {
-                tab = AppTab.home
+                home?.let { tab = it }
                 pickingSubject = true
             }
-            DeepLinkTarget.homework -> tab = AppTab.tasks
+            DeepLinkTarget.homework -> if (features.has("tasks")) tab = "tasks"
             null -> return@LaunchedEffect
         }
         onDeepLinkHandled()
@@ -149,15 +112,16 @@ fun RootScreen(model: AppModel, deepLink: DeepLinkTarget?, onDeepLinkHandled: ()
     androidx.lifecycle.compose.LifecycleEventEffect(androidx.lifecycle.Lifecycle.Event.ON_STOP) { focusManager.clearFocus() }
 
     val chromeHaze = dev.chrisbanes.haze.rememberHazeState()
-    CompositionLocalProvider(LocalAppModel provides model, LocalChromeHaze provides chromeHaze) {
+    CompositionLocalProvider(LocalAppModel provides model, LocalFeatures provides features, LocalChromeHaze provides chromeHaze) {
         BoxWithConstraints(Modifier.fillMaxSize()) {
             val wide = maxWidth >= 840.dp
             // Sidebar-only destinations have no phone tab; land on Mehr instead (and back).
             // Also when the student moves a place out of the bar while it is open.
-            val bar = phoneBar(model.preferences)
+            val bar = features.phoneBar(model.preferences).map { it.id }
+            val hub = features.hub?.id
             LaunchedEffect(wide, bar) {
-                if (!wide && tab !in bar) tab = AppTab.more
-                if (wide && tab == AppTab.more) tab = AppTab.settings
+                if (!wide && tab !in bar) (hub ?: bar.firstOrNull())?.let { tab = it }
+                if (wide && tab == hub) (features["settings"] ?: features.placed(Placement.app).firstOrNull())?.let { tab = it.id }
             }
             if (wide) {
                 Row(Modifier.fillMaxSize()) {
@@ -168,19 +132,24 @@ fun RootScreen(model: AppModel, deepLink: DeepLinkTarget?, onDeepLinkHandled: ()
                                 modifier = Modifier.padding(DS.spacingL),
                             )
                             // The bar follows Einstellungen › Leiste und Startseite; the rest is under Schule.
-                            tabletBar(model.preferences).forEach { DrawerItem(Destination(it, { it.title }, it.symbol), tab) { t -> tab = t } }
-                            SectionHeader(L("Schule"))
-                            placesOutsideBar(model.preferences, wide = true).forEach { DrawerItem(Destination(it, { it.title }, it.symbol), tab) { t -> tab = t } }
-                            SectionHeader(L("Verbindungen"))
-                            sidebarConnections.filter { it.tab != AppTab.teams || model.teamsAvailable }.forEach { DrawerItem(it, tab) { t -> tab = t } }
-                            SectionHeader(L("App"))
-                            sidebarApp.forEach { DrawerItem(it, tab) { t -> tab = t } }
+                            features.tabletBar(model.preferences).forEach { DrawerItem(it, tab) { t -> tab = t } }
+                            val sections = listOf(
+                                L("Schule") to features.placesOutsideBar(model.preferences, wide = true),
+                                L("Verbindungen") to features.placed(Placement.connections),
+                                L("App") to features.placed(Placement.app),
+                            )
+                            for ((header, places) in sections) {
+                                val shown = places.filter { it.isAvailable(model) }
+                                if (shown.isEmpty()) continue
+                                SectionHeader(header)
+                                shown.forEach { DrawerItem(it, tab) { t -> tab = t } }
+                            }
                         }
                     }
                     val navInset = androidx.compose.foundation.layout.WindowInsets.navigationBars
                         .asPaddingValues().calculateBottomPadding()
                     Box(Modifier.weight(1f)) {
-                        CompositionLocalProvider(LocalBottomChrome provides navInset) { TabContent(tab, navigator(tab)) }
+                        CompositionLocalProvider(LocalBottomChrome provides navInset) { TabContent(features[tab], navigator(tab), action.takeIf { hasAction(tab) }) }
                     }
                 }
             } else {
@@ -190,7 +159,7 @@ fun RootScreen(model: AppModel, deepLink: DeepLinkTarget?, onDeepLinkHandled: ()
                     .asPaddingValues().calculateBottomPadding()
                 // Melden sits in the bar's accessory on Start and Stundenplan (iOS: tabViewBottomAccessory),
                 // not before the first subject.
-                val melden = (tab == AppTab.home || tab == AppTab.timetable) && navigator(tab).depth == 0 &&
+                val melden = hasAction(tab) && navigator(tab).depth == 0 &&
                     (model.subjects.isNotEmpty() || model.data.untis != null)
                 // Like iOS' tabBarMinimizeBehavior(.onScrollDown): the bar shrinks while scrolling down.
                 var minimized by remember { mutableStateOf(false) }
@@ -209,14 +178,16 @@ fun RootScreen(model: AppModel, deepLink: DeepLinkTarget?, onDeepLinkHandled: ()
                 val chrome = navInset + DS.spacingS * 2 + FloatingBarHeight + if (melden) AccessoryHeight + DS.spacingS else 0.dp
                 Box(Modifier.fillMaxSize().nestedScroll(scrollWatch)) {
                     CompositionLocalProvider(LocalBottomChrome provides chrome) {
-                        TabContent(tab, navigator(tab), floatingMelden = false)
+                        TabContent(features[tab], navigator(tab), action = null)
                     }
                     // One morph on a spring, like iOS: the bar narrows into a circle with the selected tab
                     // while Melden slides down beside it and widens into the freed space (and back).
                     val p by androidx.compose.animation.core.animateFloatAsState(
                         if (minimized) 1f else 0f, MaterialTheme.motionScheme.defaultSpatialSpec(), label = "tab-bar",
                     )
-                    val places = phoneBar(model.preferences).map { Destination(it, { it.title }, it.symbol) }
+                    val places = features.phoneBar(model.preferences)
+                    // Mehr carries a badge when a place under it needs the student (e.g. the Drive password).
+                    val attention = features.all.any { it.placement != Placement.bar && it.needsAttention(model) }
                     BoxWithConstraints(
                         Modifier
                             .align(Alignment.BottomCenter)
@@ -239,7 +210,7 @@ fun RootScreen(model: AppModel, deepLink: DeepLinkTarget?, onDeepLinkHandled: ()
                                 FloatingTabBar(
                                     places = places,
                                     selected = tab,
-                                    badgeOn = { it == AppTab.more && model.drivePasswordMissing },
+                                    badgeOn = { it.placement == Placement.hub && attention },
                                     modifier = Modifier
                                         .wrapContentWidth(Alignment.Start, unbounded = true)
                                         .width(full)
@@ -251,14 +222,14 @@ fun RootScreen(model: AppModel, deepLink: DeepLinkTarget?, onDeepLinkHandled: ()
                             }
                             if (minimized || p > 0.01f) {
                                 // The selected tab as a small circle; tapping it brings the full bar back.
-                                val current = places.firstOrNull { it.tab == tab } ?: places.first()
+                                val current = places.firstOrNull { it.id == tab } ?: places.first()
                                 Box(
                                     Modifier
                                         .size(FloatingBarHeight)
                                         .alpha(((p - 0.5f) * 2f).coerceIn(0f, 1f))
                                         .then(if (minimized) Modifier.clickable { minimized = false } else Modifier),
                                     contentAlignment = Alignment.Center,
-                                ) { Icon(sfSymbol(current.symbol), current.title(), tint = MaterialTheme.colorScheme.primary) }
+                                ) { Icon(sfSymbol(current.symbol), current.title, tint = MaterialTheme.colorScheme.primary) }
                             }
                         }
                         // Drawn last: Melden passes in front of the narrowing bar.
@@ -270,14 +241,14 @@ fun RootScreen(model: AppModel, deepLink: DeepLinkTarget?, onDeepLinkHandled: ()
                                     .width(androidx.compose.ui.unit.lerp(full, full - inline, p))
                                     .height(androidx.compose.ui.unit.lerp(AccessoryHeight, FloatingBarHeight, p))
                                     .floatingSurface(CircleShape),
-                            ) { MeldenButton(inAccessory = true) }
+                            ) { action?.invoke(true) }
                         }
                     }
                 }
             }
             model.storageProblem?.let { StorageBanner(it, Modifier.align(Alignment.TopCenter)) }
         }
-        if (model.showingOnboarding) OnboardingScreen()
+        features.all.forEach { it.Overlay() }
         if (pickingSubject) {
             SubjectPickerSheet(onDismiss = { pickingSubject = false }) { subjectID ->
                 model.recordParticipation(subjectID)
@@ -288,47 +259,28 @@ fun RootScreen(model: AppModel, deepLink: DeepLinkTarget?, onDeepLinkHandled: ()
 }
 
 @Composable
-private fun DrawerItem(d: Destination, selected: AppTab, select: (AppTab) -> Unit) {
+private fun DrawerItem(feature: MeldoFeature, selected: String, select: (String) -> Unit) {
     NavigationDrawerItem(
-        label = { Text(d.title()) },
-        icon = { Icon(sfSymbol(d.symbol), null) },
-        selected = selected == d.tab,
-        onClick = { select(d.tab) },
+        label = { Text(feature.title) },
+        icon = { Icon(sfSymbol(feature.symbol), null) },
+        selected = selected == feature.id,
+        onClick = { select(feature.id) },
     )
 }
 
-/** One tab's content in its own navigation stack; Start and Stundenplan get the Melden button. */
+/**
+ * One tab's content in its own navigation stack. [action]: the floating Melden button on
+ * Start and Stundenplan (phones show it in the bar's accessory instead).
+ */
 @Composable
-private fun TabContent(tab: AppTab, navigator: Navigator, floatingMelden: Boolean = true) {
+private fun TabContent(feature: MeldoFeature?, navigator: Navigator, action: (@Composable (Boolean) -> Unit)?) {
     CompositionLocalProvider(LocalNavigator provides navigator) {
-        // Phones show Melden in the bar's accessory instead of a floating button.
-        val melden = floatingMelden && (tab == AppTab.home || tab == AppTab.timetable)
         val bottomChrome = LocalBottomChrome.current
         Box(Modifier.fillMaxSize()) {
-            CompositionLocalProvider(LocalMeldenClearance provides melden) { navigator.Content {
-                when (tab) {
-                    AppTab.home -> DashboardScreen()
-                    AppTab.timetable -> TimetableScreen()
-                    AppTab.tasks -> TaskListScreen()
-                    AppTab.exams -> ExamListScreen()
-                    AppTab.more -> MoreScreen()
-                    AppTab.calendar -> CalendarScreen()
-                    AppTab.statistics -> StatisticsScreen()
-                    AppTab.grades -> GradesScreen()
-                    AppTab.absences -> AbsencesScreen()
-                    AppTab.holidays -> HolidayListScreen()
-                    AppTab.untis -> UntisConnectScreen()
-                    AppTab.teams -> TeamsConnectScreen()
-                    AppTab.drive -> GoogleDriveScreen()
-                    AppTab.subjects -> SubjectListScreen()
-                    AppTab.settings -> SettingsScreen()
-                    AppTab.status -> StatusScreen()
-                    AppTab.about -> AboutScreen()
-                }
-            } }
+            CompositionLocalProvider(LocalMeldenClearance provides (action != null)) { navigator.Content { feature?.Page() } }
             // Only on the tab's root screen, never on screens pushed from it; above the navigation bar.
-            if (melden && navigator.depth == 0) {
-                Box(Modifier.align(Alignment.BottomEnd).padding(end = DS.spacingL, bottom = bottomChrome + DS.spacingL)) { MeldenButton() }
+            if (action != null && navigator.depth == 0) {
+                Box(Modifier.align(Alignment.BottomEnd).padding(end = DS.spacingL, bottom = bottomChrome + DS.spacingL)) { action(false) }
             }
         }
     }
@@ -366,11 +318,11 @@ private fun Modifier.floatingSurface(shape: androidx.compose.ui.graphics.Shape):
 /** The phone tab bar's tabs; the caller draws the floating pill around them. */
 @Composable
 private fun FloatingTabBar(
-    places: List<Destination>,
-    selected: AppTab,
-    badgeOn: (AppTab) -> Boolean,
+    places: List<MeldoFeature>,
+    selected: String,
+    badgeOn: (MeldoFeature) -> Boolean,
     modifier: Modifier = Modifier,
-    select: (AppTab) -> Unit,
+    select: (String) -> Unit,
 ) {
     val shape = androidx.compose.foundation.shape.RoundedCornerShape(percent = 50)
     val colors = MaterialTheme.colorScheme
@@ -381,7 +333,7 @@ private fun FloatingTabBar(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         places.forEach { place ->
-            val on = place.tab == selected
+            val on = place.id == selected
             val tint = if (on) colors.primary else colors.onSurface
             Column(
                 Modifier
@@ -389,15 +341,15 @@ private fun FloatingTabBar(
                     .fillMaxHeight()
                     .clip(shape)
                     .background(if (on) colors.primary.copy(alpha = 0.14f) else androidx.compose.ui.graphics.Color.Transparent)
-                    .selectable(selected = on, role = androidx.compose.ui.semantics.Role.Tab) { select(place.tab) },
+                    .selectable(selected = on, role = androidx.compose.ui.semantics.Role.Tab) { select(place.id) },
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
             ) {
                 androidx.compose.material3.BadgedBox(
-                    badge = { if (badgeOn(place.tab)) androidx.compose.material3.Badge(containerColor = StateColors.orange()) },
+                    badge = { if (badgeOn(place)) androidx.compose.material3.Badge(containerColor = StateColors.orange()) },
                 ) { Icon(sfSymbol(place.symbol), null, tint = tint, modifier = Modifier.size(24.dp)) }
                 Text(
-                    place.title(), color = tint, maxLines = 1,
+                    place.title, color = tint, maxLines = 1,
                     overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                     style = MaterialTheme.typography.labelSmall,
                     fontWeight = if (on) androidx.compose.ui.text.font.FontWeight.SemiBold else null,

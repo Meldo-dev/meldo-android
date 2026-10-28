@@ -13,10 +13,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import app.meldeplanner.android.model.BackgroundRefresh
-import app.meldeplanner.android.model.DriveState
-import app.meldeplanner.android.model.refreshTeamsIfStale
-import app.meldeplanner.android.model.refreshUntisIfStale
-import app.meldeplanner.android.model.syncWithGoogleDrive
 import app.meldeplanner.android.ui.navigation.DeepLinkTarget
 import app.meldeplanner.android.ui.navigation.RootScreen
 import app.meldeplanner.android.ui.theme.MeldoTheme
@@ -34,7 +30,7 @@ class MainActivity : ComponentActivity() {
             MeldoTheme(model.preferences) {
                 // Rebuild the hierarchy when the language changes so every string re-resolves.
                 key(model.preferences.language) {
-                    RootScreen(model, deepLink) { deepLink = null }
+                    RootScreen(model, meldoFeatures, deepLink) { deepLink = null }
                 }
             }
         }
@@ -45,11 +41,7 @@ class MainActivity : ComponentActivity() {
                 model.refreshSchedules()
                 // Like iOS when the app becomes active: update WebUntis and Teams if due,
                 // then every 30 seconds while the app stays open.
-                launch {
-                    model.syncWithGoogleDrive()
-                    model.refreshUntisIfStale()
-                    model.refreshTeamsIfStale()
-                }
+                launch { model.refreshConnections() }
                 launch { BackgroundRefresh.foregroundLoop(model) }
             }
         }
@@ -59,7 +51,7 @@ class MainActivity : ComponentActivity() {
         super.onStop()
         // Leaving Meldo: sync again in about 5 minutes (only matters with Google Drive on).
         val model = (application as MeldoApp).model
-        if (model.driveState == DriveState.on) BackgroundRefresh.scheduleSoon(this)
+        if (model.wantsRefreshSoon) BackgroundRefresh.scheduleSoon(this)
     }
 
     override fun onNewIntent(intent: Intent) {

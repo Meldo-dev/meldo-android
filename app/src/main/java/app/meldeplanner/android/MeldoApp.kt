@@ -6,14 +6,21 @@ import app.meldeplanner.android.data.LocalStore
 import app.meldeplanner.android.data.SecureStore
 import app.meldeplanner.android.model.AppModel
 import app.meldeplanner.android.model.BackgroundRefresh
-import app.meldeplanner.android.ui.features.more.AppIcons
+import app.meldeplanner.android.model.ModelOwner
+import app.meldeplanner.android.surfaces.SurfacesListener
+import app.meldeplanner.android.ui.components.AppIcons
 
 /**
  * The process-wide app model. Widgets, the Quick Settings tile and notification
  * actions run in this process too, so they share it (and its store lock).
  */
-class MeldoApp : Application() {
-    val model: AppModel by lazy { AppModel(this, LocalStore.standard(this)) }
+class MeldoApp : Application(), ModelOwner {
+    override val model: AppModel by lazy {
+        AppModel(this, LocalStore.standard(this)).also {
+            SurfacesListener.install(it, MainActivity::class.java)
+            meldoFeatures.all.forEach { feature -> feature.install(it) }
+        }
+    }
 
     override fun onCreate() {
         super.onCreate()

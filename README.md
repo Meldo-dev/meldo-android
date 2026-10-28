@@ -34,11 +34,24 @@ Get the APK of the latest version from [Releases](../../releases/latest). It nee
 ## How it's built
 
 ```
-app/        Kotlin + Jetpack Compose app: core, data, model, ui (features, navigation, theme), surfaces (widgets, tile, notifications)
-strings/    Android-only strings, merged with the shared catalog at build time
-core/       meldo-core as a git submodule: Rust crates and the shared string catalog
-scripts/    Security tests, MobSF scan
+app/            The composition root: MainActivity, MeldoApp, the feature list (MeldoFeatures.kt),
+                RootScreen, the manifest, signing and R8
+feature/        One module per feature: timetable, participation (Melden), tasks, exams (Dokumente),
+                grades, calendar, statistics, holidays, subjects, dashboard (Start), onboarding,
+                settings (Mehr, Einstellungen, Über Meldo)
+integration/    Connected services: untis (WebUntis, Abwesenheiten), teams, drive (Google Drive sync)
+surfaces/       Widgets, the Quick Settings tile, notifications, the live lesson, background refresh
+core-android/   engine (Rust core build + Kotlin bindings), l10n (strings), model (AppData, storage,
+                sync format), state (AppModel), ui (design system, shared rows, navigation, feature registry)
+build-logic/    Convention plugins: meldo.android.app, meldo.android.library, meldo.android.feature
+strings/        Android-only strings, merged with the shared catalog at build time
+core/           meldo-core as a git submodule: Rust crates and the shared string catalog
+scripts/        Security tests, MobSF scan
 ```
+
+Dependencies only point down: `app` → features, integrations and `surfaces` → `core-android`. A feature never depends on another feature. Each one exposes a `MeldoFeature` (id, title, symbol, where it sits in the navigation, its page, and optionally links it answers, a section in Einstellungen or a start-up hook). The bar, the tablet sidebar, Mehr and Einstellungen are built from the list in `app/…/MeldoFeatures.kt`, and links between features go by id, so a button for a feature that isn't built in doesn't show.
+
+To leave a feature out of the build, delete its line in `MeldoFeatures.kt`, its `include` in `settings.gradle.kts` and its dependency in `app/build.gradle.kts`. To add one, copy a feature module, give it a `MeldoFeature` and add those three lines. Data is not split: `AppData` and the sync format stay whole in `core-android/model`, so a build without a feature still reads and syncs everything.
 
 Grade math, timetable derivation, WebUntis parsing and statistics are written once in Rust in [meldo-core](https://github.com/meldo-dev/meldo-core), and the iPhone app uses the same code. Gradle builds the Rust core for `arm64-v8a` and `x86_64` with `cargo-ndk` and generates the Kotlin bindings.
 
