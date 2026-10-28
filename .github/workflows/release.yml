@@ -17,6 +17,9 @@ jobs:
     uses: ./.github/workflows/android.yml
     with:
       sign: true
+    # The called job only sees the "release" environment's secrets with inherit. The repo
+    # itself has no secrets, so this hands over nothing else.
+    secrets: inherit
 
   publish:
     name: Publish GitHub Release
