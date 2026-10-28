@@ -1,5 +1,6 @@
 package app.meldeplanner.android.surfaces
 
+import app.meldeplanner.android.ui.R as UiR
 import android.app.Notification
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -177,10 +178,10 @@ object LessonCheckIns {
 
     private fun notification(context: Context, item: Planned): Notification {
         fun action(answer: String, title: String) = Notification.Action.Builder(
-            Icon.createWithResource(context, R.drawable.ic_surfaces_hand), title, answerIntent(context, item, answer),
+            Icon.createWithResource(context, UiR.drawable.ic_meldo_hand), title, answerIntent(context, item, answer),
         ).build()
         return Notification.Builder(context, Notifications.CHANNEL_CHECK_INS)
-            .setSmallIcon(R.drawable.ic_surfaces_hand)
+            .setSmallIcon(UiR.drawable.ic_meldo_hand)
             .setContentTitle(L("%@ ist vorbei", item.subjectName))
             .setContentText(L("Hast du dich gemeldet?"))
             .setGroup("checkins")
