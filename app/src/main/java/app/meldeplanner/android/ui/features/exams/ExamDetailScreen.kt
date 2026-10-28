@@ -60,7 +60,7 @@ import app.meldeplanner.android.model.file
 import app.meldeplanner.android.ui.components.DS
 import app.meldeplanner.android.ui.components.LocalAppModel
 import app.meldeplanner.android.ui.components.sfSymbol
-import app.meldeplanner.android.ui.features.tasks.EmptyState
+import app.meldeplanner.android.ui.rows.EmptyState
 import app.meldeplanner.android.ui.navigation.LocalNavigator
 import app.meldeplanner.android.ui.navigation.MeldoScreen
 import kotlinx.coroutines.Dispatchers

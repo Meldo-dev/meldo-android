@@ -1,4 +1,4 @@
-package app.meldeplanner.android.surfaces
+package app.meldeplanner.android.core
 
 import android.Manifest
 import android.app.AlarmManager

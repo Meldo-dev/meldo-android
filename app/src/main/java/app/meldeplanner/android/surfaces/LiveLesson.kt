@@ -12,6 +12,7 @@ import app.meldeplanner.android.data.SubjectColor
 import app.meldeplanner.android.ui.theme.color
 import java.time.Duration
 import java.time.Instant
+import app.meldeplanner.android.core.Notifications
 
 /**
  * The running (or next) lesson as an Android 16 Live Update: an ongoing

@@ -38,7 +38,7 @@ import app.meldeplanner.android.data.TaskRecurrence
 import app.meldeplanner.android.model.deleteTask
 import app.meldeplanner.android.model.nextLessonDay
 import app.meldeplanner.android.model.upsert
-import app.meldeplanner.android.surfaces.Notifications
+import app.meldeplanner.android.core.Notifications
 import app.meldeplanner.android.ui.components.DS
 import app.meldeplanner.android.ui.components.LocalAppModel
 import app.meldeplanner.android.ui.components.sfSymbol
@@ -54,6 +54,9 @@ import app.meldeplanner.android.ui.form.FormDivider
 import app.meldeplanner.android.ui.form.DateTimeRow
 import app.meldeplanner.android.ui.form.DateRow
 import app.meldeplanner.android.ui.form.ActionRow
+import app.meldeplanner.android.ui.rows.DueText
+import app.meldeplanner.android.ui.rows.transparentFieldColors
+import app.meldeplanner.android.ui.rows.SubjectPickerRow
 
 /**
  * Create or edit a Hausaufgabe or to-do. Port of TaskEditorView.swift.
@@ -235,31 +238,3 @@ fun TaskEditorScreen(
         }
     }
 }
-
-/** `Picker(L("Fach"))` with "Kein Fach" and every subject with its symbol. */
-@Composable
-internal fun SubjectPickerRow(selection: String?, onSelect: (String?) -> Unit) {
-    val model = LocalAppModel.current
-    val subjects = model.subjects
-    PickerRow(
-        L("Fach"),
-        selection,
-        listOf<String?>(null) + subjects.map { it.id },
-        label = { id -> if (id == null) L("Kein Fach") else model.subject(id)?.name ?: L("Kein Fach") },
-        onSelect = onSelect,
-        icon = { id ->
-            model.subject(id)?.let { subject ->
-                { Icon(sfSymbol(subject.symbolName), null, Modifier.size(20.dp), tint = subject.color.color) }
-            }
-        },
-    )
-}
-
-@Composable
-internal fun transparentFieldColors() = TextFieldDefaults.colors(
-    focusedContainerColor = Color.Transparent,
-    unfocusedContainerColor = Color.Transparent,
-    disabledContainerColor = Color.Transparent,
-    focusedIndicatorColor = Color.Transparent,
-    unfocusedIndicatorColor = Color.Transparent,
-)

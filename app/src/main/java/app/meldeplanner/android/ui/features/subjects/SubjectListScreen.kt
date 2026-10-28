@@ -77,7 +77,7 @@ import app.meldeplanner.android.ui.form.SelectionShapes
 import app.meldeplanner.android.ui.form.groupShape
 import app.meldeplanner.android.ui.form.rememberMorph
 import app.meldeplanner.android.ui.form.rememberSelectionProgress
-import app.meldeplanner.android.ui.features.tasks.rowAnimation
+import app.meldeplanner.android.ui.rows.rowAnimation
 import app.meldeplanner.android.ui.navigation.LocalNavigator
 import app.meldeplanner.android.ui.navigation.MeldoScreen
 import app.meldeplanner.android.ui.theme.StateColors

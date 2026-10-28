@@ -87,12 +87,12 @@ import app.meldeplanner.android.ui.components.SubjectIcon
 import app.meldeplanner.android.ui.components.TimeText
 import app.meldeplanner.android.ui.components.WeekdayText
 import app.meldeplanner.android.ui.components.sfSymbol
-import app.meldeplanner.android.ui.features.dashboard.BlockRow
-import app.meldeplanner.android.ui.features.dashboard.UntisExamRow
+import app.meldeplanner.android.ui.rows.BlockRow
+import app.meldeplanner.android.ui.rows.UntisExamRow
 import app.meldeplanner.android.ui.form.DayFormat
-import app.meldeplanner.android.ui.features.timetable.HolidayBanner
-import app.meldeplanner.android.ui.features.untis.AbsenceRow
-import app.meldeplanner.android.ui.features.tasks.TaskRow
+import app.meldeplanner.android.ui.timetable.HolidayBanner
+import app.meldeplanner.android.ui.rows.AbsenceRow
+import app.meldeplanner.android.ui.rows.TaskRow
 import app.meldeplanner.android.ui.form.rememberMinuteNow
 import app.meldeplanner.android.ui.navigation.MeldoScreen
 import app.meldeplanner.android.ui.theme.StateColors

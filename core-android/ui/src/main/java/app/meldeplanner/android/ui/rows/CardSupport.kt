@@ -1,18 +1,18 @@
 @file:OptIn(androidx.compose.material3.ExperimentalMaterial3ExpressiveApi::class)
 
-package app.meldeplanner.android.ui.features.dashboard
+package app.meldeplanner.android.ui.rows
 
 import android.icu.text.DateFormat
 import android.icu.text.MeasureFormat
 import android.icu.util.Measure
 import android.icu.util.MeasureUnit
 import android.icu.util.TimeZone
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.clickable
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -48,13 +48,21 @@ import app.meldeplanner.android.ui.components.sfSymbol
 import app.meldeplanner.android.ui.theme.LocalDarkTheme
 import app.meldeplanner.android.ui.theme.StateColors
 import app.meldeplanner.android.ui.theme.color
-import kotlinx.coroutines.delay
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.Date
+import kotlinx.coroutines.delay
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
+import androidx.compose.ui.text.TextStyle
+import app.meldeplanner.android.ui.components.rememberReduceMotion
 
 /** Dates formatted from an ICU skeleton, like Swift's `Date.FormatStyle` (`.weekday(.wide).day().month()`). */
-internal object DateText {
+object DateText {
     fun skeleton(instant: Instant, skeleton: String, calendar: MeldoCalendar): String {
         val format = DateFormat.getInstanceForSkeleton(skeleton, Localization.locale)
         format.timeZone = TimeZone.getTimeZone(calendar.zone.id)
@@ -83,7 +91,7 @@ internal object DateText {
 
 /** The current time, refreshed every minute (iOS: `TimelineView(.everyMinute)`) or every [periodMillis]. */
 @Composable
-internal fun rememberTickingNow(model: AppModel, periodMillis: Long = 60_000): Instant {
+fun rememberTickingNow(model: AppModel, periodMillis: Long = 60_000): Instant {
     var now by remember { mutableStateOf(model.currentDate) }
     LaunchedEffect(periodMillis) {
         while (true) {
@@ -96,7 +104,7 @@ internal fun rememberTickingNow(model: AppModel, periodMillis: Long = 60_000): I
 }
 
 /** The colors WebUntis uses (port of BlockStyle and the `Color.untis*` palette in TimetableView.swift). */
-internal class CardBlockStyle(val fill: Color, val stripe: Color, val border: Color?, val accent: Color) {
+class CardBlockStyle(val fill: Color, val stripe: Color, val border: Color?, val accent: Color) {
     companion object {
         val untisHoliday = Color(red = 0.42f, green = 0.52f, blue = 0.77f)
         private val untisChange = Color(red = 0.0f, green = 0.50f, blue = 0.38f)
@@ -129,7 +137,7 @@ internal class CardBlockStyle(val fill: Color, val stripe: Color, val border: Co
 }
 
 /** Due date as a short word ("heute", "morgen", weekday or date). Port of DueText. */
-internal object CardDueText {
+object CardDueText {
     fun label(due: Instant, today: Instant, calendar: MeldoCalendar): String =
         when (val days = DateText.daysBetween(today, due, calendar)) {
             0L -> L("heute")
@@ -145,7 +153,7 @@ internal object CardDueText {
  * feedback. On the start screen the row only checks off (iOS passes an empty `onOpen`).
  */
 @Composable
-internal fun CardTaskRow(task: SchoolTask, today: Instant) {
+fun CardTaskRow(task: SchoolTask, today: Instant) {
     val model = LocalAppModel.current
     val haptic = rememberHaptic()
     val subject = model.subject(task.subjectID)
@@ -205,7 +213,7 @@ internal fun CardTaskRow(task: SchoolTask, today: Instant) {
 
 /** A text link styled like a SwiftUI `NavigationLink` inside a card. */
 @Composable
-internal fun CardLink(text: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
+fun CardLink(text: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
     Text(
         text,
         style = MaterialTheme.typography.bodyMedium,
@@ -215,4 +223,33 @@ internal fun CardLink(text: String, onClick: () -> Unit, modifier: Modifier = Mo
             .clickable(onClick = onClick)
             .semantics { contentDescription = text },
     )
+}
+
+/** Tabular digits, like SwiftUI's `.monospacedDigit()`. */
+val TextStyle.digits: TextStyle get() = copy(fontFeatureSettings = "tnum")
+
+/** A number that rolls when it changes (`.contentTransition(.numericText())`). */
+@Composable
+fun NumberText(value: Int, style: TextStyle, color: Color = Color.Unspecified, modifier: Modifier = Modifier) {
+    val reduceMotion = rememberReduceMotion()
+    AnimatedContent(
+        targetState = value,
+        transitionSpec = {
+            if (reduceMotion) {
+                fadeIn() togetherWith fadeOut()
+            } else if (targetState > initialState) {
+                (slideInVertically { it } + fadeIn()) togetherWith (slideOutVertically { -it } + fadeOut())
+            } else {
+                (slideInVertically { -it } + fadeIn()) togetherWith (slideOutVertically { it } + fadeOut())
+            }
+        },
+        label = "number",
+        modifier = modifier,
+    ) { v ->
+        Text(
+            java.text.NumberFormat.getIntegerInstance(app.meldeplanner.android.core.Localization.locale).format(v),
+            style = style.digits,
+            color = color,
+        )
+    }
 }

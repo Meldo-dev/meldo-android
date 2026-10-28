@@ -45,8 +45,8 @@ import app.meldeplanner.android.ui.form.ActionRow
 import app.meldeplanner.android.ui.form.DateRow
 import app.meldeplanner.android.ui.form.FormDivider
 import app.meldeplanner.android.ui.form.FormSection
-import app.meldeplanner.android.ui.features.tasks.SubjectPickerRow
-import app.meldeplanner.android.ui.features.tasks.transparentFieldColors
+import app.meldeplanner.android.ui.rows.SubjectPickerRow
+import app.meldeplanner.android.ui.rows.transparentFieldColors
 import app.meldeplanner.android.ui.navigation.MeldoScreen
 import app.meldeplanner.android.ui.theme.StateColors
 import kotlinx.coroutines.launch

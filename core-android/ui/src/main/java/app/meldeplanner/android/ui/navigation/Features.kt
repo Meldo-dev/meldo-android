@@ -3,6 +3,7 @@ package app.meldeplanner.android.ui.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.staticCompositionLocalOf
 import app.meldeplanner.android.data.TaskKind
+import app.meldeplanner.android.data.UntisAbsenceRecord
 import app.meldeplanner.android.model.AppModel
 
 // The feature registry. Every feature module exposes one or more MeldoFeature values; the
@@ -91,6 +92,9 @@ sealed interface Link {
     data class NewSubject(val onDone: (() -> Unit)? = null) : Link
 
     data class NewLesson(val weekday: Int) : Link
+
+    /** The Entschuldigung for an absence from WebUntis. */
+    data class ExcuseNote(val absence: UntisAbsenceRecord) : Link
 }
 
 /** The app's feature list. */

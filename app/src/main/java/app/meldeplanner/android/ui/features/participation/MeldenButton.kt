@@ -93,7 +93,7 @@ import app.meldeplanner.android.ui.components.LocalAppModel
 import app.meldeplanner.android.ui.components.SubjectIcon
 import app.meldeplanner.android.ui.components.rememberHaptic
 import app.meldeplanner.android.ui.components.sfSymbol
-import app.meldeplanner.android.ui.features.dashboard.rememberTickingNow
+import app.meldeplanner.android.ui.rows.rememberTickingNow
 import app.meldeplanner.android.ui.theme.MeldoColors
 import app.meldeplanner.android.ui.theme.StateColors
 import app.meldeplanner.android.ui.theme.brandColor

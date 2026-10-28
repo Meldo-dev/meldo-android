@@ -18,7 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import app.meldeplanner.android.core.L
-import app.meldeplanner.android.surfaces.Notifications
+import app.meldeplanner.android.core.Notifications
 import app.meldeplanner.android.ui.components.Card
 import app.meldeplanner.android.ui.components.DS
 import app.meldeplanner.android.ui.components.LocalAppModel

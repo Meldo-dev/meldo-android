@@ -34,7 +34,7 @@ import app.meldeplanner.android.R
 import app.meldeplanner.android.core.L
 import app.meldeplanner.android.data.LocalStore
 import app.meldeplanner.android.surfaces.LivePreviewResult
-import app.meldeplanner.android.surfaces.Notifications
+import app.meldeplanner.android.core.Notifications
 import app.meldeplanner.android.surfaces.Surfaces
 import app.meldeplanner.android.ui.components.DS
 import app.meldeplanner.android.ui.components.LocalAppModel

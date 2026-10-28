@@ -97,46 +97,23 @@ import app.meldeplanner.android.ui.components.ProgressRing
 import app.meldeplanner.android.ui.components.TimeText
 import app.meldeplanner.android.ui.components.rememberReduceMotion
 import app.meldeplanner.android.ui.components.sfSymbol
-import app.meldeplanner.android.ui.features.subjects.SubjectEditorScreen
-import app.meldeplanner.android.ui.features.timetable.LessonEditorScreen
-import app.meldeplanner.android.ui.features.untis.AbsencesScreen
-import app.meldeplanner.android.ui.features.untis.UntisConnectScreen
 import app.meldeplanner.android.ui.navigation.LocalNavigator
 import app.meldeplanner.android.ui.navigation.MeldoScreen
 import app.meldeplanner.android.ui.theme.StateColors
 import uniffi.melde_ffi.FfiOccurrence
 import java.time.Instant
+import app.meldeplanner.android.ui.rows.rememberTickingNow
+import app.meldeplanner.android.ui.rows.DateText
+import app.meldeplanner.android.ui.rows.CardLink
+import app.meldeplanner.android.ui.rows.CardBlockStyle
+import app.meldeplanner.android.ui.rows.digits
+import app.meldeplanner.android.ui.rows.NumberText
+import app.meldeplanner.android.ui.rows.UntisExamRow
+import app.meldeplanner.android.ui.rows.BlockRow
+import app.meldeplanner.android.ui.navigation.Link
+import app.meldeplanner.android.ui.navigation.rememberLink
 
 // Port of meldo-ios/MeldePlanner/Features/Dashboard/DashboardView.swift.
-
-/** Tabular digits, like SwiftUI's `.monospacedDigit()`. */
-internal val TextStyle.digits: TextStyle get() = copy(fontFeatureSettings = "tnum")
-
-/** A number that rolls when it changes (`.contentTransition(.numericText())`). */
-@Composable
-internal fun NumberText(value: Int, style: TextStyle, color: Color = Color.Unspecified, modifier: Modifier = Modifier) {
-    val reduceMotion = rememberReduceMotion()
-    AnimatedContent(
-        targetState = value,
-        transitionSpec = {
-            if (reduceMotion) {
-                fadeIn() togetherWith fadeOut()
-            } else if (targetState > initialState) {
-                (slideInVertically { it } + fadeIn()) togetherWith (slideOutVertically { -it } + fadeOut())
-            } else {
-                (slideInVertically { -it } + fadeIn()) togetherWith (slideOutVertically { it } + fadeOut())
-            }
-        },
-        label = "number",
-        modifier = modifier,
-    ) { v ->
-        Text(
-            java.text.NumberFormat.getIntegerInstance(app.meldeplanner.android.core.Localization.locale).format(v),
-            style = style.digits,
-            color = color,
-        )
-    }
-}
 
 /**
  * Home: cards the student arranges and resizes ("Anpassen"), from a day
@@ -166,10 +143,8 @@ fun DashboardScreen() {
         ) {
             if (!setUp) {
                 GettingStartedCard(
-                    addSubject = {
-                        navigator.push { SubjectEditorScreen(subject = null, onDismiss = { navigator.pop() }) }
-                    },
-                    connectUntis = { navigator.push { UntisConnectScreen() } },
+                    addSubject = rememberLink(Link.NewSubject()),
+                    connectUntis = rememberLink(Link.Page("untis")),
                     modifier = Modifier.widthIn(max = 560.dp),
                 )
             } else {
@@ -196,13 +171,8 @@ fun DashboardScreen() {
 @Composable
 private fun DashboardCardView(card: DashboardCard, size: CardSize, now: Instant) {
     val model = LocalAppModel.current
-    val navigator = LocalNavigator.current
     when (card) {
-        DashboardCard.today -> TodayCard(now, size, addLesson = {
-            navigator.push {
-                LessonEditorScreen(lesson = null, weekday = model.calendar.mondayIndex(model.currentDate), onDismiss = { navigator.pop() })
-            }
-        })
+        DashboardCard.today -> TodayCard(now, size, addLesson = rememberLink(Link.NewLesson(model.calendar.mondayIndex(model.currentDate))))
         DashboardCard.weekPreview -> WeekPreviewCard(now, size)
         DashboardCard.participation -> WeekParticipationCard(now, size)
         DashboardCard.streak -> StreakCard(now, size)
@@ -262,7 +232,7 @@ private fun greeting(now: Instant): String {
 }
 
 @Composable
-private fun GettingStartedCard(addSubject: () -> Unit, connectUntis: () -> Unit, modifier: Modifier = Modifier) {
+private fun GettingStartedCard(addSubject: (() -> Unit)?, connectUntis: (() -> Unit)?, modifier: Modifier = Modifier) {
     Card(modifier, title = L("Los geht's"), symbol = "sparkles") {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(DS.spacingL)) {
             Mascot(MascotMood.wave, 88.dp)
@@ -272,12 +242,12 @@ private fun GettingStartedCard(addSubject: () -> Unit, connectUntis: () -> Unit,
                 modifier = Modifier.weight(1f),
             )
         }
-        Button(onClick = addSubject, shapes = ButtonDefaults.shapes(), modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) {
+        if (addSubject != null) Button(onClick = addSubject, shapes = ButtonDefaults.shapes(), modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) {
             Icon(sfSymbol("plus"), null, Modifier.size(18.dp))
             Spacer(Modifier.width(DS.spacingS))
             Text(L("Erstes Fach anlegen"))
         }
-        FilledTonalButton(onClick = connectUntis, shapes = ButtonDefaults.shapes(), modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) {
+        if (connectUntis != null) FilledTonalButton(onClick = connectUntis, shapes = ButtonDefaults.shapes(), modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) {
             Icon(sfSymbol("arrow.triangle.2.circlepath"), null, Modifier.size(18.dp))
             Spacer(Modifier.width(DS.spacingS))
             Text(L("Mit WebUntis verbinden"))
@@ -335,7 +305,7 @@ internal fun CardButton(text: String, symbol: String? = null, onClick: () -> Uni
 
 /** Today's lessons with Untis changes in color; small shows only what's next. */
 @Composable
-private fun TodayCard(now: Instant, size: CardSize, addLesson: () -> Unit) {
+private fun TodayCard(now: Instant, size: CardSize, addLesson: (() -> Unit)?) {
     val model = LocalAppModel.current
     val minuteNow = model.calendar.minuteOfDay(now)
     val blocks = model.timetableBlocks(now)
@@ -358,7 +328,7 @@ private fun TodayCard(now: Instant, size: CardSize, addLesson: () -> Unit) {
             }
             blocks.isEmpty() -> if (model.lessons.isEmpty() && model.data.untisTimetable == null) {
                 Text(L("Noch keine Stunden im Stundenplan."), color = secondary)
-                CardButton(L("Stunde hinzufügen"), "plus", addLesson)
+                addLesson?.let { CardButton(L("Stunde hinzufügen"), "plus", it) }
             } else {
                 Row(horizontalArrangement = Arrangement.spacedBy(DS.spacingM), verticalAlignment = Alignment.CenterVertically) {
                     if (size != CardSize.small) Mascot(MascotMood.sleep, 56.dp)
@@ -424,67 +394,6 @@ private fun nextDayText(next: FfiOccurrence, now: Instant): String {
     if (model.calendar.localDate(date) == model.calendar.localDate(now).plusDays(1)) return L("morgen")
     return DateText.skeleton(date, "EEEE", model.calendar)
 }
-
-/** One lesson in a list, colored like the timetable. Also used by Kalender. */
-@Composable
-fun BlockRow(
-    block: TimetableBlock,
-    isCurrent: Boolean = false,
-    compact: Boolean = false,
-    showInfo: Boolean = false,
-    modifier: Modifier = Modifier,
-) {
-    val style = CardBlockStyle.of(block.kind)
-    val secondary = MaterialTheme.colorScheme.onSurfaceVariant
-    val details = buildList {
-        add(TimeText.range(block.startMinute, block.endMinute))
-        block.room?.let { add(it) }
-        if (!compact && block.teacher.isNotEmpty()) add(block.teacher)
-    }.joinToString(" · ")
-    // The accent bar is exactly as tall as the text next to it (intrinsic height).
-    Row(
-        modifier
-            .fillMaxWidth()
-            .height(IntrinsicSize.Min)
-            .heightIn(min = 38.dp)
-            .padding(vertical = 2.dp)
-            .semantics(mergeDescendants = true) {},
-        horizontalArrangement = Arrangement.spacedBy(DS.spacingM),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Box(
-            Modifier
-                .width(4.dp)
-                .fillMaxHeight()
-                .background(style.stripe, CircleShape),
-        )
-        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(1.dp)) {
-            Text(
-                block.subjectName,
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.SemiBold,
-                textDecoration = if (block.kind == TimetableBlock.Kind.cancelled) TextDecoration.LineThrough else null,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-            Text(details, style = MaterialTheme.typography.bodySmall.digits, color = secondary, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            val info = block.info
-            if (showInfo && info != null) {
-                Text(info, style = MaterialTheme.typography.bodySmall, color = secondary, maxLines = 2, overflow = TextOverflow.Ellipsis)
-            }
-        }
-        val label = CardBlockStyle.label(block.kind)
-        if (isCurrent) {
-            Badge(L("Jetzt"), MaterialTheme.colorScheme.primary)
-        } else if (label != null && !compact) {
-            Badge(label, style.accent)
-        }
-    }
-}
-
-// endregion
-
-// region Week preview
 
 /** The school week at a glance: one mini column per day, changes in color. */
 @Composable
@@ -582,7 +491,7 @@ private fun DayColumn(day: Instant, blocks: List<TimetableBlock>, now: Instant, 
                             .heightIn(min = 20.dp)
                             .background(style.fill, RoundedCornerShape(4.dp))
                             .then(
-                                if (style.border != null) Modifier.border(1.5.dp, style.border, RoundedCornerShape(4.dp)) else Modifier,
+                                style.border?.let { Modifier.border(1.5.dp, it, RoundedCornerShape(4.dp)) } ?: Modifier,
                             ),
                         contentAlignment = Alignment.Center,
                     ) {
@@ -759,47 +668,6 @@ private fun UpcomingExamsCard(now: Instant, size: CardSize) {
     }
 }
 
-/** An exam from WebUntis with a countdown badge. Also used by Kalender and Dokumente. */
-@Composable
-fun UntisExamRow(exam: UntisExamRecord, now: Instant, compact: Boolean = false, modifier: Modifier = Modifier) {
-    val model = LocalAppModel.current
-    val days = DateText.daysBetween(model.calendar.startOfDay(now), exam.date, model.calendar)
-    val secondary = MaterialTheme.colorScheme.onSurfaceVariant
-    // Compact: the row is as tall as its text (intrinsic height), and the accent bar
-    // fills exactly that, instead of stretching to the card's height.
-    Row(
-        modifier
-            .fillMaxWidth()
-            .height(IntrinsicSize.Min)
-            .semantics(mergeDescendants = true) {},
-        horizontalArrangement = Arrangement.spacedBy(DS.spacingM),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Box(Modifier.width(4.dp).fillMaxHeight().background(StateColors.yellow(), CircleShape))
-        Column(Modifier.weight(1f).padding(vertical = 2.dp), verticalArrangement = Arrangement.spacedBy(1.dp)) {
-            Text(
-                if (exam.name.isEmpty()) exam.subject else "${exam.subject} · ${exam.name}",
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.SemiBold,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-            Text(DateText.skeleton(exam.date, "EEEdMMM", model.calendar), style = MaterialTheme.typography.bodySmall, color = secondary)
-            if (!compact && exam.rooms.isNotEmpty()) {
-                Text(exam.rooms.joinToString(", "), style = MaterialTheme.typography.bodySmall, color = secondary)
-            }
-        }
-        Badge(
-            when (days) {
-                0L -> L("heute")
-                1L -> L("morgen")
-                else -> L("in %lld Tagen", days)
-            },
-            StateColors.orange(),
-        )
-    }
-}
-
 @Composable
 private fun SchoolNewsCard(size: CardSize) {
     val model = LocalAppModel.current
@@ -868,7 +736,7 @@ private fun AbsencesCard(@Suppress("UNUSED_PARAMETER") size: CardSize) {
                     Text(L("%lld nicht entschuldigt", open), style = MaterialTheme.typography.bodyMedium, color = StateColors.red())
                 }
             }
-            CardLink(L("Alle"), onClick = { navigator.push { AbsencesScreen() } })
+            rememberLink(Link.Page("absences"))?.let { CardLink(L("Alle"), onClick = it) }
         }
     }
 }
