@@ -1,19 +1,18 @@
 @file:OptIn(ExperimentalMaterial3ExpressiveApi::class)
 
-package app.meldeplanner.android.ui.features.untis
+package app.meldeplanner.android.ui.features.teams
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.LoadingIndicator
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -39,20 +38,22 @@ import app.meldeplanner.android.model.disconnectTeams
 import app.meldeplanner.android.model.refreshTeams
 import app.meldeplanner.android.model.teamsLink
 import app.meldeplanner.android.ui.components.DS
-import app.meldeplanner.android.ui.rows.meldoAnimateItem
 import app.meldeplanner.android.ui.components.LocalAppModel
 import app.meldeplanner.android.ui.components.sfSymbol
+import app.meldeplanner.android.ui.features.untis.TeamsAuthSession
 import app.meldeplanner.android.ui.navigation.MeldoScreen
+import app.meldeplanner.android.ui.rows.ConnectActionRow
+import app.meldeplanner.android.ui.rows.ConnectIconLabel
+import app.meldeplanner.android.ui.rows.ConnectLabeledRow
+import app.meldeplanner.android.ui.rows.ConnectList
+import app.meldeplanner.android.ui.rows.ConnectNote
+import app.meldeplanner.android.ui.rows.ConnectSection
+import app.meldeplanner.android.ui.rows.connectRelativeTime
+import app.meldeplanner.android.ui.rows.meldoAnimateItem
 import app.meldeplanner.android.ui.theme.StateColors
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import app.meldeplanner.android.ui.rows.connectRelativeTime
-import app.meldeplanner.android.ui.rows.ConnectSection
-import app.meldeplanner.android.ui.rows.ConnectNote
-import app.meldeplanner.android.ui.rows.ConnectList
-import app.meldeplanner.android.ui.rows.ConnectLabeledRow
-import app.meldeplanner.android.ui.rows.ConnectIconLabel
-import app.meldeplanner.android.ui.rows.ConnectActionRow
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 
 /**
  * Connect Microsoft Teams: sign in on Microsoft's page, then assignments appear in

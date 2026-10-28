@@ -17,7 +17,7 @@ import app.meldeplanner.android.ui.features.tasks.TasksFeature
 import app.meldeplanner.android.ui.features.holidays.HolidaysFeature
 import app.meldeplanner.android.ui.features.timetable.TimetableFeature
 import app.meldeplanner.android.ui.features.untis.AbsencesFeature
-import app.meldeplanner.android.ui.features.untis.TeamsFeature
+import app.meldeplanner.android.ui.features.teams.TeamsFeature
 import app.meldeplanner.android.ui.features.untis.UntisFeature
 import app.meldeplanner.android.ui.navigation.Features
 
@@ -41,8 +41,8 @@ val meldoFeatures = Features(
         HolidaysFeature,
         // Connections.
         UntisFeature,
-        TeamsFeature,
-        DriveFeature,
+        TeamsFeature(clientID = BuildConfig.TEAMS_CLIENT_ID),
+        DriveFeature(clientID = BuildConfig.GOOGLE_CLIENT_ID),
         // App.
         SubjectsFeature,
         MoreFeature,

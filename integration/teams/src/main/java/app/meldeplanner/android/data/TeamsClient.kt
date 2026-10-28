@@ -28,11 +28,13 @@ import kotlin.coroutines.cancellation.CancellationException
  */
 object TeamsConfig {
     /**
-     * Application (client) ID from the Azure app registration. Not in the repo: it comes
-     * from the MELDO_TEAMS_CLIENT_ID Gradle property (~/.gradle/gradle.properties, a CI
-     * secret). Empty when missing; Teams then shows how to set it up.
+     * Application (client) ID from the Azure app registration. Not in the repo: the app
+     * passes it to [app.meldeplanner.android.ui.features.teams.TeamsFeature] from the
+     * MELDO_TEAMS_CLIENT_ID Gradle property (~/.gradle/gradle.properties, a CI secret).
+     * Empty when missing; Teams then shows how to set it up.
      */
-    val clientID: String = app.meldeplanner.android.BuildConfig.TEAMS_CLIENT_ID
+    var clientID: String = ""
+        internal set
     const val redirectURI = "meldeplanner://auth"
     const val callbackScheme = "meldeplanner"
     const val scopes = "offline_access User.Read EduAssignments.ReadBasic EduRoster.ReadBasic"

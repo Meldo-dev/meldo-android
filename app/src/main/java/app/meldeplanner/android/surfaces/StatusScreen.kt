@@ -32,7 +32,7 @@ import androidx.lifecycle.compose.LifecycleEventEffect
 import app.meldeplanner.android.core.L
 import app.meldeplanner.android.core.Notifications
 import app.meldeplanner.android.data.LocalStore
-import app.meldeplanner.android.model.teamsAvailable
+import app.meldeplanner.android.ui.navigation.LocalFeatures
 import app.meldeplanner.android.surfaces.LivePreviewResult
 import app.meldeplanner.android.surfaces.Surfaces
 import app.meldeplanner.android.ui.R as UiR
@@ -204,7 +204,8 @@ fun StatusScreen() {
                         },
                     )
                     val teams = model.data.teams
-                    if (model.teamsAvailable) StatusRow(
+                    // Only in builds with Teams, once it is switched on.
+                    if (LocalFeatures.current["teams"]?.isAvailable(model) == true) StatusRow(
                         L("Microsoft Teams"),
                         ok = teams != null,
                         detail = if (teams != null) {
