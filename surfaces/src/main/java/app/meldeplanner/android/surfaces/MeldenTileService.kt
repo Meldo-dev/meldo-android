@@ -1,13 +1,12 @@
 package app.meldeplanner.android.surfaces
 
-import app.meldeplanner.android.MainActivity
 import android.net.Uri
 import android.content.Intent
 import android.os.Build
 import android.graphics.drawable.Icon
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
-import app.meldeplanner.android.R
+import app.meldeplanner.android.surfaces.R
 import app.meldeplanner.android.core.L
 import app.meldeplanner.android.core.MeldeEngine
 import java.time.Instant
@@ -42,7 +41,7 @@ class MeldenTileService : TileService() {
                     // Before Android 14 the tile opens the app with an Intent.
                     @Suppress("DEPRECATION")
                     startActivityAndCollapse(
-                        Intent(Intent.ACTION_VIEW, Uri.parse(SurfaceIntents.MELDEN), applicationContext, MainActivity::class.java)
+                        Intent(Intent.ACTION_VIEW, Uri.parse(SurfaceIntents.MELDEN), applicationContext, SurfaceIntents.mainActivity)
                             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
                     )
                 }

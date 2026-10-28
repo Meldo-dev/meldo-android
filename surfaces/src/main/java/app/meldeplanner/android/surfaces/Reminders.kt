@@ -4,7 +4,7 @@ import android.app.Notification
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
-import app.meldeplanner.android.R
+import app.meldeplanner.android.surfaces.R
 import app.meldeplanner.android.core.L
 import app.meldeplanner.android.data.AppData
 import app.meldeplanner.android.data.SchoolTask

@@ -6,7 +6,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.Icon
-import app.meldeplanner.android.R
+import app.meldeplanner.android.surfaces.R
 import app.meldeplanner.android.core.L
 import app.meldeplanner.android.core.MeldeEngine
 import app.meldeplanner.android.core.MeldoCalendar

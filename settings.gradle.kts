@@ -38,6 +38,9 @@ include(
 // Connected services.
 include(":integration:untis", ":integration:teams", ":integration:drive")
 
+// Widgets, the tile, notifications and background refresh.
+include(":surfaces")
+
 // Core modules. They live in core-android/, because core/ is the meldo-core submodule
 // (the Rust workspace and the shared string catalog).
 for (name in listOf("engine", "l10n", "model", "state", "ui")) {

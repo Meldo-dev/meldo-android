@@ -1,5 +1,6 @@
 package app.meldeplanner.android.surfaces
 
+import android.app.Activity
 import android.content.Context
 import app.meldeplanner.android.core.MeldoCalendar
 import app.meldeplanner.android.data.AppData
@@ -13,7 +14,11 @@ import java.time.Instant
  * after-lesson check-ins, the live lesson and task reminders.
  */
 object SurfacesListener : AppModel.Listener {
-    fun install(model: AppModel) = model.addListener(this)
+    /** [mainActivity]: the app's activity, which widgets, the tile and notifications open. */
+    fun install(model: AppModel, mainActivity: Class<out Activity>) {
+        SurfaceIntents.mainActivity = mainActivity
+        model.addListener(this)
+    }
 
     override fun reloadWidgets(context: Context) = Surfaces.reload(context)
 

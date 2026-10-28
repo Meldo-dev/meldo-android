@@ -1,10 +1,10 @@
 package app.meldeplanner.android.surfaces
 
+import android.app.Activity
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import app.meldeplanner.android.MainActivity
 import app.meldeplanner.android.core.L
 import app.meldeplanner.android.model.AppModel
 import app.meldeplanner.android.model.meldoModel
@@ -15,8 +15,11 @@ internal object SurfaceIntents {
     const val MELDEN = "meldeplanner://melden"
     const val HOMEWORK = "meldeplanner://hausaufgaben"
 
+    /** The app's activity, which handles these links; set by [SurfacesListener.install]. */
+    lateinit var mainActivity: Class<out Activity>
+
     fun intent(context: Context, link: String?): Intent =
-        Intent(context, MainActivity::class.java).apply {
+        Intent(context, mainActivity).apply {
             if (link != null) {
                 action = Intent.ACTION_VIEW
                 data = Uri.parse(link)
