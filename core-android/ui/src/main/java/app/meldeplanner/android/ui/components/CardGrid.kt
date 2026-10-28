@@ -64,7 +64,16 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.semantics.CustomAccessibilityAction
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.PathEffect
@@ -513,7 +522,7 @@ private fun <K> CardCell(
     }
 }
 
-/** Dashed outline, remove button, size/position menu and corner handle for resizing. */
+/** Dashed outline, remove button and corner handle for resizing. */
 @Composable
 private fun <K> EditChrome(
     slot: CardSlot<K>,
@@ -523,7 +532,6 @@ private fun <K> EditChrome(
     onShift: (Int) -> Unit,
     modifier: Modifier,
 ) {
-    var menu by remember { mutableStateOf(false) }
     Box(
         modifier.drawWithContent {
             val stroke = 1.5.dp.toPx()
@@ -538,7 +546,7 @@ private fun <K> EditChrome(
             drawContent()
         },
     ) {
-        // Round tonal buttons that morph (round to squircle) while pressed.
+        // Round tonal button that morphs (round to squircle) while pressed.
         FilledTonalIconButton(
             onClick = onHide,
             shapes = IconButtonDefaults.shapes(),
@@ -550,86 +558,80 @@ private fun <K> EditChrome(
         ) {
             Icon(sfSymbol("minus"), L("Ausblenden"), Modifier.size(18.dp))
         }
-        Box(Modifier.align(Alignment.TopEnd).padding(DS.spacingS)) {
-            FilledTonalIconButton(
-                onClick = { menu = true },
-                shapes = IconButtonDefaults.shapes(),
-                modifier = Modifier.size(36.dp).semantics { contentDescription = L("Größe und Position") },
-            ) {
-                Icon(sfSymbol("ellipsis"), null, Modifier.size(18.dp))
-            }
-            MeldoMenu(
-                expanded = menu,
-                onDismiss = { menu = false },
-                groups = listOf(
-                    CardSize.entries.map { size ->
-                        MeldoMenuItem(title = size.title, checked = size == slot.size) { onResize(size) }
-                    },
-                    listOf(
-                        MeldoMenuItem(title = L("Nach vorne"), symbol = "arrow.up") { onShift(-1) },
-                        MeldoMenuItem(title = L("Nach hinten"), symbol = "arrow.down") { onShift(1) },
-                    ),
-                ),
-                labels = listOf(L("Größe"), null),
-            )
-        }
-        ResizeHandle(slot.size, onResize, Modifier.align(Alignment.BottomEnd).padding(DS.spacingXS))
+        ResizeHandle(slot.size, onResize, onShift, Modifier.align(Alignment.BottomEnd))
     }
 }
 
-/** Drag the corner to make a card bigger or smaller, one size step per ~70 dp. */
+/**
+ * The grey handle in a card's bottom corner. Drag it out or in to make the card bigger
+ * or smaller, like a widget on the iOS Home Screen: the card snaps to the next size about
+ * every 60 dp. A tap steps through the sizes.
+ */
 @Composable
-private fun ResizeHandle(size: CardSize, onResize: (CardSize) -> Unit, modifier: Modifier) {
+private fun ResizeHandle(size: CardSize, onResize: (CardSize) -> Unit, onShift: (Int) -> Unit, modifier: Modifier) {
     val currentSize by rememberUpdatedState(size)
     val currentResize by rememberUpdatedState(onResize)
+    val currentShift by rememberUpdatedState(onShift)
     val all = CardSize.entries
-    // While dragged, the round handle morphs to a squircle and grows a little.
     var active by remember { mutableStateOf(false) }
+    // Where the handle sits on screen. It moves with the card while the card resizes, so the
+    // drag is measured in root coordinates, not relative to the handle.
+    var origin by remember { mutableStateOf(Offset.Zero) }
     val reduceMotion = rememberReduceMotion()
-    val morph by animateFloatAsState(
-        targetValue = if (active) 1f else 0f,
+    val width by animateFloatAsState(
+        targetValue = if (active) 6.5f else 5f,
         animationSpec = if (reduceMotion) snap() else MaterialTheme.motionScheme.fastSpatialSpec(),
         label = "handle",
     )
-    Surface(
-        modifier = modifier
-            .size(36.dp)
-            .graphicsLayer {
-                val scale = 1f + 0.12f * morph
-                scaleX = scale; scaleY = scale
-            }
+    val color = MaterialTheme.colorScheme.outline
+    val cycle = { currentResize(all[(all.indexOf(currentSize) + 1) % all.size]) }
+    Box(
+        modifier
+            .size(48.dp)
+            .onGloballyPositioned { origin = it.positionInRoot() }
             .semantics {
                 contentDescription = L("Größe ändern")
                 stateDescription = size.title
+                // Moving a card by dragging it isn't available to TalkBack.
+                customActions = listOf(
+                    CustomAccessibilityAction(L("Nach vorne")) { currentShift(-1); true },
+                    CustomAccessibilityAction(L("Nach hinten")) { currentShift(1); true },
+                )
             }
             .pointerInput(Unit) {
-                val stepPx = 70.dp.toPx()
-                var applied = 0
-                var translation = Offset.Zero
+                val stepPx = 60.dp.toPx()
+                var start: CardSize? = null
+                var startPoint = Offset.Zero
                 detectDragGestures(
-                    onDragStart = { applied = 0; translation = Offset.Zero; active = true },
-                    onDragEnd = { applied = 0; active = false },
-                    onDragCancel = { applied = 0; active = false },
-                ) { change, amount ->
+                    onDragStart = { at -> start = currentSize; startPoint = origin + at; active = true },
+                    onDragEnd = { start = null; active = false },
+                    onDragCancel = { start = null; active = false },
+                ) { change, _ ->
                     change.consume()
-                    translation += amount
-                    val steps = ((translation.x + translation.y) / 2 / stepPx).toInt()
-                    if (steps == applied) return@detectDragGestures
-                    val current = all.indexOf(currentSize).coerceAtLeast(0)
-                    val next = (current + steps - applied).coerceIn(0, all.size - 1)
-                    applied = steps
-                    if (all[next] != currentSize) currentResize(all[next])
+                    val from = start ?: return@detectDragGestures
+                    val reach = origin + change.position - startPoint
+                    val steps = ((reach.x + reach.y) / 2 / stepPx).toInt()
+                    val next = all[(all.indexOf(from) + steps).coerceIn(0, all.size - 1)]
+                    if (next != currentSize) currentResize(next)
                 }
+            }
+            .clickable(interactionSource = null, indication = null, role = Role.Button, onClick = cycle)
+            .drawBehind {
+                val inset = 6.dp.toPx()
+                val radius = DS.cardRadius.toPx() - inset
+                val right = this.size.width - inset
+                val bottom = this.size.height - inset
+                val center = Offset(right - radius, bottom - radius)
+                val tail = radius * 0.45f
+                val path = Path().apply {
+                    moveTo(right, center.y - tail)
+                    lineTo(right, center.y)
+                    arcTo(Rect(center, radius), 0f, 90f, false)
+                    lineTo(center.x - tail, bottom)
+                }
+                drawPath(path, color, style = Stroke(width.dp.toPx(), cap = StrokeCap.Round))
             },
-        shape = RoundedCornerShape(percent = (50 - 20 * morph).roundToInt().coerceIn(30, 50)),
-        color = if (active) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondaryContainer,
-        contentColor = if (active) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondaryContainer,
-        shadowElevation = 3.dp,
-    ) {
-        Box(contentAlignment = Alignment.Center) {
-            Icon(sfSymbol("arrow.up.left.and.arrow.down.right"), null, Modifier.size(18.dp))
-        }
-    }
+    )
 }
 
 @Composable
