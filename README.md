@@ -81,7 +81,7 @@ Issues and pull requests are welcome. Please localize every user-facing string i
 
 ## Privacy
 
-Meldo collects no data. The [privacy policy](https://meldo.dev/datenschutz.html) has the details ([English](https://meldo.dev/privacy.html)).
+Meldo collects no data. The [privacy policy](https://meldo.dev/de/privacy) has the details ([English](https://meldo.dev/en/privacy)).
 
 ## Disclaimer
 
