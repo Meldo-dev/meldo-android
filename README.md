@@ -16,22 +16,20 @@
   <img alt="Rust core" src="https://img.shields.io/badge/core-Rust-B7410E?logo=rust">
 </p>
 
----
-
-> 🇩🇪 Meldo ist ein kostenloser Schulplaner für Schülerinnen und Schüler: Meldungen zählen, Stundenplan (optional aus WebUntis), Noten nach 1–6 oder 0–15 Punkten, Hausaufgaben und Klausuren. Alle Daten bleiben auf deinem Gerät.
+> Meldo ist ein kostenloser Schulplaner für Schülerinnen und Schüler: Meldungen zählen, Stundenplan (optional aus WebUntis), Noten nach 1–6 oder 0–15 Punkten, Hausaufgaben und Klausuren. Alle Daten bleiben auf deinem Gerät.
 
 ## Features
 
-- **Count hand-raises in one tap:** in the app, from a widget or the Quick Settings tile. After each lesson Meldo asks once, for schools where phones stay in the bag.
-- **Timetable:** enter it yourself or import it from your school's WebUntis server, with substitutions, cancellations and room changes. Live Update for the running lesson.
-- **Grades:** averages per subject on the German 1–6 or 0–15 point scale, with your school's weighting and rounding rules as configuration.
-- **Homework and exams:** reminders, exam calendar, worksheet scanning to PDF, optional import of Microsoft Teams assignments, excuse notes.
-- **Private by design:** everything lives on the device. An optional backup and sync goes to *your own* Google Drive, encrypted on the device first (AES-256-GCM, PBKDF2-SHA256 with 600,000 rounds). The format is the same as on iPhone, so both can sync. Meldo has no server.
-- **German and English**, light and dark, Material 3 Expressive.
+- Count a hand-raise with one tap in the app, from a widget or from the Quick Settings tile. If phones have to stay in the bag at your school, Meldo asks once after each lesson instead.
+- Type in your timetable or import it from your school's WebUntis server, including substitutions, cancellations and room changes. The current lesson shows as a Live Update.
+- See your average per subject on the German 1–6 or 0–15 point scale. Your school's weighting and rounding rules are settings, so they can match what your school uses.
+- Keep track of homework and exams with reminders and an exam calendar. You can scan worksheets to PDF, import Microsoft Teams assignments if you want, and write excuse notes.
+- Your data stays on the device, and Meldo has no server. If you turn on backup and sync, it goes to *your own* Google Drive and is encrypted on the device before it leaves (AES-256-GCM, PBKDF2-SHA256 with 600,000 rounds). The format matches the iPhone app, so the two can sync with each other.
+- German and English, light and dark mode, Material 3 Expressive.
 
 ## Download
 
-The APK of the latest version is under [Releases](../../releases/latest) (Android 8 or newer). Website: [meldo.dev](https://meldo.dev). The iPhone app lives in [meldo-ios](https://github.com/meldo-dev/meldo-ios).
+Get the APK of the latest version from [Releases](../../releases/latest). It needs Android 8 or newer. The website is [meldo.dev](https://meldo.dev), and the iPhone app is in [meldo-ios](https://github.com/meldo-dev/meldo-ios).
 
 ## How it's built
 
@@ -55,7 +53,7 @@ Dependencies only point down: `app` → features, integrations and `surfaces` �
 
 To leave a feature out of the build, delete its line in `MeldoFeatures.kt`, its `include` in `settings.gradle.kts` and its dependency in `app/build.gradle.kts`. To add one, copy a feature module, give it a `MeldoFeature` and add those three lines. Data is not split: `AppData` and the sync format stay whole in `core-android/model`, so a build without a feature still reads and syncs everything.
 
-The grade math, timetable derivation, WebUntis parsing and statistics are written once in Rust ([meldo-core](https://github.com/meldo-dev/meldo-core)) and shared with the iPhone app. Gradle builds the Rust core for `arm64-v8a` and `x86_64` with `cargo-ndk` and generates the Kotlin bindings.
+Grade math, timetable derivation, WebUntis parsing and statistics are written once in Rust in [meldo-core](https://github.com/meldo-dev/meldo-core), and the iPhone app uses the same code. Gradle builds the Rust core for `arm64-v8a` and `x86_64` with `cargo-ndk` and generates the Kotlin bindings.
 
 ## Building (JDK 21, Android SDK with NDK 29, Rust)
 
@@ -71,23 +69,23 @@ cargo install cargo-ndk
 cd meldo-android && ./gradlew :app:assembleDebug
 ```
 
-After pulling core changes, run `git submodule update`.
+When you pull changes to the core, run `git submodule update`.
 
 ### Google Drive and Teams (optional)
 
-OAuth client IDs are not in the repository. Without them the app builds and runs, just without Drive backup and Teams import. To enable them with your own Google Cloud / Azure apps, add `MELDO_GOOGLE_CLIENT_ID` and `MELDO_TEAMS_CLIENT_ID` to `~/.gradle/gradle.properties`.
+The OAuth client IDs are not in the repository. The app builds and runs without them; you just won't have Drive backup or the Teams import. To turn those on with your own Google Cloud and Azure apps, add `MELDO_GOOGLE_CLIENT_ID` and `MELDO_TEAMS_CLIENT_ID` to `~/.gradle/gradle.properties`.
 
 ## Contributing
 
-Issues and pull requests are welcome. Please keep every user-facing string localized in German and English, run `./gradlew testDebugUnitTest`, and never commit secrets, keys or client IDs. Security issues: see [SECURITY.md](SECURITY.md).
+Issues and pull requests are welcome. Please localize every user-facing string in German and English, run `./gradlew testDebugUnitTest` before you open a pull request, and don't commit secrets, keys or client IDs. For security issues, see [SECURITY.md](SECURITY.md).
 
 ## Privacy
 
-Meldo collects no data. See the [privacy policy](https://meldo.dev/datenschutz.html) ([English](https://meldo.dev/privacy.html)).
+Meldo collects no data. The [privacy policy](https://meldo.dev/datenschutz.html) has the details ([English](https://meldo.dev/privacy.html)).
 
 ## Disclaimer
 
-Meldo is an independent project and is not affiliated with, endorsed by or connected to Untis GmbH, Microsoft or Google. WebUntis is a trademark of Untis GmbH. Timetables and grades shown in Meldo can differ from your school's records; your school's information is always authoritative.
+Meldo is an independent project and is not affiliated with, endorsed by or connected to Untis GmbH, Microsoft or Google. WebUntis is a trademark of Untis GmbH. Timetables and grades in Meldo can differ from your school's records, and your school's records always take precedence.
 
 ## License
 
