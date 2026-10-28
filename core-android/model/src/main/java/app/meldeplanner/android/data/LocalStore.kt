@@ -50,8 +50,15 @@ class LocalStore(val file: File) {
 
     private fun read(): Result<AppData> {
         if (!file.exists()) return Result.success(AppData())
+        // A file that can't be read right now (an I/O error) is not damaged: no backup, so
+        // `update` never replaces it. Only a file that reads but doesn't decode is.
+        val text = try {
+            file.readText()
+        } catch (e: IOException) {
+            return Result.failure(LoadException.Unreadable(e, null))
+        }
         return try {
-            val decoded = MeldoJson.decodeFromString(AppData.serializer(), file.readText())
+            val decoded = MeldoJson.decodeFromString(AppData.serializer(), text)
             if (decoded.schemaVersion > AppData.CURRENT_SCHEMA_VERSION) {
                 Result.failure(LoadException.NewerSchema(decoded.schemaVersion))
             } else {
