@@ -1,5 +1,6 @@
 package app.meldeplanner.android.surfaces
 
+import app.meldeplanner.android.ui.R as UiR
 import android.app.Notification
 import android.app.NotificationManager
 import android.content.Context
@@ -62,7 +63,7 @@ object Reminders {
         if (!Notifications.hasPermission(context)) return
         Notifications.ensureChannels(context)
         val notification = Notification.Builder(context, Notifications.CHANNEL_REMINDERS)
-            .setSmallIcon(R.drawable.ic_surfaces_hand)
+            .setSmallIcon(UiR.drawable.ic_meldo_hand)
             .setContentTitle(intent.getStringExtra(EXTRA_TITLE) ?: task.title)
             .setContentText(intent.getStringExtra(EXTRA_BODY) ?: L("Noch offen"))
             .setGroup("tasks")

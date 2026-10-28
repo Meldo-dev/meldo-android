@@ -1,5 +1,6 @@
 package app.meldeplanner.android.surfaces
 
+import app.meldeplanner.android.ui.R as UiR
 import android.os.Build
 import android.app.Notification
 import android.content.Context
@@ -70,7 +71,7 @@ internal object LiveLesson {
         val progress = if (beforeStart) 0 else elapsed
 
         val melden = Notification.Action.Builder(
-            Icon.createWithResource(context, R.drawable.ic_surfaces_hand),
+            Icon.createWithResource(context, UiR.drawable.ic_meldo_hand),
             L("Melden"),
             if (previewTaps != null) {
                 Alarms.pendingBroadcast(context, ACTION_PREVIEW_MELDEN, "preview") { putExtra(EXTRA_PREVIEW_TAPS, previewTaps + 1) }
@@ -80,7 +81,7 @@ internal object LiveLesson {
         ).build()
 
         val builder = Notification.Builder(context, Notifications.CHANNEL_LIVE_LESSON)
-            .setSmallIcon(R.drawable.ic_surfaces_hand)
+            .setSmallIcon(UiR.drawable.ic_meldo_hand)
             .setLargeIcon(Icon.createWithBitmap(SymbolBitmaps.get(content.symbolName, 144, color)))
             .setContentTitle(content.subjectName)
             .setContentText(L("%lld× gemeldet · %lld diese Woche", content.count, content.weekTotal))

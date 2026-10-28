@@ -1,5 +1,6 @@
 package app.meldeplanner.android.surfaces
 
+import app.meldeplanner.android.ui.R as UiR
 import android.os.Build
 import android.app.NotificationManager
 import android.app.StatusBarManager
@@ -114,7 +115,7 @@ object Surfaces {
         manager.requestAddTileService(
             ComponentName(context, MeldenTileService::class.java),
             L("Melden"),
-            Icon.createWithResource(context, R.drawable.ic_surfaces_hand),
+            Icon.createWithResource(context, UiR.drawable.ic_meldo_hand),
             context.mainExecutor,
         ) { result ->
             onResult(

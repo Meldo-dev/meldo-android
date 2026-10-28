@@ -3,6 +3,6 @@
 <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
     <background android:drawable="@color/surfaces_meldo_orange" />
     <foreground>
-        <inset android:drawable="@drawable/ic_surfaces_hand" android:inset="30%" />
+        <inset android:drawable="@drawable/ic_meldo_hand" android:inset="30%" />
     </foreground>
 </adaptive-icon>

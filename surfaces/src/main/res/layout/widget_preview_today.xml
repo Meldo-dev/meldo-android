@@ -51,7 +51,7 @@
                 android:background="@drawable/widget_preview_button">
                 <ImageView
                     android:layout_width="24dp" android:layout_height="24dp" android:layout_gravity="center"
-                    android:src="@drawable/ic_surfaces_hand" android:tint="@color/widget_pv_on_primary"
+                    android:src="@drawable/ic_meldo_hand" android:tint="@color/widget_pv_on_primary"
                     android:contentDescription="@string/surfaces_tile_melden" />
             </FrameLayout>
         </LinearLayout>
