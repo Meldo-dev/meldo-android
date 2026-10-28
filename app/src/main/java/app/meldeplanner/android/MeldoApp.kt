@@ -7,9 +7,6 @@ import app.meldeplanner.android.data.SecureStore
 import app.meldeplanner.android.model.AppModel
 import app.meldeplanner.android.model.BackgroundRefresh
 import app.meldeplanner.android.model.ModelOwner
-import app.meldeplanner.android.model.installGoogleDrive
-import app.meldeplanner.android.model.installTeams
-import app.meldeplanner.android.model.installUntis
 import app.meldeplanner.android.surfaces.SurfacesListener
 import app.meldeplanner.android.ui.components.AppIcons
 
@@ -21,9 +18,7 @@ class MeldoApp : Application(), ModelOwner {
     override val model: AppModel by lazy {
         AppModel(this, LocalStore.standard(this)).also {
             SurfacesListener.install(it)
-            it.installUntis()
-            it.installTeams()
-            it.installGoogleDrive()
+            meldoFeatures.all.forEach { feature -> feature.install(it) }
         }
     }
 

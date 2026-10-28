@@ -2,12 +2,6 @@
 
 package app.meldeplanner.android.ui.features.more
 
-import app.meldeplanner.android.ui.navigation.AppTab
-import app.meldeplanner.android.ui.navigation.Page
-import app.meldeplanner.android.ui.navigation.barChoices
-import app.meldeplanner.android.ui.navigation.barSlots
-import app.meldeplanner.android.ui.navigation.symbol
-import app.meldeplanner.android.ui.navigation.title
 import app.meldeplanner.android.ui.theme.MeldoSheet
 import app.meldeplanner.android.ui.theme.MeldoAlertDialog
 import androidx.compose.animation.AnimatedVisibility
@@ -93,7 +87,6 @@ import app.meldeplanner.android.data.CardSize
 import app.meldeplanner.android.data.CardSlot
 import app.meldeplanner.android.data.DashboardCard
 import app.meldeplanner.android.data.defaultHomeLayout
-import app.meldeplanner.android.model.setExcuseDetails
 import app.meldeplanner.android.surfaces.Notifications
 import app.meldeplanner.android.ui.components.DS
 import app.meldeplanner.android.ui.components.LocalAppModel
@@ -101,23 +94,18 @@ import app.meldeplanner.android.ui.components.MeldoMenu
 import app.meldeplanner.android.ui.components.MeldoMenuItem
 import app.meldeplanner.android.ui.components.rememberReduceMotion
 import app.meldeplanner.android.ui.components.sfSymbol
-import app.meldeplanner.android.ui.features.calendar.CalendarScreen
-import app.meldeplanner.android.ui.features.grades.GradeSettingsSheet
-import app.meldeplanner.android.ui.features.grades.GradesScreen
-import app.meldeplanner.android.ui.features.statistics.StatisticsScreen
-import app.meldeplanner.android.ui.features.subjects.SubjectListScreen
-import app.meldeplanner.android.ui.features.timetable.HolidayListScreen
-import app.meldeplanner.android.ui.features.untis.AbsencesScreen
-import app.meldeplanner.android.ui.features.untis.TeamsConnectScreen
-import app.meldeplanner.android.model.teamsAvailable
-import app.meldeplanner.android.model.setTeamsEnabled
-import app.meldeplanner.android.model.drivePasswordMissing
 import app.meldeplanner.android.ui.theme.StateColors
-import app.meldeplanner.android.ui.features.untis.UntisConnectScreen
 import app.meldeplanner.android.ui.navigation.LocalNavigator
-import app.meldeplanner.android.model.DriveState
 import app.meldeplanner.android.model.showOnboardingAgain
+import app.meldeplanner.android.ui.navigation.LocalFeatures
+import app.meldeplanner.android.ui.navigation.MeldoFeature
 import app.meldeplanner.android.ui.navigation.MeldoScreen
+import app.meldeplanner.android.ui.navigation.Placement
+import app.meldeplanner.android.ui.navigation.barChoices
+import app.meldeplanner.android.ui.navigation.barSlots
+import app.meldeplanner.android.ui.navigation.fixedBar
+import app.meldeplanner.android.ui.navigation.placesOutsideBar
+import app.meldeplanner.android.ui.navigation.startTab
 import app.meldeplanner.android.ui.theme.brandColor
 import app.meldeplanner.android.ui.theme.dynamicAccentPreview
 import uniffi.melde_ffi.coreVersion
@@ -135,52 +123,35 @@ import app.meldeplanner.android.ui.rows.FormItemSurface
 import app.meldeplanner.android.ui.rows.ChoiceRow
 import app.meldeplanner.android.ui.rows.ActionRow
 import app.meldeplanner.android.ui.components.AppIcons
-import app.meldeplanner.android.model.driveState
 
 // Port of meldo-ios/MeldePlanner/Features/More/MoreView.swift: the Mehr tab,
 // Einstellungen, Über Meldo, the Start card list and the app icon picker.
 
-/** The phone's Mehr tab. Wide screens list the same destinations in the drawer. */
+/** The phone's Mehr tab: every place outside the bar. Wide screens list them in the drawer. */
 @Composable
 fun MoreScreen() {
     val navigator = LocalNavigator.current
     val model = LocalAppModel.current
+    val features = LocalFeatures.current
     // On phones Kalender and Statistik have no tab of their own (the drawer shows them on wide screens).
     val compact = LocalConfiguration.current.screenWidthDp < 840
+    val sections = listOf(
+        // Everything that isn't in the bar (the student picks the bar's two places), then Ferien.
+        Triple("school", L("Schule"), features.placesOutsideBar(model.preferences, wide = !compact)),
+        Triple("connections", L("Verbindungen"), features.placed(Placement.connections)),
+        Triple("app", L("App"), features.placed(Placement.app)),
+    )
     MeldoScreen(L("Mehr")) { padding ->
         LazyColumn(Modifier.fillMaxSize(), contentPadding = padding) {
-            // Everything that isn't in the bar (the student picks the bar's two places), then Ferien.
-            item(key = "school") {
-                FormSection(header = L("Schule")) {
-                    app.meldeplanner.android.ui.navigation.placesOutsideBar(model.preferences, wide = !compact).forEach { place ->
-                        NavRow(place.title, sfSymbol(place.symbol)) { navigator.push { place.Page() } }
+            for ((key, header, places) in sections) {
+                val shown = places.filter { it.isAvailable(model) }
+                val tour = key == "app" && features.has("onboarding")
+                if (shown.isEmpty() && !tour) continue
+                item(key = key) {
+                    FormSection(header = header) {
+                        shown.forEach { PlaceRow(it) }
+                        if (tour) ActionRow(L("Einführung ansehen"), symbol = "sparkles") { model.showOnboardingAgain() }
                     }
-                }
-            }
-            item(key = "connections") {
-                FormSection(header = L("Verbindungen")) {
-                    NavRow(L("WebUntis"), sfSymbol("arrow.triangle.2.circlepath")) { navigator.push { UntisConnectScreen() } }
-                    if (model.teamsAvailable) {
-                        NavRow(L("Microsoft Teams"), sfSymbol("person.3")) { navigator.push { TeamsConnectScreen() } }
-                    }
-                    NavRow(
-                        L("Google Drive"), sfSymbol("externaldrive"),
-                        trailing = when (model.driveState) {
-                            DriveState.on -> L("An")
-                            DriveState.needsPassword -> L("Passwort fehlt")
-                            else -> L("Aus")
-                        },
-                        trailingAccent = if (model.drivePasswordMissing) StateColors.orange() else null,
-                    ) { navigator.push { GoogleDriveScreen() } }
-                }
-            }
-            item(key = "app") {
-                FormSection(header = L("App")) {
-                    NavRow(L("Fächer"), sfSymbol("books.vertical")) { navigator.push { SubjectListScreen() } }
-                    NavRow(L("Einstellungen"), sfSymbol("gearshape")) { navigator.push { SettingsScreen() } }
-                    NavRow(L("Status: Widgets, Mitteilungen"), sfSymbol("stethoscope")) { navigator.push { StatusScreen() } }
-                    NavRow(L("Über Meldo"), sfSymbol("info.circle")) { navigator.push { AboutScreen() } }
-                    ActionRow(L("Einführung ansehen"), symbol = "sparkles") { model.showOnboardingAgain() }
                 }
             }
             item(key = "end") { Spacer(Modifier.height(DS.spacingXL)) }
@@ -189,13 +160,23 @@ fun MoreScreen() {
 }
 
 @Composable
+private fun PlaceRow(place: MeldoFeature) {
+    val model = LocalAppModel.current
+    val navigator = LocalNavigator.current
+    NavRow(
+        place.menuTitle, sfSymbol(place.symbol),
+        trailing = place.status(model),
+        trailingAccent = if (place.needsAttention(model)) StateColors.orange() else null,
+    ) { navigator.push { place.Page() } }
+}
+
+@Composable
 fun SettingsScreen() {
     val model = LocalAppModel.current
     val navigator = LocalNavigator.current
     val p = model.preferences
     var editingGoal by remember { mutableStateOf(false) }
-    var gradeSettings by remember { mutableStateOf(false) }
-    var excuseDetails by remember { mutableStateOf(false) }
+    val features = LocalFeatures.current
     var notificationsDenied by remember { mutableStateOf(false) }
     val requestNotifications = Notifications.rememberPermissionRequester { allowed ->
         notificationsDenied = !allowed
@@ -269,34 +250,15 @@ fun SettingsScreen() {
                     SwitchRow(L("Live-Update während der Stunde"), p.liveActivities) { model.setLiveActivities(it) }
                 }
             }
-            item(key = "grades") {
-                FormSection(header = L("Noten")) {
-                    NavRow(
-                        L("Notensystem"), sfSymbol("slider.horizontal.3"),
-                        trailing = if (p.gradeScale == app.meldeplanner.android.data.GradeScaleChoice.points) L("Punkte 0–15") else L("Noten 1–6"),
-                    ) { gradeSettings = true }
-                }
-            }
-            item(key = "excuse") {
-                FormSection(header = L("Entschuldigung"), footer = L("Name und Klasse merkt sich Meldo für das nächste Mal.")) {
-                    val who = listOf(p.studentName, p.className).filter { it.isNotEmpty() }.joinToString(" · ")
-                    NavRow(L("Angaben"), sfSymbol("doc.text"), supporting = who.ifEmpty { null }) { excuseDetails = true }
-                }
-            }
-            item(key = "advanced") {
-                FormSection(
-                    header = L("Erweitert"),
-                    footer = L("Schalte das nur ein, wenn deine Schule Meldo für Teams freigegeben hat. Viele Schulen müssen das erst erlauben."),
-                ) {
-                    SwitchRow(L("Microsoft Teams"), p.teamsEnabled) { model.setTeamsEnabled(it) }
-                }
+            // Sections the features add (Noten, Entschuldigung, Erweitert).
+            for (feature in features.all) {
+                val section = feature.settings ?: continue
+                item(key = "feature-${feature.id}") { section() }
             }
             item(key = "end") { Spacer(Modifier.height(DS.spacingXL)) }
         }
     }
     if (editingGoal) WeeklyGoalSheet(onDismiss = { editingGoal = false })
-    if (gradeSettings) GradeSettingsSheet(onDismiss = { gradeSettings = false })
-    if (excuseDetails) ExcuseDetailsDialog(onDismiss = { excuseDetails = false })
 }
 
 /** Accent swatches: Orange, Indigo, Grün and (Android) Material You in the wallpaper's color. */
@@ -442,50 +404,6 @@ private fun WeeklyGoalSheet(onDismiss: () -> Unit) {
     }
 }
 
-/** The student's details for the Entschuldigung, remembered for the next one. */
-@Composable
-private fun ExcuseDetailsDialog(onDismiss: () -> Unit) {
-    val model = LocalAppModel.current
-    val p = model.preferences
-    var name by remember { mutableStateOf(p.studentName) }
-    var className by remember { mutableStateOf(p.className) }
-    var salutation by remember { mutableStateOf(p.excuseSalutation) }
-    var adult by remember { mutableStateOf(p.adultStudent) }
-    MeldoAlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(L("Entschuldigung")) },
-        text = {
-            Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(DS.spacingS)) {
-                OutlinedTextField(name, { name = it }, label = { Text(L("Dein Name")) }, singleLine = true, shape = DS.rowShape)
-                OutlinedTextField(className, { className = it }, label = { Text(L("Klasse")) }, singleLine = true, shape = DS.rowShape)
-                OutlinedTextField(
-                    salutation, { salutation = it }, label = { Text(L("Anrede")) }, singleLine = true,
-                    placeholder = { Text(L("Sehr geehrte Damen und Herren,")) },
-                    shape = DS.rowShape,
-                )
-                Row(
-                    Modifier.fillMaxWidth().clip(DS.rowShape).selectable(adult, role = Role.Switch) { adult = !adult }
-                        .padding(vertical = DS.spacingXS),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(L("Ich bin volljährig"), Modifier.weight(1f))
-                    Switch(checked = adult, onCheckedChange = null)
-                }
-            }
-        },
-        confirmButton = {
-            TextButton(
-                onClick = {
-                    model.setExcuseDetails(name, className, salutation, adult)
-                    onDismiss()
-                },
-                shapes = ButtonDefaults.shapes(),
-            ) { Text(L("Sichern")) }
-        },
-        dismissButton = { TextButton(onClick = onDismiss, shapes = ButtonDefaults.shapes()) { Text(L("Abbrechen")) } },
-    )
-}
-
 @Composable
 fun AboutScreen() {
     val context = LocalContext.current
@@ -502,7 +420,7 @@ fun AboutScreen() {
                     ValueRow(L("Version"), version)
                     ValueRow(L("Rust-Kern"), core)
                     // Wide screens have no Mehr tab; the tour is reopened from here.
-                    ActionRow(L("Einführung ansehen")) { model.showOnboardingAgain() }
+                    if (LocalFeatures.current.has("onboarding")) ActionRow(L("Einführung ansehen")) { model.showOnboardingAgain() }
                 }
             }
             item {
@@ -718,14 +636,15 @@ private fun iconTitle(choice: AppIconChoice): String = when (choice) {
 @Composable
 fun BarSettingsScreen() {
     val model = LocalAppModel.current
-    val slots = barSlots(model.preferences)
-    val opening = app.meldeplanner.android.ui.navigation.startTab(model.preferences, wide = false)
-    fun choose(index: Int, place: AppTab) {
+    val features = LocalFeatures.current
+    val slots = features.barSlots(model.preferences)
+    val opening = features.startTab(model.preferences, wide = false)
+    fun choose(index: Int, place: MeldoFeature) {
         val next = slots.toMutableList()
         // Choosing what the other place shows swaps the two.
         val other = next.indexOf(place)
         if (other >= 0 && other != index) java.util.Collections.swap(next, other, index) else next[index] = place
-        model.setBarTabs(next.map { it.name })
+        model.setBarTabs(next.map { it.id })
     }
     MeldoScreen(L("Leiste und Startseite"), largeTitle = false) { padding ->
         LazyColumn(Modifier.fillMaxSize(), contentPadding = padding) {
@@ -734,13 +653,13 @@ fun BarSettingsScreen() {
                     header = L("Leiste"),
                     footer = L("Start und Stundenplan bleiben immer in der Leiste. Alles andere findest du unter Mehr."),
                 ) {
-                    PlacePicker(L("Dritter Platz"), barChoices, slots[0]) { choose(0, it) }
-                    PlacePicker(L("Vierter Platz"), barChoices, slots[1]) { choose(1, it) }
+                    slots.getOrNull(0)?.let { PlacePicker(L("Dritter Platz"), features.barChoices, it) { p -> choose(0, p) } }
+                    slots.getOrNull(1)?.let { PlacePicker(L("Vierter Platz"), features.barChoices, it) { p -> choose(1, p) } }
                 }
             }
             item(key = "start") {
                 FormSection(header = L("Startseite"), footer = L("Diese Seite zeigt Meldo, wenn du die App öffnest.")) {
-                    PlacePicker(L("Beim Öffnen"), listOf(AppTab.home, AppTab.timetable) + slots, opening) { model.setStartTab(it.name) }
+                    opening?.let { PlacePicker(L("Beim Öffnen"), features.fixedBar + slots, it) { p -> model.setStartTab(p.id) } }
                 }
             }
         }
@@ -749,7 +668,7 @@ fun BarSettingsScreen() {
 
 /** A row showing the chosen place; tapping opens a menu with every option (iOS: menu `Picker`). */
 @Composable
-private fun PlacePicker(title: String, options: List<AppTab>, selected: AppTab, onSelect: (AppTab) -> Unit) {
+private fun PlacePicker(title: String, options: List<MeldoFeature>, selected: MeldoFeature, onSelect: (MeldoFeature) -> Unit) {
     var open by remember { mutableStateOf(false) }
     Box {
         NavRow(title, trailing = selected.title) { open = true }
