@@ -468,8 +468,9 @@ fun BlockRow(
                 overflow = TextOverflow.Ellipsis,
             )
             Text(details, style = MaterialTheme.typography.bodySmall.digits, color = secondary, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            if (showInfo && block.info != null) {
-                Text(block.info, style = MaterialTheme.typography.bodySmall, color = secondary, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            val info = block.info
+            if (showInfo && info != null) {
+                Text(info, style = MaterialTheme.typography.bodySmall, color = secondary, maxLines = 2, overflow = TextOverflow.Ellipsis)
             }
         }
         val label = CardBlockStyle.label(block.kind)

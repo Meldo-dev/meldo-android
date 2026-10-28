@@ -61,7 +61,6 @@ import app.meldeplanner.android.surfaces.LogParticipation
 import app.meldeplanner.android.surfaces.SurfaceIntents
 import app.meldeplanner.android.surfaces.Surfaces
 import app.meldeplanner.android.surfaces.SymbolBitmaps
-import app.meldeplanner.android.surfaces.meldoModel
 import app.meldeplanner.android.ui.theme.MeldoColors
 import app.meldeplanner.android.ui.theme.color
 import kotlinx.coroutines.Dispatchers
@@ -72,6 +71,7 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.time.temporal.ChronoUnit
+import app.meldeplanner.android.model.meldoModel
 
 /** All home screen widgets, `MeldeWidgetsBundle` on iOS. */
 internal object MeldoWidgets {

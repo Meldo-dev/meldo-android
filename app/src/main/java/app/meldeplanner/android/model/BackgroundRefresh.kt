@@ -10,7 +10,6 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
-import app.meldeplanner.android.MeldoApp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -56,9 +55,7 @@ object BackgroundRefresh {
     suspend fun run(model: AppModel) = withContext(Dispatchers.Main) {
         model.reloadFromDisk()
         // Sync first, so a disconnect made on another device is seen before refreshing.
-        model.syncWithGoogleDrive()
-        model.refreshUntisIfStale(untisBackgroundRefreshInterval)
-        model.refreshTeamsIfStale()
+        model.refreshConnections(background = true)
     }
 
     /**
@@ -71,8 +68,7 @@ object BackgroundRefresh {
         while (coroutineContext.isActive) {
             delay(30_000)
             withContext(Dispatchers.Main) {
-                model.syncWithGoogleDrive()
-                model.refreshUntisIfStale()
+                model.refreshConnections(onlyFrequent = true)
             }
         }
     }
@@ -80,10 +76,10 @@ object BackgroundRefresh {
     class Worker(context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
         override suspend fun doWork(): Result {
             // The app's model once it exists; a pure background start creates it here.
-            val model = (applicationContext as MeldoApp).model
+            val model = applicationContext.meldoModel
             BackgroundRefresh.run(model)
             // Keep the 5-minute rhythm only while Google Drive sync is on.
-            if (model.driveState == DriveState.on) scheduleSoon(applicationContext)
+            if (model.wantsRefreshSoon) scheduleSoon(applicationContext)
             return Result.success()
         }
     }

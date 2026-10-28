@@ -11,6 +11,7 @@ import app.meldeplanner.android.R
 import app.meldeplanner.android.core.L
 import app.meldeplanner.android.core.MeldeEngine
 import java.time.Instant
+import app.meldeplanner.android.model.meldoModel
 
 /**
  * Quick Settings tile "Melden", the counterpart of the iOS Control Center /

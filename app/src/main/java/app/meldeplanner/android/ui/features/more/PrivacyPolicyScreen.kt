@@ -12,6 +12,8 @@ import androidx.compose.ui.Modifier
 import app.meldeplanner.android.core.L
 import app.meldeplanner.android.ui.components.DS
 import app.meldeplanner.android.ui.navigation.MeldoScreen
+import app.meldeplanner.android.ui.rows.NoteRow
+import app.meldeplanner.android.ui.rows.FormSection
 
 /**
  * The privacy policy: what Meldo stores, where, and what leaves the device. Meldo has

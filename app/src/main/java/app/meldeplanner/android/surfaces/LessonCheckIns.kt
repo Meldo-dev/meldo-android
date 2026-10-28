@@ -18,6 +18,7 @@ import kotlinx.serialization.json.Json
 import uniffi.melde_ffi.timetableOccurrencesOn
 import java.time.Instant
 import java.time.LocalDate
+import app.meldeplanner.android.model.meldoModel
 
 /**
  * "Hast du dich gemeldet?" after each lesson, answerable from the notification

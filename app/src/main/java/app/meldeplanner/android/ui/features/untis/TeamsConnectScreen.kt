@@ -39,7 +39,7 @@ import app.meldeplanner.android.model.disconnectTeams
 import app.meldeplanner.android.model.refreshTeams
 import app.meldeplanner.android.model.teamsLink
 import app.meldeplanner.android.ui.components.DS
-import app.meldeplanner.android.ui.features.more.meldoAnimateItem
+import app.meldeplanner.android.ui.rows.meldoAnimateItem
 import app.meldeplanner.android.ui.components.LocalAppModel
 import app.meldeplanner.android.ui.components.sfSymbol
 import app.meldeplanner.android.ui.navigation.MeldoScreen

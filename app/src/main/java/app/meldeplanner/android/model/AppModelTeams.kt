@@ -14,10 +14,24 @@ import java.time.Instant
 // Microsoft Teams assignments become homework in Aufgaben.
 // Port of meldo-ios/MeldePlanner/App/AppModel+Teams.swift.
 
-internal const val TEAMS_ACCOUNT = "microsoft-teams"
-
 /** Teams is refreshed at most this often, when the app comes to the foreground. */
 val teamsRefreshInterval: Duration = Duration.ofHours(3)
+
+/** Bumped by "Teams trennen": an import that started earlier stops writing (an [AppModel.part]). */
+class TeamsSession {
+    var generation = 0
+}
+
+private var AppModel.teamsGeneration: Int
+    get() = part(TeamsSession::class, ::TeamsSession).generation
+    set(value) { part(TeamsSession::class, ::TeamsSession).generation = value }
+
+/** Brings in new Teams assignments when the app opens (at most every three hours) and in the background. */
+fun AppModel.installTeams() {
+    addConnection(object : AppModel.Connection {
+        override suspend fun refresh(model: AppModel, background: Boolean) = model.refreshTeamsIfStale()
+    })
+}
 
 val AppModel.teamsLink: TeamsLink? get() = data.teams
 

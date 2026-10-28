@@ -4,6 +4,7 @@ import kotlinx.coroutines.delay
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import app.meldeplanner.android.model.meldoModel
 
 /**
  * Alarms and notification actions of every surface: lesson transitions,

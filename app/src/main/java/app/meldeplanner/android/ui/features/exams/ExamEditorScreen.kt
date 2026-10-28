@@ -41,10 +41,10 @@ import app.meldeplanner.android.ui.components.DS
 import app.meldeplanner.android.ui.components.MeldoSegmented
 import app.meldeplanner.android.ui.components.LocalAppModel
 import app.meldeplanner.android.ui.components.sfSymbol
-import app.meldeplanner.android.ui.features.tasks.ActionRow
-import app.meldeplanner.android.ui.features.tasks.DateRow
-import app.meldeplanner.android.ui.features.tasks.FormDivider
-import app.meldeplanner.android.ui.features.tasks.FormSection
+import app.meldeplanner.android.ui.form.ActionRow
+import app.meldeplanner.android.ui.form.DateRow
+import app.meldeplanner.android.ui.form.FormDivider
+import app.meldeplanner.android.ui.form.FormSection
 import app.meldeplanner.android.ui.features.tasks.SubjectPickerRow
 import app.meldeplanner.android.ui.features.tasks.transparentFieldColors
 import app.meldeplanner.android.ui.navigation.MeldoScreen

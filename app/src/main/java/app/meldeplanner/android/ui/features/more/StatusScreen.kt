@@ -44,6 +44,12 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import uniffi.melde_ffi.coreVersion
 import java.time.Instant
+import app.meldeplanner.android.ui.rows.formatDate
+import app.meldeplanner.android.ui.rows.ValueRow
+import app.meldeplanner.android.ui.rows.StateBadge
+import app.meldeplanner.android.ui.rows.FormSection
+import app.meldeplanner.android.ui.rows.ActionRow
+import app.meldeplanner.android.ui.R as UiR
 
 /**
  * Shows whether widgets, Live Updates and notifications can work on this install,
@@ -87,7 +93,7 @@ fun StatusScreen() {
             delay(5_000)
             Notifications.ensureChannels(app)
             val notification = Notification.Builder(app, Notifications.CHANNEL_CHECK_INS)
-                .setSmallIcon(R.drawable.ic_launcher_monochrome)
+                .setSmallIcon(UiR.drawable.ic_launcher_monochrome)
                 .setContentTitle(L("Meldo"))
                 .setContentText(L("Hast du dich gemeldet?"))
                 .setAutoCancel(true)

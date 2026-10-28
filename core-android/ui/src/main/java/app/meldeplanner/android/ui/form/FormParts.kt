@@ -1,14 +1,11 @@
 @file:OptIn(androidx.compose.material3.ExperimentalMaterial3ExpressiveApi::class)
 
-package app.meldeplanner.android.ui.features.tasks
+package app.meldeplanner.android.ui.form
 
-import app.meldeplanner.android.ui.components.meldoMenuGroupColor
-import app.meldeplanner.android.ui.theme.meldoHairline
-import app.meldeplanner.android.ui.theme.FrostedWindow
-import app.meldeplanner.android.ui.theme.MeldoAlertDialog
-import app.meldeplanner.android.ui.theme.MeldoDatePickerDialog
 import android.icu.text.DateFormat
 import android.icu.util.TimeZone
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.snap
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,21 +16,18 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DropdownMenuGroup
 import androidx.compose.material3.DropdownMenuPopup
-import androidx.compose.material3.MaterialShapes
-import androidx.compose.material3.MenuDefaults
-import androidx.compose.material3.SelectableDropdownMenuItem
-import androidx.compose.material3.toPath
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuDefaults
+import androidx.compose.material3.SelectableDropdownMenuItem
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -41,14 +35,11 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.snap
+import androidx.compose.material3.toPath
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -57,27 +48,34 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.graphics.shapes.Morph
 import androidx.graphics.shapes.RoundedPolygon
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.unit.dp
 import app.meldeplanner.android.core.L
 import app.meldeplanner.android.core.Localization
 import app.meldeplanner.android.core.MeldoCalendar
 import app.meldeplanner.android.model.AppModel
 import app.meldeplanner.android.ui.components.DS
 import app.meldeplanner.android.ui.components.MeldoSegmented
+import app.meldeplanner.android.ui.components.meldoMenuGroupColor
 import app.meldeplanner.android.ui.components.meldoMenuItemColors
 import app.meldeplanner.android.ui.components.rememberReduceMotion
 import app.meldeplanner.android.ui.components.sfSymbol
-import kotlinx.coroutines.delay
+import app.meldeplanner.android.ui.theme.FrostedWindow
+import app.meldeplanner.android.ui.theme.MeldoAlertDialog
+import app.meldeplanner.android.ui.theme.MeldoDatePickerDialog
+import app.meldeplanner.android.ui.theme.meldoHairline
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
+import kotlinx.coroutines.delay
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 // Form building blocks shared by the Aufgaben, Dokumente and Kalender ports: the
 // Material counterparts of SwiftUI's inset grouped `Form`, `Picker`, `Toggle` and
@@ -94,7 +92,7 @@ object DayFormat {
 
 /** The model's clock, refreshed every minute (SwiftUI `TimelineView(.everyMinute)`). */
 @Composable
-internal fun rememberMinuteNow(model: AppModel): Instant {
+fun rememberMinuteNow(model: AppModel): Instant {
     var now by remember { mutableStateOf(model.currentDate) }
     LaunchedEffect(model) {
         while (true) {
@@ -106,7 +104,7 @@ internal fun rememberMinuteNow(model: AppModel): Instant {
 }
 
 /** Shape of row [index] of [count] in a grouped section: large outer corners, small inner ones. */
-internal fun groupShape(index: Int, count: Int): RoundedCornerShape {
+fun groupShape(index: Int, count: Int): RoundedCornerShape {
     val outer = DS.rowRadius
     val inner = DS.innerRadius
     return when {
@@ -119,7 +117,7 @@ internal fun groupShape(index: Int, count: Int): RoundedCornerShape {
 
 /** An inset grouped section with an optional header and footer. */
 @Composable
-internal fun FormSection(
+fun FormSection(
     header: String? = null,
     footer: String? = null,
     content: @Composable ColumnScope.() -> Unit,
@@ -148,7 +146,7 @@ internal fun FormSection(
 }
 
 @Composable
-internal fun FormDivider() = HorizontalDivider(
+fun FormDivider() = HorizontalDivider(
     Modifier.padding(start = DS.spacingL),
     color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
 )
@@ -159,7 +157,7 @@ private val rowColors @Composable get() = ListItemDefaults.colors(containerColor
  * Every value on the right of a form row ("23. Okt. 2026", "Nie", "Normal") uses the
  * same style as its label, in the accent color because it opens a picker.
  */
-internal val formValueStyle: TextStyle @Composable get() = MaterialTheme.typography.bodyLarge
+val formValueStyle: TextStyle @Composable get() = MaterialTheme.typography.bodyLarge
 
 @Composable
 private fun FormValue(text: String, modifier: Modifier = Modifier) =
@@ -167,7 +165,7 @@ private fun FormValue(text: String, modifier: Modifier = Modifier) =
 
 /** `Toggle` in a form. */
 @Composable
-internal fun SwitchRow(title: String, checked: Boolean, onChange: (Boolean) -> Unit) {
+fun SwitchRow(title: String, checked: Boolean, onChange: (Boolean) -> Unit) {
     ListItem(
         headlineContent = { Text(title) },
         trailingContent = { Switch(checked = checked, onCheckedChange = onChange) },
@@ -178,7 +176,7 @@ internal fun SwitchRow(title: String, checked: Boolean, onChange: (Boolean) -> U
 
 /** A `Picker` row: the label and the current value; tapping opens the options. */
 @Composable
-internal fun <T> PickerRow(
+fun <T> PickerRow(
     title: String,
     selection: T,
     options: List<T>,
@@ -205,7 +203,7 @@ internal fun <T> PickerRow(
  * rounded group, the chosen option highlighted with a check mark.
  */
 @Composable
-internal fun <T> OptionsMenu(
+fun <T> OptionsMenu(
     expanded: Boolean,
     onDismiss: () -> Unit,
     selection: T,
@@ -244,7 +242,7 @@ options.forEachIndexed { index, option ->
 
 /** `Picker(.segmented)`: Expressive connected toggle buttons ([MeldoSegmented]). */
 @Composable
-internal fun <T> SegmentedPicker(
+fun <T> SegmentedPicker(
     selection: T,
     options: List<T>,
     label: (T) -> String,
@@ -256,7 +254,7 @@ internal fun <T> SegmentedPicker(
 
 /** A button row inside a form (iOS: `Button` with a `Label`). */
 @Composable
-internal fun ActionRow(title: String, icon: ImageVector? = null, color: Color = MaterialTheme.colorScheme.primary, onClick: () -> Unit) {
+fun ActionRow(title: String, icon: ImageVector? = null, color: Color = MaterialTheme.colorScheme.primary, onClick: () -> Unit) {
     ListItem(
         headlineContent = { Text(title, color = color) },
         leadingContent = icon?.let { { Icon(it, null, tint = color, modifier = Modifier.size(22.dp)) } },
@@ -268,7 +266,7 @@ internal fun ActionRow(title: String, icon: ImageVector? = null, color: Color = 
 /** `DatePicker(displayedComponents: .date)`: [value] is a local day (midnight). */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun DateRow(title: String, value: Instant, calendar: MeldoCalendar, onChange: (Instant) -> Unit) {
+fun DateRow(title: String, value: Instant, calendar: MeldoCalendar, onChange: (Instant) -> Unit) {
     var open by remember { mutableStateOf(false) }
     ListItem(
         headlineContent = { Text(title) },
@@ -294,7 +292,7 @@ internal fun DateRow(title: String, value: Instant, calendar: MeldoCalendar, onC
 /** `DatePicker` with date and time. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun DateTimeRow(title: String, value: Instant, calendar: MeldoCalendar, onChange: (Instant) -> Unit) {
+fun DateTimeRow(title: String, value: Instant, calendar: MeldoCalendar, onChange: (Instant) -> Unit) {
     var pickingDate by remember { mutableStateOf(false) }
     var pickingTime by remember { mutableStateOf(false) }
     ListItem(
@@ -360,7 +358,7 @@ private fun localDate(utcMillis: Long): LocalDate = Instant.ofEpochMilli(utcMill
  * A shape between two Material shapes: [progress] 0 is the [Morph]'s start, 1 its end.
  * Selected swatches, symbols, days and check circles morph with the theme's spatial motion.
  */
-internal class MorphShape(private val morph: Morph, private val progress: Float) : Shape {
+class MorphShape(private val morph: Morph, private val progress: Float) : Shape {
     override fun createOutline(size: Size, layoutDirection: LayoutDirection, density: Density): Outline {
         val path = morph.toPath(progress.coerceIn(0f, 1f))
         val matrix = Matrix()
@@ -372,11 +370,11 @@ internal class MorphShape(private val morph: Morph, private val progress: Float)
 
 /** A remembered [Morph] from [start] to [end] (both normalized Material shapes). */
 @Composable
-internal fun rememberMorph(start: RoundedPolygon, end: RoundedPolygon): Morph = remember(start, end) { Morph(start, end) }
+fun rememberMorph(start: RoundedPolygon, end: RoundedPolygon): Morph = remember(start, end) { Morph(start, end) }
 
 /** 0 -> 1 as [selected] turns on, with the theme's spatial spring; instant with Remove animations. */
 @Composable
-internal fun rememberSelectionProgress(selected: Boolean, label: String = "selection"): Float {
+fun rememberSelectionProgress(selected: Boolean, label: String = "selection"): Float {
     val reduceMotion = rememberReduceMotion()
     val spec = if (reduceMotion) snap() else MaterialTheme.motionScheme.defaultSpatialSpec<Float>()
     val value by animateFloatAsState(if (selected) 1f else 0f, spec, label = label)
@@ -384,7 +382,7 @@ internal fun rememberSelectionProgress(selected: Boolean, label: String = "selec
 }
 
 /** Material shapes used for selection across the planner. */
-internal object SelectionShapes {
+object SelectionShapes {
     val circle: RoundedPolygon get() = MaterialShapes.Circle
     val square: RoundedPolygon get() = MaterialShapes.Square
     val cookie: RoundedPolygon get() = MaterialShapes.Cookie9Sided

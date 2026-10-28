@@ -12,8 +12,9 @@ import app.meldeplanner.android.data.GoogleClient
 import app.meldeplanner.android.data.PlayAuthorization
 import app.meldeplanner.android.data.GoogleDriveFiles
 import app.meldeplanner.android.data.GoogleFailure
-import app.meldeplanner.android.surfaces.Reminders
-import app.meldeplanner.android.surfaces.Surfaces
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -37,6 +38,71 @@ enum class DriveState {
     /** Signed in; the backup password is still needed on this device. */
     needsPassword,
     on,
+}
+
+/** This device's Google Drive connection (an [AppModel.part]). */
+class DriveSession {
+    var state: DriveState by mutableStateOf(DriveState.off)
+    var isSyncing: Boolean by mutableStateOf(false)
+
+    /** The connected Google account's email address. */
+    var account: String? by mutableStateOf(null)
+    var lastSync: Instant? by mutableStateOf(null)
+    var problem: String? by mutableStateOf(null)
+
+    /** Bumped by "Google Drive trennen": work that started earlier stops writing. */
+    var generation = 0
+    var access: GoogleClient.Tokens? = null
+    var syncJob: kotlinx.coroutines.Job? = null
+    var runJob: kotlinx.coroutines.Deferred<Unit>? = null
+}
+
+private val AppModel.drive: DriveSession get() = part(DriveSession::class, ::DriveSession)
+
+var AppModel.driveState: DriveState
+    get() = drive.state
+    set(value) { drive.state = value }
+var AppModel.isSyncingWithDrive: Boolean
+    get() = drive.isSyncing
+    set(value) { drive.isSyncing = value }
+var AppModel.driveAccount: String?
+    get() = drive.account
+    set(value) { drive.account = value }
+var AppModel.lastDriveSync: Instant?
+    get() = drive.lastSync
+    set(value) { drive.lastSync = value }
+var AppModel.driveProblem: String?
+    get() = drive.problem
+    set(value) { drive.problem = value }
+private var AppModel.driveGeneration: Int
+    get() = drive.generation
+    set(value) { drive.generation = value }
+private var AppModel.driveAccess: GoogleClient.Tokens?
+    get() = drive.access
+    set(value) { drive.access = value }
+private var AppModel.driveSyncJob: kotlinx.coroutines.Job?
+    get() = drive.syncJob
+    set(value) { drive.syncJob = value }
+private var AppModel.driveRunJob: kotlinx.coroutines.Deferred<Unit>?
+    get() = drive.runJob
+    set(value) { drive.runJob = value }
+
+/**
+ * Starts Google Drive sync for the app's model: restores this device's connection,
+ * syncs after every change and in the app's refresh rhythm.
+ */
+fun AppModel.installGoogleDrive() {
+    if (store == null || storageProblem != null) return
+    restoreDriveState()
+    addListener(object : AppModel.Listener {
+        override fun saved(model: AppModel) = model.scheduleDriveSync()
+    })
+    addConnection(object : AppModel.Connection {
+        override suspend fun refresh(model: AppModel, background: Boolean) = model.syncWithGoogleDrive()
+        override val frequent get() = true
+        override val syncsData get() = true
+        override fun wantsSoon(model: AppModel) = model.driveState == DriveState.on
+    })
 }
 
 internal const val DRIVE_TOKEN_ACCOUNT = "google-drive"
@@ -276,37 +342,12 @@ internal fun AppModel.applyMerged(before: AppData) {
         for (task in before.tasks) {
             if (task in data.tasks) continue
             val now = data.tasks.firstOrNull { it.id == task.id }
-            if (now != null) Reminders.schedule(context, now, subject(now.subjectID)?.name) else Reminders.cancel(context, task.id)
+            notify { if (now != null) scheduleReminder(context, now, subject(now.subjectID)?.name) else cancelReminder(context, task.id) }
         }
         for (task in data.tasks) {
-            if (task.id !in earlier && task.reminderAt != null) Reminders.schedule(context, task, subject(task.subjectID)?.name)
+            if (task.id !in earlier && task.reminderAt != null) notify { scheduleReminder(context, task, subject(task.subjectID)?.name) }
         }
-        Surfaces.reload(context)
+        notify { reloadWidgets(context) }
     }
     refreshSchedules()
 }
-
-// region Onboarding
-
-/**
- * Who sees the first-run tour. Only new students: an existing student who updates
- * already has subjects or a WebUntis connection and never gets it, even though their
- * file predates the "seen" flag.
- */
-object Onboarding {
-    fun shouldShow(seen: Boolean, hasSubjects: Boolean, hasUntis: Boolean): Boolean = !seen && !hasSubjects && !hasUntis
-}
-
-/** Finished or skipped (including closing it): never shown again on its own. */
-fun AppModel.finishOnboarding() {
-    showingOnboarding = false
-    if (data.preferences.onboardingSeen) return
-    mutate { it.preferences.onboardingSeen = true }
-}
-
-/** From "Einführung ansehen" in Mehr and Über Meldo. */
-fun AppModel.showOnboardingAgain() {
-    showingOnboarding = true
-}
-
-// endregion
