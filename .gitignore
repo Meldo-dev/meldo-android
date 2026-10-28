@@ -1,0 +1,19 @@
+.gradle/
+build/
+local.properties
+.idea/
+*.iml
+.kotlin/
+/app/src/main/jniLibs/
+*.apk
+
+# Rust build output inside the core submodule
+/core/target/
+# Signing keys and secrets
+*.jks
+*.keystore
+.env
+.env.*
+*.pem
+*.key
+.DS_Store

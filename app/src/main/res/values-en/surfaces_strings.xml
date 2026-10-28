@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="surfaces_widget_today">Meldo</string>
+    <string name="surfaces_widget_today_description">Current lesson, this week\'s contributions and one-tap logging.</string>
+    <string name="surfaces_widget_stats">Meldo Statistics</string>
+    <string name="surfaces_widget_stats_description">Your contributions this week.</string>
+    <string name="surfaces_widget_schedule">Today\'s timetable</string>
+    <string name="surfaces_widget_schedule_description">Your lessons today, cancellations crossed out.</string>
+    <string name="surfaces_widget_homework">Homework</string>
+    <string name="surfaces_widget_homework_description">What\'s due soon.</string>
+    <string name="surfaces_widget_holidays">Holiday countdown</string>
+    <string name="surfaces_widget_holidays_description">Days until the next holidays.</string>
+
+    <string name="surfaces_tile_melden">Raise hand</string>
+    <string name="surfaces_shortcut_melden">Raise hand</string>
+    <string name="surfaces_shortcut_melden_long">Record contribution</string>
+</resources>

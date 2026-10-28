@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Static preview in the widget picker; the placed widget is drawn by Glance. Same look:
+     translucent Material You panel, tonal tiles, Expressive shapes. RemoteViews-safe views only. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@android:id/background"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="@drawable/widget_preview_background" android:clipToOutline="true">
+    <ImageView
+        android:layout_width="match_parent" android:layout_height="match_parent"
+        android:scaleType="fitXY" android:src="@drawable/widget_glow"
+        android:tint="@color/widget_pv_primary" android:importantForAccessibility="no" />
+    <LinearLayout
+        android:layout_width="match_parent" android:layout_height="match_parent"
+        android:orientation="vertical" android:padding="14dp">
+        <TextView
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="@string/wp_holidays" android:fontFamily="sans-serif-medium"
+            android:textColor="@color/widget_pv_on_surface_variant" android:textSize="12sp" android:maxLines="1" />
+        <!-- Spacer (RemoteViews allow no plain View). -->
+        <TextView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" />
+        <LinearLayout
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:gravity="center_vertical" android:orientation="horizontal">
+            <FrameLayout android:layout_width="84dp" android:layout_height="84dp">
+                <ImageView
+                    android:layout_width="match_parent" android:layout_height="match_parent"
+                    android:src="@drawable/widget_shape_sunny" android:tint="@color/widget_pv_primary" android:importantForAccessibility="no" />
+                <TextView
+                    android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center"
+                    android:text="@string/wp_days"
+                    android:textColor="@color/widget_pv_on_primary" android:textSize="44sp" android:textStyle="bold" android:maxLines="1" />
+            </FrameLayout>
+            <TextView
+                android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                android:layout_marginStart="10dp" android:text="@string/wp_days_until"
+                android:textColor="@color/widget_pv_on_surface" android:textSize="15sp" android:textStyle="bold" android:maxLines="2" />
+        </LinearLayout>
+        <!-- Spacer (RemoteViews allow no plain View). -->
+        <TextView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" />
+        <TextView
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="@string/wp_holiday_name" android:fontFamily="sans-serif-medium"
+            android:textColor="@color/widget_pv_on_surface_variant" android:textSize="13sp" android:maxLines="1" />
+    </LinearLayout>
+</FrameLayout>

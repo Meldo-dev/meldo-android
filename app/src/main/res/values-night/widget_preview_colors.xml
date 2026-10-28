@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Static widget previews (dark): the app's default accent scheme (orange, as in MeldoTheme),
+     so the picker matches what a default user gets after placing. Panel 82/86 %, tiles 90 %. -->
+<resources>
+    <color name="widget_pv_panel">#DB221C18</color>
+    <color name="widget_pv_primary">#FFFFB68E</color>
+    <color name="widget_pv_on_primary">#FF542100</color>
+    <color name="widget_pv_tile_primary">#E6773300</color>
+    <color name="widget_pv_on_primary_container">#FFFFDBC9</color>
+    <color name="widget_pv_tile_secondary">#E65C4132</color>
+    <color name="widget_pv_on_secondary_container">#FFFFDBC9</color>
+    <color name="widget_pv_on_surface">#FFF0DFD7</color>
+    <color name="widget_pv_on_surface_variant">#FFD9C4B9</color>
+    <color name="widget_pv_track">#38FFB68E</color>
+</resources>

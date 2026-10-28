@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Permissions (each with its reason). -->
+    <!-- MANIFEST:PERMISSIONS -->
+    <!-- Surfaces: check-ins after a lesson, task reminders and the live lesson notification. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Surfaces: shows the running lesson as a Live Update (status bar chip, top of the shade). -->
+    <uses-permission android:name="android.permission.POST_PROMOTED_NOTIFICATIONS" />
+    <!-- Surfaces: "Hast du dich gemeldet?" right at the bell and reminders on the minute (user-granted). -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <!-- Surfaces: alarms are cleared by a reboot; check-ins and reminders are planned again. -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- WebUntis import (school search + the school's WebUntis server), Microsoft Teams (Graph)
+         and the encrypted Google Drive backup. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application
+        android:name=".MeldoApp"
+        android:allowBackup="false"
+        android:dataExtractionRules="@xml/securestore_backup_rules"
+        android:localeConfig="@xml/locales_config"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher"
+        android:label="Meldo"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Meldo">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:windowSoftInputMode="adjustResize">
+            <!-- The launcher entry is on the LauncherStandard/Orange/Night aliases below (app icon choice). -->
+            <!-- meldeplanner://melden, meldeplanner://hausaufgaben (widgets, tile, shortcuts). -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="meldeplanner" android:host="melden" />
+                <data android:scheme="meldeplanner" android:host="hausaufgaben" />
+            </intent-filter>
+        </activity>
+
+        <!-- MANIFEST:COMPONENTS -->
+        <!-- Surfaces: alarms (lesson start/end, check-ins, reminders) and notification actions.
+             Only Meldo's own PendingIntents reach it. -->
+        <receiver
+            android:name=".surfaces.SurfacesReceiver"
+            android:exported="false" />
+        <!-- Surfaces: plans alarms again after a reboot, an app update or a clock change. -->
+        <receiver
+            android:name=".surfaces.SurfacesBootReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+            </intent-filter>
+        </receiver>
+        <!-- Surfaces: Quick Settings tile "Melden" (iOS: Control Center / Lock Screen control). -->
+        <service
+            android:name=".surfaces.MeldenTileService"
+            android:exported="true"
+            android:icon="@drawable/ic_surfaces_hand"
+            android:label="@string/surfaces_tile_melden"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+            <!-- Updated on request (after every Meldung) instead of polling. -->
+            <meta-data
+                android:name="android.service.quicksettings.ACTIVE_TILE"
+                android:value="true" />
+        </service>
+        <!-- Surfaces: home screen widgets (Glance), MeldeWidgetsBundle on iOS. -->
+        <receiver
+            android:name=".surfaces.widgets.MeldoTodayWidgetReceiver"
+            android:exported="true"
+            android:label="@string/surfaces_widget_today">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/surfaces_widget_today" />
+        </receiver>
+        <receiver
+            android:name=".surfaces.widgets.MeldoStatsWidgetReceiver"
+            android:exported="true"
+            android:label="@string/surfaces_widget_stats">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/surfaces_widget_stats" />
+        </receiver>
+        <receiver
+            android:name=".surfaces.widgets.TodayScheduleWidgetReceiver"
+            android:exported="true"
+            android:label="@string/surfaces_widget_schedule">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/surfaces_widget_schedule" />
+        </receiver>
+        <receiver
+            android:name=".surfaces.widgets.HomeworkWidgetReceiver"
+            android:exported="true"
+            android:label="@string/surfaces_widget_homework">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/surfaces_widget_homework" />
+        </receiver>
+        <receiver
+            android:name=".surfaces.widgets.HolidayCountdownWidgetReceiver"
+            android:exported="true"
+            android:label="@string/surfaces_widget_holidays">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/surfaces_widget_holidays" />
+        </receiver>
+        <!-- Dokumente: shares scanned PDFs (filesDir/Scans) with other apps. -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.files"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/meldo_file_paths" />
+        </provider>
+        <!-- App icons (Einstellungen → App-Symbol): one launcher alias per AppIconChoice, exactly one
+             enabled at a time by ui/features/more/AppIcons.kt. Standard (indigo) is the default. -->
+        <activity-alias
+            android:name=".LauncherStandard"
+            android:enabled="true"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher"
+            android:roundIcon="@mipmap/ic_launcher"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <!-- Static shortcut "Melden" (iOS: App Intent). -->
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/surfaces_shortcuts" />
+        </activity-alias>
+        <activity-alias
+            android:name=".LauncherOrange"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher_orange"
+            android:roundIcon="@mipmap/ic_launcher_orange"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <!-- Static shortcut "Melden" (iOS: App Intent). -->
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/surfaces_shortcuts" />
+        </activity-alias>
+        <activity-alias
+            android:name=".LauncherNight"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher_night"
+            android:roundIcon="@mipmap/ic_launcher_night"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <!-- Static shortcut "Melden" (iOS: App Intent). -->
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/surfaces_shortcuts" />
+        </activity-alias>
+        <!-- Sign-in redirect (OAuth 2 PKCE): meldeplanner://auth (Microsoft Teams). Google
+             Drive signs in through Google Play services, without a redirect. -->
+        <activity
+            android:name=".ui.features.untis.TeamsAuthActivity"
+            android:exported="true"
+            android:excludeFromRecents="true"
+            android:noHistory="true"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="${teamsRedirectScheme}" android:host="auth" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

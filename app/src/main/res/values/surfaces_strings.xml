@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Labels the launcher and system UI read from resources (widget picker, Quick Settings,
+     app shortcuts), so they follow the system language. In-app text uses L(). -->
+<resources>
+    <color name="surfaces_meldo_orange">#FFFF9A4D</color>
+
+    <string name="surfaces_widget_today">Meldo</string>
+    <string name="surfaces_widget_today_description">Laufende Stunde, Meldungen dieser Woche und Melden mit einem Tipp.</string>
+    <string name="surfaces_widget_stats">Meldo Statistik</string>
+    <string name="surfaces_widget_stats_description">Deine Meldungen diese Woche.</string>
+    <string name="surfaces_widget_schedule">Stundenplan heute</string>
+    <string name="surfaces_widget_schedule_description">Deine Stunden heute, Ausfälle durchgestrichen.</string>
+    <string name="surfaces_widget_homework">Hausaufgaben</string>
+    <string name="surfaces_widget_homework_description">Was bald fällig ist.</string>
+    <string name="surfaces_widget_holidays">Ferien-Countdown</string>
+    <string name="surfaces_widget_holidays_description">Tage bis zu den nächsten Ferien.</string>
+
+    <string name="surfaces_tile_melden">Melden</string>
+    <string name="surfaces_shortcut_melden">Melden</string>
+    <string name="surfaces_shortcut_melden_long">Meldung erfassen</string>
+</resources>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Example content of the static widget previews. -->
+<resources>
+    <string name="wp_next">Up next</string>
+    <string name="wp_subject_math">Maths</string>
+    <string name="wp_in_minutes">in 10 minutes</string>
+    <string name="wp_week_count">9 this week</string>
+    <string name="wp_meldungen">Contributions</string>
+    <string name="wp_nine">9</string>
+    <string name="wp_of_twelve">of 12</string>
+    <string name="wp_streak">4 school days in a row</string>
+    <string name="wp_today_lessons">Today</string>
+    <string name="wp_lesson1">08:00  German</string>
+    <string name="wp_lesson2">09:35  Maths</string>
+    <string name="wp_lesson3">11:25  English</string>
+    <string name="wp_hw1">Worksheet p. 12</string>
+    <string name="wp_hw1_due">Maths · tomorrow</string>
+    <string name="wp_hw2">Vocabulary unit 3</string>
+    <string name="wp_hw2_due">English · Friday</string>
+    <string name="wp_holidays">Holidays</string>
+    <string name="wp_days">12</string>
+    <string name="wp_days_until">days to go</string>
+    <string name="wp_holiday_name">Christmas holidays</string>
+</resources>
