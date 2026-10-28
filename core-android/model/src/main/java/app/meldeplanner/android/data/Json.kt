@@ -17,7 +17,14 @@ object InstantSerializer : KSerializer<Instant> {
     override val descriptor = PrimitiveSerialDescriptor("Instant", PrimitiveKind.STRING)
     override fun serialize(encoder: Encoder, value: Instant) =
         encoder.encodeString(value.truncatedTo(ChronoUnit.SECONDS).toString())
-    override fun deserialize(decoder: Decoder): Instant = Instant.parse(decoder.decodeString())
+    // Data synced from another device is only checked by decoding it. Instant takes years up to a
+    // billion, but turning one into a calendar day throws far before that, on every screen that
+    // shows it. Keep dates in the years an ISO-8601 file from iOS can hold.
+    override fun deserialize(decoder: Decoder): Instant =
+        Instant.parse(decoder.decodeString()).coerceIn(EARLIEST, LATEST)
+
+    private val EARLIEST: Instant = Instant.parse("0001-01-01T00:00:00Z")
+    private val LATEST: Instant = Instant.parse("9999-12-31T00:00:00Z")
 }
 
 /** The JSON format of data.json: missing fields take their defaults, unknown ones are kept out. */

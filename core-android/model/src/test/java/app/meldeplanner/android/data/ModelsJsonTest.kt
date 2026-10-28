@@ -74,4 +74,18 @@ class ModelsJsonTest {
         assertTrue(result.exceptionOrNull() is LocalStore.LoadException.NewerSchema)
         assertEquals("""{"schemaVersion":99}""", file.readText())
     }
+
+    /** Synced data from another device is only checked by decoding it. A date far outside any
+     *  calendar must not make every screen that shows the day throw. */
+    @Test
+    fun datesOutsideTheCalendarAreClampedOnLoad() {
+        val json = """{"schemaVersion":2,"holidays":[{"id":"H","name":"x","firstDay":"+1000000000-01-01T00:00:00Z","lastDay":"-1000000000-01-01T00:00:00Z"}]}"""
+        val holiday = MeldoJson.decodeFromString(AppData.serializer(), json).holidays.single()
+        val calendar = app.meldeplanner.android.core.MeldoCalendar(java.time.ZoneId.of("Europe/Berlin"))
+        assertEquals(9999, calendar.localDate(holiday.firstDay).year)
+        assertEquals(1, calendar.localDate(holiday.lastDay).year)
+        // Ordinary dates are unchanged.
+        val normal = MeldoJson.decodeFromString(AppData.serializer(), iosFile).tasks.single().dueDate
+        assertEquals(Instant.parse("2026-10-21T22:00:00Z"), normal)
+    }
 }
