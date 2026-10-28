@@ -56,12 +56,18 @@ dependencies {
     implementation(project(":core:ui"))
 
     // The features in this build; MeldoFeatures.kt lists the same ones.
+    implementation(project(":feature:calendar"))
+    implementation(project(":feature:dashboard"))
+    implementation(project(":feature:exams"))
     implementation(project(":feature:grades"))
     implementation(project(":feature:holidays"))
+    implementation(project(":feature:onboarding"))
     implementation(project(":feature:participation"))
+    implementation(project(":feature:settings"))
     implementation(project(":feature:statistics"))
     implementation(project(":feature:subjects"))
     implementation(project(":feature:tasks"))
+    implementation(project(":feature:timetable"))
 
     implementation(libs.glance.appwidget)
     implementation(libs.glance.material3)
@@ -70,7 +76,5 @@ dependencies {
     implementation(libs.play.services.auth)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.coroutines.android)
-    // Document scanner (edge detection, crop, PDF), the counterpart of VisionKit on iOS.
-    implementation(libs.mlkit.document.scanner)
     implementation(libs.compose.material3.adaptive.navigation.suite)
 }

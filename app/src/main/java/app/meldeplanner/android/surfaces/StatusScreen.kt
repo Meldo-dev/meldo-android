@@ -1,6 +1,5 @@
-package app.meldeplanner.android.ui.features.more
+package app.meldeplanner.android.surfaces
 
-import app.meldeplanner.android.model.teamsAvailable
 import android.app.Notification
 import android.app.NotificationManager
 import android.text.format.Formatter
@@ -30,26 +29,26 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
-import app.meldeplanner.android.R
 import app.meldeplanner.android.core.L
-import app.meldeplanner.android.data.LocalStore
-import app.meldeplanner.android.surfaces.LivePreviewResult
 import app.meldeplanner.android.core.Notifications
+import app.meldeplanner.android.data.LocalStore
+import app.meldeplanner.android.model.teamsAvailable
+import app.meldeplanner.android.surfaces.LivePreviewResult
 import app.meldeplanner.android.surfaces.Surfaces
+import app.meldeplanner.android.ui.R as UiR
 import app.meldeplanner.android.ui.components.DS
 import app.meldeplanner.android.ui.components.LocalAppModel
 import app.meldeplanner.android.ui.navigation.MeldoScreen
+import app.meldeplanner.android.ui.rows.ActionRow
+import app.meldeplanner.android.ui.rows.FormSection
+import app.meldeplanner.android.ui.rows.StateBadge
+import app.meldeplanner.android.ui.rows.ValueRow
+import app.meldeplanner.android.ui.rows.formatDate
 import app.meldeplanner.android.ui.theme.StateColors
+import java.time.Instant
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import uniffi.melde_ffi.coreVersion
-import java.time.Instant
-import app.meldeplanner.android.ui.rows.formatDate
-import app.meldeplanner.android.ui.rows.ValueRow
-import app.meldeplanner.android.ui.rows.StateBadge
-import app.meldeplanner.android.ui.rows.FormSection
-import app.meldeplanner.android.ui.rows.ActionRow
-import app.meldeplanner.android.ui.R as UiR
 
 /**
  * Shows whether widgets, Live Updates and notifications can work on this install,

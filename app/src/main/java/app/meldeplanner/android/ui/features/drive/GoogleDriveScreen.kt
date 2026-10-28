@@ -1,25 +1,22 @@
 @file:OptIn(ExperimentalMaterial3ExpressiveApi::class)
 
-package app.meldeplanner.android.ui.features.more
+package app.meldeplanner.android.ui.features.drive
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import app.meldeplanner.android.data.PlayAuthorization
-import androidx.compose.ui.semantics.liveRegion
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
@@ -27,7 +24,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -40,49 +36,47 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.contentType
+import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import app.meldeplanner.android.core.L
 import app.meldeplanner.android.data.BackupKeyProblem
 import app.meldeplanner.android.data.DriveProblem
-import app.meldeplanner.android.data.GoogleClient
 import app.meldeplanner.android.data.GoogleConfig
 import app.meldeplanner.android.data.GoogleFailure
+import app.meldeplanner.android.data.PlayAuthorization
 import app.meldeplanner.android.model.DriveState
 import app.meldeplanner.android.model.connectGoogle
 import app.meldeplanner.android.model.deleteDriveBackup
 import app.meldeplanner.android.model.disconnectGoogle
+import app.meldeplanner.android.model.driveAccount
 import app.meldeplanner.android.model.driveHasBackup
+import app.meldeplanner.android.model.driveProblem
+import app.meldeplanner.android.model.driveState
+import app.meldeplanner.android.model.isSyncingWithDrive
+import app.meldeplanner.android.model.lastDriveSync
 import app.meldeplanner.android.model.syncWithGoogleDrive
 import app.meldeplanner.android.model.unlockDrive
 import app.meldeplanner.android.ui.components.DS
 import app.meldeplanner.android.ui.components.LocalAppModel
 import app.meldeplanner.android.ui.components.sfSymbol
+import app.meldeplanner.android.ui.navigation.MeldoScreen
 import app.meldeplanner.android.ui.rows.ConnectActionRow
 import app.meldeplanner.android.ui.rows.ConnectIconLabel
 import app.meldeplanner.android.ui.rows.ConnectLabeledRow
 import app.meldeplanner.android.ui.rows.ConnectList
 import app.meldeplanner.android.ui.rows.ConnectNote
 import app.meldeplanner.android.ui.rows.ConnectSection
+import app.meldeplanner.android.ui.rows.FormSection
 import app.meldeplanner.android.ui.rows.connectRelativeTime
-import app.meldeplanner.android.ui.navigation.MeldoScreen
+import app.meldeplanner.android.ui.rows.meldoAnimateItem
 import app.meldeplanner.android.ui.theme.MeldoAlertDialog
 import app.meldeplanner.android.ui.theme.StateColors
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import app.meldeplanner.android.ui.rows.meldoAnimateItem
-import app.meldeplanner.android.ui.rows.FormSection
-import app.meldeplanner.android.model.driveState
-import app.meldeplanner.android.model.driveAccount
-import app.meldeplanner.android.model.driveProblem
-import app.meldeplanner.android.model.lastDriveSync
-import app.meldeplanner.android.model.isSyncingWithDrive
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 
 /**
  * Google Drive sync and backup: sign in, set or enter the backup password, then

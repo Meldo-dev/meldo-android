@@ -21,12 +21,18 @@ include(":app")
 
 // Features: one module each. They depend on the core modules only, never on each other.
 include(
+    ":feature:calendar",
+    ":feature:dashboard",
+    ":feature:exams",
     ":feature:grades",
     ":feature:holidays",
+    ":feature:onboarding",
     ":feature:participation",
+    ":feature:settings",
     ":feature:statistics",
     ":feature:subjects",
     ":feature:tasks",
+    ":feature:timetable",
 )
 
 // Core modules. They live in core-android/, because core/ is the meldo-core submodule
