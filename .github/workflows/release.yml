@@ -1,17 +1,13 @@
 name: Release
 
-# Builds the signed Android APK with the regular build workflow (including its tests)
-# and publishes it as a GitHub pre-release. Android users install it from there.
+# Builds the APK signed with the permanent release key (with the regular build workflow and
+# its tests) and publishes it as a GitHub pre-release. Android users install it from there.
 #   git tag v0.9.0 && git push origin v0.9.0
-# or run it from the Actions tab with a tag name.
+# The release notes come from .github/release-notes/<tag>.md when that file exists; the
+# workflow puts the APK's SHA-256 in place of {{APK_SHA256}}.
 on:
   push:
     tags: ["v*"]
-  workflow_dispatch:
-    inputs:
-      tag:
-        description: "Release tag, e.g. v0.9.0 (created on the selected branch if missing)"
-        required: true
 
 permissions:
   contents: read
@@ -20,16 +16,7 @@ jobs:
   android:
     uses: ./.github/workflows/android.yml
     with:
-      # The permanent key only for main and v* tags: a release started from another branch
-      # builds with the debug key, so branch code never runs next to the release key.
-      sign: ${{ github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v') }}
-    secrets:
-      MELDO_RELEASE_KEYSTORE_BASE64: ${{ secrets.MELDO_RELEASE_KEYSTORE_BASE64 }}
-      MELDO_RELEASE_STORE_PASSWORD: ${{ secrets.MELDO_RELEASE_STORE_PASSWORD }}
-      MELDO_RELEASE_KEY_ALIAS: ${{ secrets.MELDO_RELEASE_KEY_ALIAS }}
-      MELDO_RELEASE_KEY_PASSWORD: ${{ secrets.MELDO_RELEASE_KEY_PASSWORD }}
-      MELDO_GOOGLE_CLIENT_ID_ANDROID: ${{ secrets.MELDO_GOOGLE_CLIENT_ID_ANDROID }}
-      MELDO_TEAMS_CLIENT_ID: ${{ secrets.MELDO_TEAMS_CLIENT_ID }}
+      sign: true
 
   publish:
     name: Publish GitHub Release
@@ -38,29 +25,39 @@ jobs:
     permissions:
       contents: write
     env:
-      TAG: ${{ inputs.tag || github.ref_name }}
+      TAG: ${{ github.ref_name }}
       GH_TOKEN: ${{ github.token }}
     steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          sparse-checkout: .github/release-notes
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           name: meldo-android-apk
           path: dist/android
-      - name: Name the files after the release
+      - name: Name the APK after the version
         run: |
           mkdir -p release
-          cp dist/android/*.apk "release/Meldo-$TAG.apk"
+          cp dist/android/*.apk "release/Meldo-${TAG#v}.apk"
           ls -l release
+
+      - name: Write the release notes
+        run: |
+          notes=".github/release-notes/$TAG.md"
+          if [ ! -f "$notes" ]; then
+            notes=default.md
+            printf '%s\n\n%s\n' "Install the APK on Android 8 or newer. Allow installs from unknown sources if asked." \
+              'SHA-256: `{{APK_SHA256}}`' > "$notes"
+          fi
+          sha=$(sha256sum "release/Meldo-${TAG#v}.apk" | cut -d' ' -f1)
+          sed "s/{{APK_SHA256}}/$sha/g" "$notes" > notes.md
+          grep -q "$sha" notes.md || { echo "::error::$notes has no {{APK_SHA256}}."; exit 1; }
 
       - name: Create the release
         run: |
-          notes=$(cat <<'NOTES'
-          Install `Meldo-*.apk` directly on Android 8 or newer. Allow installs from unknown sources if asked.
-          NOTES
-          )
           gh release create "$TAG" release/* \
             --repo "$GITHUB_REPOSITORY" \
-            --target "$GITHUB_SHA" \
-            --title "Meldo $TAG for Android" \
+            --verify-tag \
+            --title "Meldo ${TAG#v} (alpha)" \
             --prerelease \
-            --notes "$notes" \
-            --generate-notes
+            --notes-file notes.md

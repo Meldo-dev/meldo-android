@@ -14,14 +14,6 @@ on:
         description: Sign with the permanent release key (release.yml only)
         type: boolean
         default: false
-    # Named instead of `secrets: inherit`, so a caller hands over only these.
-    secrets:
-      MELDO_RELEASE_KEYSTORE_BASE64: { required: false }
-      MELDO_RELEASE_STORE_PASSWORD: { required: false }
-      MELDO_RELEASE_KEY_ALIAS: { required: false }
-      MELDO_RELEASE_KEY_PASSWORD: { required: false }
-      MELDO_GOOGLE_CLIENT_ID_ANDROID: { required: false }
-      MELDO_TEAMS_CLIENT_ID: { required: false }
 
 concurrency:
   group: android-${{ github.ref }}
@@ -34,6 +26,9 @@ jobs:
   build:
     name: Build APK and unit tests
     runs-on: ubuntu-latest
+    # The signing key and client IDs are secrets of the "release" environment, which only
+    # v* tags may use. Pushes and pull requests run without an environment and see none of them.
+    environment: ${{ inputs.sign && 'release' || '' }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
@@ -56,9 +51,8 @@ jobs:
         with:
           workspaces: core
       - run: cargo install cargo-ndk --version 4.1.2 --locked
-      # The permanent release key, only for release.yml (never on pull requests or branch pushes)
-      # and only when the repo has it as secrets; otherwise the debug key signs (that APK can't
-      # update an install signed with the release key, and Google sign-in fails).
+      # The permanent release key, only for release.yml on a v* tag. A release must never fall
+      # back to the debug key: that APK can't update an install and Google sign-in fails.
       - name: Release signing key
         if: inputs.sign
         env:
@@ -67,8 +61,8 @@ jobs:
           KEY_ALIAS: ${{ secrets.MELDO_RELEASE_KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.MELDO_RELEASE_KEY_PASSWORD }}
         run: |
-          if [ -z "$KEYSTORE_BASE64" ]; then echo "No release key secrets; signing with the debug key."; exit 0; fi
-          echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.jks"
+          if [ -z "$KEYSTORE_BASE64" ]; then echo "::error::The release environment has no signing key."; exit 1; fi
+          printf '%s' "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.jks"
           mkdir -p ~/.gradle
           {
             echo "MELDO_RELEASE_STORE_FILE=$RUNNER_TEMP/release.jks"
@@ -79,8 +73,19 @@ jobs:
       - run: ./gradlew --console=plain testDebugUnitTest assembleRelease
         env:
           # OAuth client IDs are not in the repo; empty builds an app without Drive/Teams.
-          ORG_GRADLE_PROJECT_MELDO_GOOGLE_CLIENT_ID: ${{ secrets.MELDO_GOOGLE_CLIENT_ID_ANDROID }}
-          ORG_GRADLE_PROJECT_MELDO_TEAMS_CLIENT_ID: ${{ secrets.MELDO_TEAMS_CLIENT_ID }}
+          ORG_GRADLE_PROJECT_MELDO_GOOGLE_CLIENT_ID: ${{ inputs.sign && secrets.MELDO_GOOGLE_CLIENT_ID_ANDROID || '' }}
+          ORG_GRADLE_PROJECT_MELDO_TEAMS_CLIENT_ID: ${{ inputs.sign && secrets.MELDO_TEAMS_CLIENT_ID || '' }}
+      # Google sign-in only accepts the certificate registered for the app.
+      - name: Check the release certificate
+        if: inputs.sign
+        run: |
+          certs=$("$ANDROID_HOME/build-tools/37.0.0/apksigner" verify --print-certs app/build/outputs/apk/release/*.apk)
+          echo "$certs" | grep 'SHA-256 digest\|SHA-1 digest'
+          echo "$certs" | grep -q 'SHA-1 digest: cbdc2c6f6e94ad89550e4f4367c69f3d92a765df$' \
+            || { echo "::error::The APK is not signed with the release key."; exit 1; }
+      - name: Remove the signing key
+        if: always() && inputs.sign
+        run: rm -f "$RUNNER_TEMP/release.jks" ~/.gradle/gradle.properties
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: meldo-android-apk
