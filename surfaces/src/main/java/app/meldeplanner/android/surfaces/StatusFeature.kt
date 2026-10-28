@@ -2,7 +2,6 @@ package app.meldeplanner.android.surfaces
 
 import androidx.compose.runtime.Composable
 import app.meldeplanner.android.core.L
-import app.meldeplanner.android.surfaces.StatusScreen
 import app.meldeplanner.android.ui.navigation.MeldoFeature
 import app.meldeplanner.android.ui.navigation.Placement
 

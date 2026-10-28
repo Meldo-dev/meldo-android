@@ -43,8 +43,8 @@ import kotlin.reflect.KClass
  * Single source of truth for the UI, port of meldo-ios/MeldePlanner/App/AppModel.swift.
  * Business rules (current lesson, streaks, targets, validation) come from the Rust
  * core via [MeldeEngine]; this class owns state, persistence and the mapping
- * between the Kotlin models and the FFI records. Feature extensions (AppModel*.kt)
- * change data only through [mutate].
+ * between the Kotlin models and the FFI records. The extensions in AppModel*.kt (here
+ * and in the integration modules) change data only through [mutate].
  *
  * Widgets, notifications and Google Drive hear about changes through [Listener]s, and
  * connected services keep their own state in [part]s, so this class knows none of them.

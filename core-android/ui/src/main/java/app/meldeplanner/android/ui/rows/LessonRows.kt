@@ -32,9 +32,6 @@ import app.meldeplanner.android.ui.components.Badge
 import app.meldeplanner.android.ui.components.DS
 import app.meldeplanner.android.ui.components.LocalAppModel
 import app.meldeplanner.android.ui.components.TimeText
-import app.meldeplanner.android.ui.rows.CardBlockStyle
-import app.meldeplanner.android.ui.rows.DateText
-import app.meldeplanner.android.ui.rows.digits
 import app.meldeplanner.android.ui.theme.StateColors
 import java.time.Instant
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -48,8 +45,6 @@ import app.meldeplanner.android.core.MeldoCalendar
 import app.meldeplanner.android.data.UntisAbsenceRecord
 import app.meldeplanner.android.ui.components.MeldoMenu
 import app.meldeplanner.android.ui.components.MeldoMenuItem
-import app.meldeplanner.android.ui.rows.StateBadge
-import app.meldeplanner.android.ui.rows.formatDate
 import app.meldeplanner.android.ui.navigation.LocalNavigator
 import app.meldeplanner.android.model.AppModel
 import app.meldeplanner.android.ui.navigation.Link

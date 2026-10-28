@@ -141,7 +141,7 @@
                 android:resource="@xml/meldo_file_paths" />
         </provider>
         <!-- App icons (Einstellungen → App-Symbol): one launcher alias per AppIconChoice, exactly one
-             enabled at a time by ui/features/more/AppIcons.kt. Standard (indigo) is the default. -->
+             enabled at a time by AppIcons in core-android/ui. Standard (indigo) is the default. -->
         <activity-alias
             android:name=".LauncherStandard"
             android:enabled="true"
