@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Launcher / Assistant shortcut "Melden" (iOS: LogParticipationIntent as App Shortcut).
+     Opens the app's Melden flow: records for the running lesson or asks for the subject. -->
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:enabled="true"
+        android:icon="@drawable/ic_surfaces_shortcut_melden"
+        android:shortcutId="melden"
+        android:shortcutLongLabel="@string/surfaces_shortcut_melden_long"
+        android:shortcutShortLabel="@string/surfaces_shortcut_melden">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:data="meldeplanner://melden"
+            android:targetClass="app.meldeplanner.android.MainActivity"
+            android:targetPackage="app.meldeplanner.android" />
+    </shortcut>
+</shortcuts>

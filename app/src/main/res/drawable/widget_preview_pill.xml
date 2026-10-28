@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Supporting-fact pill in the static previews (secondaryContainer). -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="@color/widget_pv_tile_secondary" />
+    <corners android:radius="100dp" />
+</shape>

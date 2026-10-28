@@ -1,0 +1,118 @@
+{
+  "Drucken": {
+    "de": "Drucken",
+    "en": "Print"
+  },
+  "Teilen": {
+    "de": "Teilen",
+    "en": "Share"
+  },
+  "Live-Update während der Stunde": {
+    "de": "Live Update während der Stunde",
+    "en": "Live Update during the lesson"
+  },
+  "Mit den Pfeilen sortieren. Tipp: Auf der Startseite kannst du Karten auch mit „Anpassen“ verschieben.": {
+    "de": "Mit den Pfeilen sortieren. Tipp: Auf der Startseite kannst du Karten auch mit „Anpassen“ verschieben.",
+    "en": "Sort with the arrows. Tip: On the Start screen, you can also move cards with “Customize”."
+  },
+  "Nach oben": {
+    "de": "Nach oben",
+    "en": "Move up"
+  },
+  "Nach unten": {
+    "de": "Nach unten",
+    "en": "Move down"
+  },
+  "Sperre jetzt dein Handy oder wechsle zum Startbildschirm.": {
+    "de": "Sperre jetzt dein Handy oder wechsle zum Startbildschirm.",
+    "en": "Lock your phone now or go to the home screen."
+  },
+  "Widgets auf dem Startbildschirm: %lld. Sie lesen dieselben Daten wie die App.": {
+    "de": "Widgets auf dem Startbildschirm: %lld. Sie lesen dieselben Daten wie die App.",
+    "en": "Widgets on your home screen: %lld. They use the same data as the app."
+  },
+  "Noch kein Widget platziert. Halte den Startbildschirm gedrückt und wähle Widgets → Meldo.": {
+    "de": "Noch kein Widget platziert. Halte den Startbildschirm gedrückt und wähle Widgets → Meldo.",
+    "en": "No widget placed yet. Touch and hold the home screen and choose Widgets → Meldo."
+  },
+  "Live-Update": {
+    "de": "Live Update",
+    "en": "Live Update"
+  },
+  "Live-Updates": {
+    "de": "Live Updates",
+    "en": "Live Updates"
+  },
+  "In den Meldo-Einstellungen unter Mitteilungen ausgeschaltet.": {
+    "de": "In den Einstellungen von Meldo unter Mitteilungen ausgeschaltet.",
+    "en": "Turned off in Meldo settings under Notifications."
+  },
+  "In den Android-Einstellungen für Meldo ausgeschaltet.": {
+    "de": "In den Einstellungen von Android für Meldo ausgeschaltet.",
+    "en": "Turned off for Meldo in Android settings."
+  },
+  "Schau in die Statusleiste oder auf den Sperrbildschirm.": {
+    "de": "Schau in die Statusleiste oder auf den Sperrbildschirm.",
+    "en": "Check the status bar or your lock screen."
+  },
+  "Live-Updates sind in den Android-Einstellungen aus.": {
+    "de": "Live Updates sind in den Einstellungen von Android aus.",
+    "en": "Live Updates are off in Android settings."
+  },
+  "Android-Einstellungen öffnen": {
+    "de": "Einstellungen von Android öffnen",
+    "en": "Open Android settings"
+  },
+  "Aus. Erlaube sie in den Android-Einstellungen unter Apps → Meldo → Benachrichtigungen.": {
+    "de": "Aus. Erlaube sie in den Einstellungen von Android unter Apps → Meldo → Benachrichtigungen.",
+    "en": "Off. Allow them in Android settings under Apps → Meldo → Notifications."
+  },
+  "Pünktliche Erinnerungen": {
+    "de": "Pünktliche Erinnerungen",
+    "en": "On-time reminders"
+  },
+  "Nachfragen und Erinnerungen kommen auf die Minute.": {
+    "de": "Nachfragen und Erinnerungen kommen auf die Minute.",
+    "en": "Check-ins and reminders arrive right on the minute."
+  },
+  "Ohne „Wecker und Erinnerungen“ kommen Nachfragen bis zu zehn Minuten später.": {
+    "de": "Ohne „Wecker und Erinnerungen“ kommen Nachfragen bis zu zehn Minuten später.",
+    "en": "Without “Alarms & reminders”, check-ins can arrive up to ten minutes late."
+  },
+  "Wecker und Erinnerungen erlauben": {
+    "de": "Wecker und Erinnerungen erlauben",
+    "en": "Allow alarms & reminders"
+  },
+  "Verbindungen": {
+    "de": "Verbindungen",
+    "en": "Connections"
+  },
+  "Zuletzt: %@": {
+    "de": "Zuletzt: %@",
+    "en": "Last: %@"
+  },
+  "Nicht verbunden.": {
+    "de": "Nicht verbunden.",
+    "en": "Not connected."
+  },
+  "Daten": {
+    "de": "Daten",
+    "en": "Data"
+  },
+  "Datendatei": {
+    "de": "Datendatei",
+    "en": "Data file"
+  },
+  "Melden-Kachel hinzufügen": {
+    "de": "Kachel „Melden“ hinzufügen",
+    "en": "Add the Raise hand tile"
+  },
+  "Die Melden-Kachel ist in den Schnelleinstellungen.": {
+    "de": "Die Kachel „Melden“ ist in den Schnelleinstellungen.",
+    "en": "The Raise hand tile is in Quick Settings."
+  },
+  "Wische zweimal von oben nach unten und tippe auf den Stift, um die Kachel selbst hinzuzufügen.": {
+    "de": "Wische zweimal von oben nach unten und tippe auf den Stift, um die Kachel selbst hinzuzufügen.",
+    "en": "Swipe down twice from the top and tap the pencil to add the tile yourself."
+  }
+}

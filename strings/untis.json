@@ -1,0 +1,14 @@
+{
+  "Meldo übernimmt deinen Stundenplan, Ausfälle und Vertretungen aus WebUntis. Dein Login bleibt auf diesem Gerät und geht nur an den WebUntis-Server deiner Schule.": {
+    "de": "Meldo übernimmt deinen Stundenplan, Ausfälle und Vertretungen aus WebUntis. Dein Login bleibt auf diesem Gerät und geht nur an den WebUntis Server deiner Schule.",
+    "en": "Meldo imports your timetable, cancelled lessons and substitutions from WebUntis. Your login stays on this device and is only sent to your school's WebUntis server."
+  },
+  "Derselbe Benutzername und dasselbe Passwort wie auf der WebUntis-Seite oder in der Untis-App deiner Schule. Das Passwort wird nur verschlüsselt auf diesem Gerät gespeichert.": {
+    "de": "Derselbe Benutzername und dasselbe Passwort wie auf der WebUntis Seite oder in der Untis App deiner Schule. Das Passwort wird nur verschlüsselt auf diesem Gerät gespeichert.",
+    "en": "The same username and password as on your school's WebUntis page or in the Untis app. The password is stored encrypted, only on this device."
+  },
+  "Diese Schule steht nicht in der WebUntis Schulsuche. Trenne WebUntis und verbinde dich neu.": {
+    "de": "Diese Schule steht nicht in der WebUntis Schulsuche. Trenne WebUntis und verbinde dich neu.",
+    "en": "This school isn't in the WebUntis school search. Disconnect WebUntis and connect again."
+  }
+}

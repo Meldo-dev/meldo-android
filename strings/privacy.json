@@ -1,0 +1,26 @@
+{
+  "Fächer, Stundenplan, Meldungen, Noten, Aufgaben, Ferien, Abwesenheiten, Einstellungen, eingescannte oder importierte Dokumente sowie Entschuldigungen, die du in Meldo erstellst. Eine Kopie deiner Dokumente legt Meldo unter Dateien › Dokumente › Meldo › Scans ab. Eine Entschuldigung kann einen Grund wie Krankheit enthalten; Meldo merkt sich dafür deinen Namen und deine Klasse. Widgets, die Melden-Kachel und Mitteilungen lesen dieselben Daten auf diesem Gerät.": {
+    "de": "Fächer, Stundenplan, Meldungen, Noten, Aufgaben, Ferien, Abwesenheiten, Einstellungen, eingescannte oder importierte Dokumente sowie Entschuldigungen, die du in Meldo erstellst. Eine Kopie deiner Dokumente legt Meldo unter Dateien › Dokumente › Meldo › Scans ab. Eine Entschuldigung kann einen Grund wie Krankheit enthalten; Meldo merkt sich dafür deinen Namen und deine Klasse. Widgets, die Kachel „Melden“ und Mitteilungen lesen dieselben Daten auf diesem Gerät.",
+    "en": "Subjects, timetable, hand-raises, grades, tasks, holidays, absences, settings, scanned or imported documents, and excuse notes you create in Meldo. Meldo puts a copy of your documents under Files › Documents › Meldo › Scans. An excuse note can contain a reason such as illness; for this, Meldo remembers your name and class. Widgets, the Raise hand tile and notifications read the same data on this device."
+  },
+  "Dein WebUntis-Passwort oder deine Schul-Anmeldung, die Anmeldung bei Microsoft und die Anmeldung bei Google werden nur verschlüsselt auf diesem Gerät gespeichert. Der Schlüssel dazu liegt im Android Keystore und kann das Gerät nicht verlassen. Sie werden weder synchronisiert noch in Backups übertragen. Auf einem neuen Gerät meldest du dich deshalb erneut an.": {
+    "de": "Dein WebUntis Passwort oder deine Schulanmeldung, die Anmeldung bei Microsoft und die Anmeldung bei Google werden nur verschlüsselt auf diesem Gerät gespeichert. Der Schlüssel dazu liegt im Android Keystore und kann das Gerät nicht verlassen. Sie werden weder synchronisiert noch in Backups übertragen. Auf einem neuen Gerät meldest du dich deshalb erneut an.",
+    "en": "Your WebUntis password or school sign-in, your Microsoft sign-in and your Google sign-in are stored only on this device, encrypted. The key for this lives in the Android Keystore and can't leave the device. They are neither synced nor included in backups. That's why you sign in again on a new device."
+  },
+  "Mitteilungen und Live-Updates": {
+    "de": "Mitteilungen und Live Updates",
+    "en": "Notifications and Live Updates"
+  },
+  "Erinnerungen, die Frage nach jeder Stunde und das Live-Update während der Stunde werden auf deinem Gerät erzeugt. Dafür sendet Meldo keine Daten an einen Server.": {
+    "de": "Erinnerungen, die Frage nach jeder Stunde und das Live Update während der Stunde werden auf deinem Gerät erzeugt. Dafür sendet Meldo keine Daten an einen Server.",
+    "en": "Reminders, the question after each lesson and the Live Update during the lesson are created on your device. Meldo doesn't send any data to a server for this."
+  },
+  "Je nach Einstellung kann Android deine Meldo-Daten beim Umzug auf ein neues Gerät mitnehmen. Passwörter und Anmeldungen sind davon ausgenommen: Sie bleiben auf diesem Gerät.": {
+    "de": "Je nach Einstellung kann Android deine Meldo Daten beim Umzug auf ein neues Gerät mitnehmen. Passwörter und Anmeldungen sind davon ausgenommen: Sie bleiben auf diesem Gerät.",
+    "en": "Depending on your settings, Android can bring your Meldo data along when you move to a new device. Passwords and sign-ins are excluded: they stay on this device."
+  },
+  "Du kannst einzelne Einträge in der App löschen. Wenn du Meldo deinstallierst, entfernt Android deine Meldo-Daten und Anmeldungen auf diesem Gerät. Die Kopien deiner Dokumente unter Dateien › Dokumente › Meldo bleiben, bis du sie dort löschst. Kann Meldo seine Datei einmal nicht lesen, hebt es eine Kopie höchstens 30 Tage auf, damit nichts verloren geht. Verbindungen zu WebUntis, Teams und Google Drive kannst du jederzeit in der App trennen. Das Backup in Google Drive löschst du unter Mehr > Google Drive > Backup in Google Drive löschen.": {
+    "de": "Du kannst einzelne Einträge in der App löschen. Wenn du Meldo deinstallierst, entfernt Android deine Meldo Daten und Anmeldungen auf diesem Gerät. Die Kopien deiner Dokumente unter Dateien › Dokumente › Meldo bleiben, bis du sie dort löschst. Kann Meldo seine Datei einmal nicht lesen, hebt es eine Kopie höchstens 30 Tage auf, damit nichts verloren geht. Verbindungen zu WebUntis, Teams und Google Drive kannst du jederzeit in der App trennen. Die Sync Daten in Google Drive löschst du unter Mehr > Google Drive > Sync Daten in Google Drive löschen.",
+    "en": "You can delete single entries in the app. When you uninstall Meldo, Android removes your Meldo data and sign-ins on this device. The copies of your documents under Files › Documents › Meldo stay until you delete them there. If Meldo ever can't read its file, it keeps a copy for at most 30 days so nothing is lost. You can disconnect WebUntis, Teams and Google Drive in the app at any time. To delete the sync data in Google Drive, go to More > Google Drive > Delete sync data from Google Drive."
+  }
+}

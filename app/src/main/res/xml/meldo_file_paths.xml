@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Files Meldo shares through FileProvider: the Dokumente PDFs (filesDir/Scans)
+     and the Entschuldigung PDFs (filesDir/Entschuldigungen). -->
+<paths>
+    <files-path name="scans" path="Scans/" />
+    <files-path name="excuses" path="Entschuldigungen/" />
+</paths>

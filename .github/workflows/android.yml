@@ -1,0 +1,92 @@
+name: Android
+
+on:
+  push:
+    branches: [main]
+    paths-ignore: ["**.md"]
+  pull_request:
+    paths-ignore: ["**.md"]
+  workflow_dispatch:
+  # Also run by release.yml, which publishes the build as a GitHub Release.
+  workflow_call:
+    inputs:
+      sign:
+        description: Sign with the permanent release key (release.yml only)
+        type: boolean
+        default: false
+    # Named instead of `secrets: inherit`, so a caller hands over only these.
+    secrets:
+      MELDO_RELEASE_KEYSTORE_BASE64: { required: false }
+      MELDO_RELEASE_STORE_PASSWORD: { required: false }
+      MELDO_RELEASE_KEY_ALIAS: { required: false }
+      MELDO_RELEASE_KEY_PASSWORD: { required: false }
+      MELDO_GOOGLE_CLIENT_ID_ANDROID: { required: false }
+      MELDO_TEAMS_CLIENT_ID: { required: false }
+
+concurrency:
+  group: android-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build APK and unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          submodules: recursive
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407 # v3
+        with:
+          # The default also asks for the removed "tools" package, which fails.
+          packages: platform-tools
+      - name: Android SDK packages
+        run: sdkmanager "platforms;android-37.0" "build-tools;37.0.0" "ndk;29.0.14206865"
+      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+        with:
+          toolchain: stable
+          targets: aarch64-linux-android, x86_64-linux-android
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2
+        with:
+          workspaces: core
+      - run: cargo install cargo-ndk --version 4.1.2 --locked
+      # The permanent release key, only for release.yml (never on pull requests or branch pushes)
+      # and only when the repo has it as secrets; otherwise the debug key signs (that APK can't
+      # update an install signed with the release key, and Google sign-in fails).
+      - name: Release signing key
+        if: inputs.sign
+        env:
+          KEYSTORE_BASE64: ${{ secrets.MELDO_RELEASE_KEYSTORE_BASE64 }}
+          STORE_PASSWORD: ${{ secrets.MELDO_RELEASE_STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.MELDO_RELEASE_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.MELDO_RELEASE_KEY_PASSWORD }}
+        run: |
+          if [ -z "$KEYSTORE_BASE64" ]; then echo "No release key secrets; signing with the debug key."; exit 0; fi
+          echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.jks"
+          mkdir -p ~/.gradle
+          {
+            echo "MELDO_RELEASE_STORE_FILE=$RUNNER_TEMP/release.jks"
+            echo "MELDO_RELEASE_STORE_PASSWORD=$STORE_PASSWORD"
+            echo "MELDO_RELEASE_KEY_ALIAS=$KEY_ALIAS"
+            echo "MELDO_RELEASE_KEY_PASSWORD=$KEY_PASSWORD"
+          } >> ~/.gradle/gradle.properties
+      - run: ./gradlew --console=plain testDebugUnitTest assembleRelease
+        env:
+          # OAuth client IDs are not in the repo; empty builds an app without Drive/Teams.
+          ORG_GRADLE_PROJECT_MELDO_GOOGLE_CLIENT_ID: ${{ secrets.MELDO_GOOGLE_CLIENT_ID_ANDROID }}
+          ORG_GRADLE_PROJECT_MELDO_TEAMS_CLIENT_ID: ${{ secrets.MELDO_TEAMS_CLIENT_ID }}
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: meldo-android-apk
+          path: app/build/outputs/apk/release/*.apk
+      - if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: android-test-results
+          path: app/build/reports/tests

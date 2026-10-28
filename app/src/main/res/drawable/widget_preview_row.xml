@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Highlighted (running) lesson row in the static previews (primaryContainer pill). -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="@color/widget_pv_tile_primary" />
+    <corners android:radius="11dp" />
+</shape>

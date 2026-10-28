@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Static preview in the widget picker; the placed widget is drawn by Glance. Same look:
+     translucent Material You panel, tonal tiles, Expressive shapes. RemoteViews-safe views only. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@android:id/background"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="@drawable/widget_preview_background" android:clipToOutline="true">
+    <LinearLayout
+        android:layout_width="match_parent" android:layout_height="match_parent"
+        android:orientation="vertical" android:padding="14dp">
+        <TextView
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="@string/surfaces_widget_homework" android:fontFamily="sans-serif-medium"
+            android:textColor="@color/widget_pv_on_surface_variant" android:textSize="12sp" android:maxLines="1" />
+        <!-- Spacer (RemoteViews allow no plain View). -->
+        <TextView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" />
+        <LinearLayout
+            android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="0dp"
+            android:background="@drawable/widget_preview_tile" android:orientation="vertical"
+            android:paddingStart="10dp" android:paddingTop="6dp" android:paddingEnd="10dp" android:paddingBottom="6dp">
+            <TextView
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="@string/wp_hw1" android:fontFamily="sans-serif-medium"
+                android:textColor="@color/widget_pv_on_secondary_container" android:textSize="14sp" android:maxLines="1" />
+            <TextView
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="@string/wp_hw1_due" android:fontFamily="sans-serif-medium"
+                android:textColor="@color/widget_pv_on_secondary_container" android:textSize="12sp" android:maxLines="1" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp"
+            android:background="@drawable/widget_preview_tile" android:orientation="vertical"
+            android:paddingStart="10dp" android:paddingTop="6dp" android:paddingEnd="10dp" android:paddingBottom="6dp">
+            <TextView
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="@string/wp_hw2" android:fontFamily="sans-serif-medium"
+                android:textColor="@color/widget_pv_on_secondary_container" android:textSize="14sp" android:maxLines="1" />
+            <TextView
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="@string/wp_hw2_due" android:fontFamily="sans-serif-medium"
+                android:textColor="@color/widget_pv_on_secondary_container" android:textSize="12sp" android:maxLines="1" />
+        </LinearLayout>
+        <!-- Spacer (RemoteViews allow no plain View). -->
+        <TextView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" />
+    </LinearLayout>
+</FrameLayout>
