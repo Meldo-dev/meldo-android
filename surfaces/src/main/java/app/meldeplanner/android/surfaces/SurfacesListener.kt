@@ -16,8 +16,13 @@ import java.time.Instant
 object SurfacesListener : AppModel.Listener {
     /** [mainActivity]: the app's activity, which widgets, the tile and notifications open. */
     fun install(model: AppModel, mainActivity: Class<out Activity>) {
-        SurfaceIntents.mainActivity = mainActivity
+        useActivity(mainActivity)
         model.addListener(this)
+    }
+
+    /** Only names the activity notifications and widgets open, without listening to the model (demo build). */
+    fun useActivity(mainActivity: Class<out Activity>) {
+        SurfaceIntents.mainActivity = mainActivity
     }
 
     override fun reloadWidgets(context: Context) = Surfaces.reload(context)
