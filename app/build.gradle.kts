@@ -15,6 +15,9 @@ android {
         // Only the ABIs the Rust core is built for.
         ndk { abiFilters += listOf("arm64-v8a", "x86_64") }
         manifestPlaceholders["teamsRedirectScheme"] = "meldeplanner"
+        manifestPlaceholders["appLabel"] = "Meldo"
+        // The demo build type (below) starts with sample data instead of the student's own.
+        buildConfigField("Boolean", "DEMO", "false")
         // OAuth client IDs stay out of the repo: ~/.gradle/gradle.properties locally,
         // ORG_GRADLE_PROJECT_MELDO_* secrets in CI. Missing means empty (feature unavailable).
         fun clientID(name: String) = providers.gradleProperty(name).orNull.orEmpty()
@@ -44,6 +47,16 @@ android {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+        }
+        // "Meldo Demo" for store screenshots and the website: its own app ID, so it installs
+        // next to the real app; a sample school week in memory, nothing saved, no widgets,
+        // reminders or background updates. Never shipped.
+        create("demo") {
+            initWith(getByName("debug"))
+            applicationIdSuffix = ".demo"
+            manifestPlaceholders["appLabel"] = "Meldo Demo"
+            buildConfigField("Boolean", "DEMO", "true")
+            matchingFallbacks += listOf("debug")
         }
     }
 

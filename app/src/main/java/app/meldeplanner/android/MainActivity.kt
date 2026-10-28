@@ -1,5 +1,7 @@
 package app.meldeplanner.android
 
+import app.meldeplanner.android.data.AppLanguage
+
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -25,6 +27,10 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         val model = (application as MeldoApp).model
+        // Demo build: `adb shell am start ... --es demo_language en` picks the language.
+        if (BuildConfig.DEMO) {
+            AppLanguage.entries.firstOrNull { it.code == intent.getStringExtra("demo_language") }?.let(model::setLanguage)
+        }
         deepLink = parse(intent)
         setContent {
             MeldoTheme(model.preferences) {
