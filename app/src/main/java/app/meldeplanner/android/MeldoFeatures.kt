@@ -14,7 +14,7 @@ import app.meldeplanner.android.ui.features.participation.ParticipationFeature
 import app.meldeplanner.android.ui.features.statistics.StatisticsFeature
 import app.meldeplanner.android.ui.features.subjects.SubjectsFeature
 import app.meldeplanner.android.ui.features.tasks.TasksFeature
-import app.meldeplanner.android.ui.features.timetable.HolidaysFeature
+import app.meldeplanner.android.ui.features.holidays.HolidaysFeature
 import app.meldeplanner.android.ui.features.timetable.TimetableFeature
 import app.meldeplanner.android.ui.features.untis.AbsencesFeature
 import app.meldeplanner.android.ui.features.untis.TeamsFeature

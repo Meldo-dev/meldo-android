@@ -1,7 +1,8 @@
-package app.meldeplanner.android.ui.features.timetable
+package app.meldeplanner.android.ui.features.holidays
 
 import androidx.compose.runtime.Composable
 import app.meldeplanner.android.core.L
+import app.meldeplanner.android.ui.features.holidays.HolidayListScreen
 import app.meldeplanner.android.ui.navigation.MeldoFeature
 import app.meldeplanner.android.ui.navigation.Placement
 
