@@ -14,7 +14,7 @@ import androidx.compose.runtime.setValue
 import app.meldeplanner.android.core.L
 import app.meldeplanner.android.ui.components.Card
 import app.meldeplanner.android.ui.components.LocalAppModel
-import app.meldeplanner.android.ui.features.participation.SubjectPickerSheet
+import app.meldeplanner.android.ui.components.SubjectPickerSheet
 import java.time.Instant
 
 /**

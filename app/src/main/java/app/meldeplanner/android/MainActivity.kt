@@ -30,7 +30,7 @@ class MainActivity : ComponentActivity() {
             MeldoTheme(model.preferences) {
                 // Rebuild the hierarchy when the language changes so every string re-resolves.
                 key(model.preferences.language) {
-                    RootScreen(model, deepLink) { deepLink = null }
+                    RootScreen(model, meldoFeatures, deepLink) { deepLink = null }
                 }
             }
         }

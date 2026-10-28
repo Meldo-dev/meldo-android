@@ -263,9 +263,9 @@ data class Preferences(
      * already connected: many schools have to allow Meldo for Teams first. Same key on iOS.
      */
     var teamsEnabled: Boolean = false,
-    /** The phone bar's two flexible places (AppTab raw values), like iOS. Invalid → Aufgaben, Noten. */
+    /** The phone bar's two flexible places (feature ids), like iOS. Invalid → Aufgaben, Noten. */
     var barTabs: MutableList<String> = mutableListOf("tasks", "grades"),
-    /** The screen Meldo opens on (AppTab raw value). */
+    /** The screen Meldo opens on (a feature id). */
     var startTab: String = "home",
 )
 
