@@ -54,6 +54,15 @@ dependencies {
     implementation(project(":core:model"))
     implementation(project(":core:state"))
     implementation(project(":core:ui"))
+
+    // The features in this build; MeldoFeatures.kt lists the same ones.
+    implementation(project(":feature:grades"))
+    implementation(project(":feature:holidays"))
+    implementation(project(":feature:participation"))
+    implementation(project(":feature:statistics"))
+    implementation(project(":feature:subjects"))
+    implementation(project(":feature:tasks"))
+
     implementation(libs.glance.appwidget)
     implementation(libs.glance.material3)
     implementation(libs.work.runtime)

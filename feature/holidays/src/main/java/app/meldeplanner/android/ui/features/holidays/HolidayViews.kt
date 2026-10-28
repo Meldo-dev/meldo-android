@@ -1,4 +1,4 @@
-package app.meldeplanner.android.ui.features.timetable
+package app.meldeplanner.android.ui.features.holidays
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -10,32 +10,25 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import app.meldeplanner.android.core.L
-import app.meldeplanner.android.data.Holiday
 import app.meldeplanner.android.model.HolidayText
 import app.meldeplanner.android.model.holiday
 import app.meldeplanner.android.ui.components.Badge
 import app.meldeplanner.android.ui.components.DS
 import app.meldeplanner.android.ui.components.LocalAppModel
-import app.meldeplanner.android.ui.components.sfSymbol
 import app.meldeplanner.android.ui.form.groupShape
-import app.meldeplanner.android.ui.rows.rowAnimation
 import app.meldeplanner.android.ui.navigation.MeldoScreen
+import app.meldeplanner.android.ui.rows.rowAnimation
 import app.meldeplanner.android.ui.theme.MeldoColors
-import app.meldeplanner.android.ui.timetable.UntisColors
 import app.meldeplanner.android.ui.timetable.EmptyStateCard
 
 private val tabular = TextStyle(fontFeatureSettings = "tnum")
