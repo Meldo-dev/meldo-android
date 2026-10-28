@@ -7,7 +7,6 @@ import android.os.Bundle
 import androidx.browser.customtabs.CustomTabsClient
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.net.toUri
-import app.meldeplanner.android.MainActivity
 import app.meldeplanner.android.data.TeamsFailure
 import kotlinx.coroutines.CompletableDeferred
 
@@ -59,7 +58,8 @@ object TeamsAuthSession {
 
 /**
  * Receives `meldeplanner://auth?code=…` (or Google's redirect) from the browser, hands it to the waiting
- * sign-in and returns to Meldo (closing the Custom Tab above it).
+ * sign-in and returns to Meldo (closing the Custom Tab above it). Declared in the app's
+ * manifest as `.ui.features.untis.TeamsAuthActivity`, so it keeps that package.
  */
 class TeamsAuthActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -70,10 +70,10 @@ class TeamsAuthActivity : Activity() {
             finish()
             return
         }
-        startActivity(
-            Intent(this, MainActivity::class.java)
-                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP),
-        )
+        // Back to Meldo (its launcher entry, whichever app icon is chosen).
+        packageManager.getLaunchIntentForPackage(packageName)?.let {
+            startActivity(it.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP))
+        }
         finish()
     }
 }

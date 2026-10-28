@@ -37,11 +37,13 @@ import kotlin.coroutines.cancellation.CancellationException
 object GoogleConfig {
     /**
      * OAuth client ID of an "Android" client from Google Cloud Console
-     * ("…apps.googleusercontent.com"). Not in the repo: it comes from the
+     * ("…apps.googleusercontent.com"). Not in the repo: the app passes it to
+     * [app.meldeplanner.android.ui.features.drive.DriveFeature] from the
      * MELDO_GOOGLE_CLIENT_ID Gradle property (~/.gradle/gradle.properties, a CI secret).
      * Empty when missing; Google Drive then shows "noch nicht verfügbar".
      */
-    val clientID: String = app.meldeplanner.android.BuildConfig.GOOGLE_CLIENT_ID
+    var clientID: String = ""
+        internal set
 
     /**
      * Only Meldo's own hidden folder in Drive (no access to the student's other files),
@@ -211,7 +213,7 @@ class GoogleDriveFiles(private val access: String) : DriveFiles {
  * followed as is; a download Google moves to its content host (*.googleusercontent.com)
  * is followed without the token; anything else is refused (iOS `GoogleRedirectGuard`).
  */
-internal object GoogleHttp {
+object GoogleHttp {
     private const val TIMEOUT_MS = 30_000
     private const val MAX_REDIRECTS = 5
 
@@ -300,7 +302,7 @@ internal object GoogleHttp {
     }
 
     /** The headers for following a redirect from [from] to [to], or null to refuse it. */
-    internal fun follow(from: URL, to: URL, method: String, headers: Map<String, String>): Map<String, String>? {
+    fun follow(from: URL, to: URL, method: String, headers: Map<String, String>): Map<String, String>? {
         if (to.protocol != "https") return null
         val host = to.host.lowercase()
         val port = if (to.port == -1) 443 else to.port
