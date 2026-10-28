@@ -166,6 +166,7 @@ fun <K> CustomizableCardGrid(
     val scope = rememberCoroutineScope()
     // Cards slide to their new place with the theme's (Expressive) spatial spring.
     val placementSpec = MaterialTheme.motionScheme.defaultSpatialSpec<IntOffset>()
+    val sizeSpec = MaterialTheme.motionScheme.defaultSpatialSpec<IntSize>()
     val trayFade = MaterialTheme.motionScheme.defaultEffectsSpec<Float>()
     val traySlide = MaterialTheme.motionScheme.defaultSpatialSpec<IntOffset>()
     val density = androidx.compose.ui.platform.LocalDensity.current
@@ -183,6 +184,8 @@ fun <K> CustomizableCardGrid(
     // Laid-out slot rectangles (grid coordinates), for hit testing while dragging.
     val bounds = remember { HashMap<K, IntRect>() }
     val placements = remember { HashMap<K, Animatable<IntOffset, *>>() }
+    // Card sizes, animated with the same spring, so a resized card grows or shrinks into place.
+    val sizes = remember { HashMap<K, Animatable<IntSize, androidx.compose.animation.core.AnimationVector2D>>() }
     var hovered by remember { mutableStateOf<K?>(null) }
 
     val shown = liveOrder ?: slots
@@ -334,13 +337,27 @@ fun <K> CustomizableCardGrid(
                 var x = 0
                 for (item in r) {
                     val w = spanWidth(item.span)
-                    placeables[item.index] = measurables[item.index].measure(Constraints.fixed(w, rowHeight))
+                    val target = IntSize(w, rowHeight)
+                    val kind = shown[item.index].kind
+                    val anim = sizes.getOrPut(kind) { Animatable(target, IntSize.VectorConverter) }
+                    if (anim.targetValue != target) {
+                        // Undispatched, so the new target is set before this measure pass reads it.
+                        scope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) {
+                            if (reduceMotion) anim.snapTo(target) else anim.animateTo(target, sizeSpec)
+                        }
+                    }
+                    val size = if (anim.isRunning) anim.value else target
+                    placeables[item.index] = measurables[item.index].measure(Constraints.fixed(size.width, size.height))
                     positions[item.index] = IntOffset(x, y)
                     x += w + spacingPx
                 }
                 y += rowHeight + spacingPx
             }
-            val height = max(y - spacingPx, 0)
+            // A card still shrinking may reach below the new last row for a moment.
+            val height = max(
+                max(y - spacingPx, 0),
+                shown.indices.maxOfOrNull { i -> (positions[i]?.y ?: 0) + (placeables[i]?.height ?: 0) } ?: 0,
+            )
 
             bounds.clear()
             shown.forEachIndexed { i, slot ->
