@@ -1,5 +1,6 @@
 package app.meldeplanner.android.surfaces
 
+import app.meldeplanner.android.ui.R as UiR
 import android.app.Notification
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -43,6 +44,7 @@ object LessonCheckIns {
     private const val ONCE = "CHECKIN_ONCE"
     private const val TWICE = "CHECKIN_TWICE"
     private const val SKIP = "CHECKIN_SKIP"
+    private const val TEST = "CHECKIN_TEST"
 
     private const val PREFIX = "checkin-"
 
@@ -175,13 +177,28 @@ object LessonCheckIns {
         }
     }
 
-    private fun notification(context: Context, item: Planned): Notification {
-        fun action(answer: String, title: String) = Notification.Action.Builder(
-            Icon.createWithResource(context, R.drawable.ic_surfaces_hand), title, answerIntent(context, item, answer),
+    private fun notification(context: Context, item: Planned): Notification =
+        notification(context, L("%@ ist vorbei", item.subjectName)) { answer -> answerIntent(context, item, answer) }
+
+    /**
+     * The Status screen's test: the real layout with its three buttons. An answer only
+     * dismisses it, since there is no lesson to record it for.
+     */
+    internal fun testNotification(context: Context, id: String): Notification =
+        notification(context, L("Meldo")) { answer ->
+            Alarms.pendingBroadcast(context, ACTION_ANSWER, "$id/$answer") {
+                putExtra(EXTRA_ANSWER, TEST)
+                putExtra(EXTRA_ID, id)
+            }
+        }
+
+    private fun notification(context: Context, title: String, answerIntent: (String) -> PendingIntent): Notification {
+        fun action(answer: String, label: String) = Notification.Action.Builder(
+            Icon.createWithResource(context, UiR.drawable.ic_meldo_hand), label, answerIntent(answer),
         ).build()
         return Notification.Builder(context, Notifications.CHANNEL_CHECK_INS)
-            .setSmallIcon(R.drawable.ic_surfaces_hand)
-            .setContentTitle(L("%@ ist vorbei", item.subjectName))
+            .setSmallIcon(UiR.drawable.ic_meldo_hand)
+            .setContentTitle(title)
             .setContentText(L("Hast du dich gemeldet?"))
             .setGroup("checkins")
             .setCategory(Notification.CATEGORY_REMINDER)

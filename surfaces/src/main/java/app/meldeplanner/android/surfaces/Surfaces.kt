@@ -1,5 +1,6 @@
 package app.meldeplanner.android.surfaces
 
+import app.meldeplanner.android.ui.R as UiR
 import android.os.Build
 import android.app.NotificationManager
 import android.app.StatusBarManager
@@ -47,7 +48,7 @@ object Surfaces {
     private val LIVE_TICK: Duration = Duration.ofMinutes(5)
 
     private const val PREFS = "meldo.surfaces"
-    private const val KEY_PREVIEWS_VERSION = "widgets.previewsVersion"
+    private const val KEY_PREVIEWS_VERSION = "widgets.previewsKey"
 
     /**
      * Bumped on every [reload]. Widget compositions read it with the model's data,
@@ -114,7 +115,7 @@ object Surfaces {
         manager.requestAddTileService(
             ComponentName(context, MeldenTileService::class.java),
             L("Melden"),
-            Icon.createWithResource(context, R.drawable.ic_surfaces_hand),
+            Icon.createWithResource(context, UiR.drawable.ic_meldo_hand),
             context.mainExecutor,
         ) { result ->
             onResult(
@@ -235,7 +236,9 @@ object Surfaces {
         val version = runCatching {
             app.packageManager.getPackageInfo(app.packageName, PackageManager.PackageInfoFlags.of(0)).longVersionCode
         }.getOrDefault(0L)
-        if (prefs.getLong(KEY_PREVIEWS_VERSION, -1L) == version) return
+        // Previews are rendered text, so a language change needs new ones too.
+        val key = "$version/${app.resources.configuration.locales[0].toLanguageTag()}"
+        if (prefs.getString(KEY_PREVIEWS_VERSION, null) == key) return
         surfaceScope.launch {
             val manager = GlanceAppWidgetManager(app)
             val allPublished = MeldoWidgets.all.map { entry ->
@@ -246,7 +249,7 @@ object Surfaces {
                 result.getOrNull() == GlanceAppWidgetManager.SET_WIDGET_PREVIEWS_RESULT_SUCCESS
             }.all { it }
             // Rate limited: try again on the next refresh.
-            if (allPublished) prefs.edit().putLong(KEY_PREVIEWS_VERSION, version).apply()
+            if (allPublished) prefs.edit().putString(KEY_PREVIEWS_VERSION, key).apply()
         }
     }
 }

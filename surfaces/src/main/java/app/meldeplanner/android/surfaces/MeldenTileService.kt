@@ -1,5 +1,6 @@
 package app.meldeplanner.android.surfaces
 
+import app.meldeplanner.android.ui.R as UiR
 import android.net.Uri
 import android.content.Intent
 import android.os.Build
@@ -58,7 +59,7 @@ class MeldenTileService : TileService() {
         val now = Instant.now()
         val lesson = MeldeEngine.participationLesson(data, now, model.calendar)
         tile.label = L("Melden")
-        tile.icon = Icon.createWithResource(this, R.drawable.ic_surfaces_hand)
+        tile.icon = Icon.createWithResource(this, UiR.drawable.ic_meldo_hand)
         tile.contentDescription = L("Meldung erfassen")
         if (lesson != null) {
             val name = MeldeEngine.subject(data, lesson.subjectId)?.name ?: L("Unterricht")

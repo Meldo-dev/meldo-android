@@ -103,7 +103,10 @@ private fun accentScheme(theme: AppTheme, dark: Boolean): ColorScheme = when (th
 private fun ColorScheme.withSurfaces(theme: AppTheme, dark: Boolean): ColorScheme {
     // page, lowest, low, container, high, highest, variant text, outline variant
     val n: List<Long> = when (theme) {
-        AppTheme.orange -> if (dark) listOf(0xFF110D0B, 0xFF0C0908, 0xFF1A1512, 0xFF221C18, 0xFF2D2621, 0xFF39312B, 0xFFD9C4B9, 0xFF54453D)
+        // Dark matches iOS: black page (systemGroupedBackground), cards in #1C1C1E
+        // (secondarySystemGroupedBackground), raised layers #2C2C2E / #3A3A3C, secondary
+        // text and separators in iOS's neutral grays.
+        AppTheme.orange -> if (dark) listOf(0xFF000000, 0xFF000000, 0xFF1C1C1E, 0xFF1C1C1E, 0xFF2C2C2E, 0xFF3A3A3C, 0xFFAEAEB2, 0xFF38383A)
         else listOf(0xFFF5EEEA, 0xFFFFFFFF, 0xFFFFFCFA, 0xFFFFFAF7, 0xFFF8EFEA, 0xFFF0E5DF, 0xFF54453D, 0xFFD9C4B9)
         AppTheme.indigo -> if (dark) listOf(0xFF0E0D13, 0xFF09090E, 0xFF17161F, 0xFF1E1C27, 0xFF282632, 0xFF33313D, 0xFFC8C5D2, 0xFF474651)
         else listOf(0xFFF1F0F7, 0xFFFFFFFF, 0xFFFCFCFF, 0xFFFAF9FF, 0xFFF0EFF7, 0xFFE7E5EF, 0xFF474651, 0xFFC8C5D2)

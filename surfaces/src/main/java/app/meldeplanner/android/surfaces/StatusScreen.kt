@@ -1,6 +1,5 @@
 package app.meldeplanner.android.surfaces
 
-import android.app.Notification
 import android.app.NotificationManager
 import android.text.format.Formatter
 import androidx.compose.foundation.layout.Arrangement
@@ -33,7 +32,6 @@ import app.meldeplanner.android.core.L
 import app.meldeplanner.android.core.Notifications
 import app.meldeplanner.android.data.LocalStore
 import app.meldeplanner.android.ui.navigation.LocalFeatures
-import app.meldeplanner.android.ui.R as UiR
 import app.meldeplanner.android.ui.components.DS
 import app.meldeplanner.android.ui.components.LocalAppModel
 import app.meldeplanner.android.ui.navigation.MeldoScreen
@@ -89,13 +87,8 @@ fun StatusScreen() {
         model.scope.launch {
             delay(5_000)
             Notifications.ensureChannels(app)
-            val notification = Notification.Builder(app, Notifications.CHANNEL_CHECK_INS)
-                .setSmallIcon(UiR.drawable.ic_launcher_monochrome)
-                .setContentTitle(L("Meldo"))
-                .setContentText(L("Hast du dich gemeldet?"))
-                .setAutoCancel(true)
-                .build()
-            app.getSystemService(NotificationManager::class.java)?.notify("status-test".hashCode(), notification)
+            app.getSystemService(NotificationManager::class.java)
+                ?.notify("status-test".hashCode(), LessonCheckIns.testNotification(app, "status-test"))
         }
         message = L("Sperre jetzt dein Handy oder wechsle zum Startbildschirm.")
     }

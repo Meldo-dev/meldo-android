@@ -82,7 +82,6 @@ import androidx.compose.material.icons.rounded.OpenInFull
 import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material.icons.rounded.Pets
 import androidx.compose.material.icons.rounded.PhotoLibrary
-import androidx.compose.material.icons.rounded.PanTool
 import androidx.compose.material.icons.rounded.PersonSearch
 import androidx.compose.material.icons.rounded.Public
 import androidx.compose.material.icons.rounded.Remove
@@ -164,7 +163,7 @@ fun sfSymbol(name: String): ImageVector = when (name) {
     "gearshape" -> Icons.Rounded.Settings
     "stethoscope" -> Icons.Rounded.MedicalServices
     "info.circle", "info.circle.fill" -> Icons.Rounded.Info
-    "hand.raised", "hand.raised.fill" -> Icons.Rounded.PanTool
+    "hand.raised", "hand.raised.fill" -> MeldoHand
     "flame", "flame.fill" -> Icons.Rounded.LocalFireDepartment
     "bell" -> Icons.Rounded.Notifications
     "bell.badge" -> Icons.Rounded.NotificationsActive

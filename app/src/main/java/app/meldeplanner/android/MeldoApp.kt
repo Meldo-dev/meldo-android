@@ -16,6 +16,12 @@ import app.meldeplanner.android.ui.components.AppIcons
  */
 class MeldoApp : Application(), ModelOwner {
     override val model: AppModel by lazy {
+        // The demo build shows sample data and stays off widgets, notifications and the tile.
+        if (BuildConfig.DEMO) {
+            // Notification previews (Status screen) open this activity; nothing else is hooked up.
+            SurfacesListener.useActivity(MainActivity::class.java)
+            return@lazy DemoData.model(this).also { m -> meldoFeatures.all.forEach { it.install(m) } }
+        }
         AppModel(this, LocalStore.standard(this)).also {
             SurfacesListener.install(it, MainActivity::class.java)
             meldoFeatures.all.forEach { feature -> feature.install(it) }
@@ -27,6 +33,7 @@ class MeldoApp : Application(), ModelOwner {
         Localization.load(this)
         SecureStore.init(this)
         Localization.applyToSystem(this, model.preferences.language)
+        if (BuildConfig.DEMO) return
         BackgroundRefresh.schedule(this)
         // Restored data can name another icon than the launcher shows.
         val icon = model.preferences.appIcon
