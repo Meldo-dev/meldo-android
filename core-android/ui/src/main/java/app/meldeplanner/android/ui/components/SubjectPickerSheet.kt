@@ -45,11 +45,6 @@ import app.meldeplanner.android.core.L
 import app.meldeplanner.android.data.Subject
 import app.meldeplanner.android.model.AppModel
 import app.meldeplanner.android.model.timetableBlocks
-import app.meldeplanner.android.ui.components.DS
-import app.meldeplanner.android.ui.components.LocalAppModel
-import app.meldeplanner.android.ui.components.SubjectIcon
-import app.meldeplanner.android.ui.components.rememberReduceMotion
-import app.meldeplanner.android.ui.components.sfSymbol
 import app.meldeplanner.android.ui.theme.MeldoSheet
 import kotlinx.coroutines.launch
 

@@ -43,8 +43,6 @@ import androidx.compose.ui.unit.dp
 import app.meldeplanner.android.model.holiday
 import app.meldeplanner.android.ui.components.DS
 import app.meldeplanner.android.ui.components.sfSymbol
-import app.meldeplanner.android.ui.timetable.UntisColors
-import app.meldeplanner.android.ui.timetable.FitText
 import androidx.compose.ui.draw.alpha
 import app.meldeplanner.android.data.Holiday
 import app.meldeplanner.android.model.HolidayText

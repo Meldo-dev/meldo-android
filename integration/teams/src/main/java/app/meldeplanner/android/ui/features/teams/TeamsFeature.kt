@@ -8,7 +8,6 @@ import app.meldeplanner.android.model.installTeams
 import app.meldeplanner.android.model.setTeamsEnabled
 import app.meldeplanner.android.model.teamsAvailable
 import app.meldeplanner.android.ui.components.LocalAppModel
-import app.meldeplanner.android.ui.features.teams.TeamsConnectScreen
 import app.meldeplanner.android.ui.navigation.MeldoFeature
 import app.meldeplanner.android.ui.navigation.Placement
 import app.meldeplanner.android.ui.rows.FormSection

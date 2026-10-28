@@ -8,7 +8,6 @@ import app.meldeplanner.android.model.DriveState
 import app.meldeplanner.android.model.drivePasswordMissing
 import app.meldeplanner.android.model.driveState
 import app.meldeplanner.android.model.installGoogleDrive
-import app.meldeplanner.android.ui.features.drive.GoogleDriveScreen
 import app.meldeplanner.android.ui.navigation.MeldoFeature
 import app.meldeplanner.android.ui.navigation.Placement
 
