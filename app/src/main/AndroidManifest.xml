@@ -22,7 +22,7 @@
         android:localeConfig="@xml/locales_config"
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher"
-        android:label="Meldo"
+        android:label="${appLabel}"
         android:supportsRtl="true"
         android:theme="@style/Theme.Meldo">
 
@@ -63,7 +63,7 @@
         <service
             android:name=".surfaces.MeldenTileService"
             android:exported="true"
-            android:icon="@drawable/ic_surfaces_hand"
+            android:icon="@drawable/ic_meldo_hand"
             android:label="@string/surfaces_tile_melden"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
             <intent-filter>
