@@ -35,10 +35,10 @@ import app.meldeplanner.android.data.SubjectColor
 import app.meldeplanner.android.data.TaskKind
 import app.meldeplanner.android.model.AppModel
 import app.meldeplanner.android.surfaces.SurfaceIntents
-import app.meldeplanner.android.surfaces.meldoModel
 import uniffi.melde_ffi.FfiOccurrence
 import uniffi.melde_ffi.timetableOccurrencesOn
 import java.time.Instant
+import app.meldeplanner.android.model.meldoModel
 
 /**
  * Home screen widget: current or next lesson, this week's Meldungen against

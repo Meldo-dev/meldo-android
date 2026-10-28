@@ -6,7 +6,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import app.meldeplanner.android.MeldoApp
 import app.meldeplanner.android.model.AppModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -58,9 +57,6 @@ internal object Alarms {
 
 /** Background work outside any screen (widget updates, alarms). */
 internal val surfaceScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-
-/** The process-wide model; widgets, the tile and receivers share its store lock. */
-internal val Context.meldoModel: AppModel get() = (applicationContext as MeldoApp).model
 
 /**
  * Runs [work] on the main thread (the model's Compose state lives there) and

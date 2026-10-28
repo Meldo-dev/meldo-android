@@ -20,10 +20,9 @@ import app.meldeplanner.android.data.LocalStore
 import app.meldeplanner.android.data.MeldoJson
 import app.meldeplanner.android.data.ParticipationEntry
 import app.meldeplanner.android.data.Preferences
+import app.meldeplanner.android.data.SchoolTask
 import app.meldeplanner.android.data.StatsCard
 import app.meldeplanner.android.data.Subject
-import app.meldeplanner.android.surfaces.LessonCheckIns
-import app.meldeplanner.android.surfaces.Surfaces
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -38,6 +37,7 @@ import uniffi.melde_ffi.participationSuggestWeeklyTarget
 import uniffi.melde_ffi.timetableOccurrencesOn
 import uniffi.melde_ffi.timetableValidate
 import java.time.Instant
+import kotlin.reflect.KClass
 
 /**
  * Single source of truth for the UI, port of meldo-ios/MeldePlanner/App/AppModel.swift.
@@ -45,11 +45,14 @@ import java.time.Instant
  * core via [MeldeEngine]; this class owns state, persistence and the mapping
  * between the Kotlin models and the FFI records. Feature extensions (AppModel*.kt)
  * change data only through [mutate].
+ *
+ * Widgets, notifications and Google Drive hear about changes through [Listener]s, and
+ * connected services keep their own state in [part]s, so this class knows none of them.
  */
 class AppModel(
     /** `null` in unit tests; then reminders, widgets and notifications are skipped. */
     val context: Context?,
-    internal val store: LocalStore?,
+    val store: LocalStore?,
     val calendar: MeldoCalendar = MeldoCalendar.current,
     private val now: () -> Instant = Instant::now,
 ) {
@@ -58,35 +61,6 @@ class AppModel(
 
     /** User-facing problem with loading or saving, shown as a banner. */
     var storageProblem: String? by mutableStateOf(null)
-
-    /** A WebUntis update is running; automatic updates don't start a second one. */
-    var isRefreshingUntis: Boolean by mutableStateOf(false)
-
-    /** After a failed automatic update, the next one waits until then (see refreshUntisIfStale). */
-    var untisRetryAfter: Instant? = null
-    var untisFailures = 0
-
-    /**
-     * Bumped by "WebUntis trennen" / "Teams trennen". An import that started earlier
-     * stops writing, so it can't bring back the connection or its secret.
-     */
-    var untisGeneration = 0
-    var teamsGeneration = 0
-
-    // Google Drive backup and sync (AppModelGoogleDrive.kt).
-    var driveState: DriveState by mutableStateOf(DriveState.off)
-    var isSyncingWithDrive: Boolean by mutableStateOf(false)
-
-    /** The connected Google account's email address. */
-    var driveAccount: String? by mutableStateOf(null)
-    var lastDriveSync: Instant? by mutableStateOf(null)
-    var driveProblem: String? by mutableStateOf(null)
-
-    /** Bumped by "Google Drive trennen": work that started earlier stops writing. */
-    var driveGeneration = 0
-    internal var driveAccess: app.meldeplanner.android.data.GoogleClient.Tokens? = null
-    internal var driveSyncJob: kotlinx.coroutines.Job? = null
-    internal var driveRunJob: kotlinx.coroutines.Deferred<Unit>? = null
 
     /** The first-run tour is showing (new students, or "Einführung ansehen"). */
     var showingOnboarding: Boolean by mutableStateOf(false)
@@ -102,7 +76,6 @@ class AppModel(
             AppData()
         }
         Localization.apply(data.preferences.language)
-        if (store != null && storageProblem == null) restoreDriveState()
         // An unreadable file looks empty, but its owner is not new: no tour then.
         showingOnboarding = store != null && storageProblem == null && Onboarding.shouldShow(
             seen = data.preferences.onboardingSeen,
@@ -112,6 +85,83 @@ class AppModel(
     }
 
     val currentDate: Instant get() = now()
+
+    // region Listeners and parts
+
+    /**
+     * Hears about changes: widgets, reminders and the live lesson (Surfaces), and
+     * Google Drive sync. Registered at app start; none in unit tests.
+     */
+    interface Listener {
+        /** After every saved change. */
+        fun saved(model: AppModel) {}
+
+        /** The data changed: home screen widgets and the tile show it again. */
+        fun reloadWidgets(context: Context) {}
+
+        /** Plans after-lesson check-ins and the live lesson again (off the main thread). */
+        fun reschedule(context: Context, data: AppData, calendar: MeldoCalendar, at: Instant) {}
+
+        /** A Meldung was recorded for the current lesson. */
+        fun recorded(context: Context, entry: ParticipationEntry, calendar: MeldoCalendar) {}
+
+        /** A task was saved: plans its reminder (or cancels it when done or without one). */
+        fun scheduleReminder(context: Context, task: SchoolTask, subjectName: String?) {}
+
+        /** A task was deleted. */
+        fun cancelReminder(context: Context, taskID: String) {}
+    }
+
+    private val listeners = mutableListOf<Listener>()
+
+    fun addListener(listener: Listener) {
+        listeners += listener
+    }
+
+    /** Tells every listener; [AppModel] extensions call this after their own changes. */
+    fun notify(event: Listener.() -> Unit) = listeners.forEach(event)
+
+    /**
+     * A service that keeps itself current (Google Drive, WebUntis, Teams): when the app
+     * opens, every 30 seconds while it is open ([frequent]) and in the background.
+     */
+    interface Connection {
+        /** Updates if due. [background]: a WorkManager run, which comes less often. */
+        suspend fun refresh(model: AppModel, background: Boolean)
+
+        /** Also in the open app's 30-second loop. */
+        val frequent: Boolean get() = false
+
+        /** Runs before the others: a sync, so a disconnect made on another device is seen first. */
+        val syncsData: Boolean get() = false
+
+        /** Wants another background run about 5 minutes after the student leaves Meldo. */
+        fun wantsSoon(model: AppModel): Boolean = false
+    }
+
+    private val connections = mutableListOf<Connection>()
+
+    fun addConnection(connection: Connection) {
+        connections += connection
+        connections.sortBy { !it.syncsData }
+    }
+
+    /** Updates every connected service that is due, syncs first. */
+    suspend fun refreshConnections(background: Boolean = false, onlyFrequent: Boolean = false) {
+        for (c in connections.toList()) if (!onlyFrequent || c.frequent) c.refresh(this, background)
+    }
+
+    val wantsRefreshSoon: Boolean get() = connections.any { it.wantsSoon(this) }
+
+    private val parts = mutableMapOf<KClass<*>, Any>()
+
+    /** State a module keeps for this model (Drive, WebUntis, Teams), created on first use. */
+    fun <T : Any> part(type: KClass<T>, create: () -> T): T {
+        @Suppress("UNCHECKED_CAST")
+        return parts.getOrPut(type, create) as T
+    }
+
+    // endregion
 
     // region Persistence
 
@@ -135,9 +185,9 @@ class AppModel(
             data = copy
             storageProblem = L("Änderungen konnten nicht gespeichert werden. Prüfe den freien Speicher.")
         }
-        context?.let { Surfaces.reload(it) }
+        context?.let { notify { reloadWidgets(it) } }
         refreshSchedules()
-        scheduleDriveSync()
+        notify { saved(this@AppModel) }
     }
 
     /** Re-plans after-lesson check-ins and the live lesson notification for the latest data. */
@@ -146,8 +196,7 @@ class AppModel(
         val snapshot = copyOf(data)
         val at = now()
         scope.launch(Dispatchers.Default) {
-            LessonCheckIns.reschedule(context, snapshot, calendar, at)
-            Surfaces.refreshLiveLesson(context, snapshot, calendar, at)
+            notify { reschedule(context, snapshot, calendar, at) }
         }
     }
 
@@ -158,7 +207,7 @@ class AppModel(
         Localization.apply(fresh.preferences.language)
     }
 
-    internal fun copyOf(d: AppData): AppData =
+    fun copyOf(d: AppData): AppData =
         MeldoJson.decodeFromString(AppData.serializer(), MeldoJson.encodeToString(AppData.serializer(), d))
 
     // endregion
@@ -318,7 +367,7 @@ class AppModel(
         var entry: ParticipationEntry? = null
         mutate { entry = MeldeEngine.recordForLesson(it, time, calendar) }
         val recorded = entry ?: return RecordOutcome.NeedsSubject
-        context?.let { LessonCheckIns.didRecord(it, recorded, calendar) }
+        context?.let { notify { recorded(it, recorded, calendar) } }
         return RecordOutcome.Recorded(recorded)
     }
 

@@ -195,7 +195,7 @@ private fun WelcomePage() {
                     Row(
                         Modifier
                             .fillMaxWidth()
-                            .clip(app.meldeplanner.android.ui.features.tasks.groupShape(index, languages.size))
+                            .clip(app.meldeplanner.android.ui.form.groupShape(index, languages.size))
                             .background(MaterialTheme.colorScheme.surfaceContainer)
                             .selectable(selected = selected, role = Role.RadioButton) { model.setLanguage(language) }
                             .heightIn(min = 52.dp)

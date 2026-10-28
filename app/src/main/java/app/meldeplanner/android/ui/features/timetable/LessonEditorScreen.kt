@@ -51,7 +51,7 @@ import app.meldeplanner.android.ui.components.LocalAppModel
 import app.meldeplanner.android.ui.components.TimeText
 import app.meldeplanner.android.ui.components.WeekdayText
 import app.meldeplanner.android.ui.components.sfSymbol
-import app.meldeplanner.android.ui.features.tasks.OptionsMenu
+import app.meldeplanner.android.ui.form.OptionsMenu
 import app.meldeplanner.android.ui.navigation.MeldoScreen
 import app.meldeplanner.android.ui.theme.StateColors
 import uniffi.melde_ffi.FfiTimetableIssue

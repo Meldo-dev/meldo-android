@@ -7,6 +7,7 @@ import android.net.Uri
 import app.meldeplanner.android.MainActivity
 import app.meldeplanner.android.core.L
 import app.meldeplanner.android.model.AppModel
+import app.meldeplanner.android.model.meldoModel
 
 /** Deep links into the app (`meldeplanner://…`), like `DeepLink` on iOS. */
 internal object SurfaceIntents {

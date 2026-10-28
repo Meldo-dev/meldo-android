@@ -4,7 +4,6 @@ import app.meldeplanner.android.data.SchoolTask
 import app.meldeplanner.android.data.TaskKind
 import app.meldeplanner.android.data.TaskPriority
 import app.meldeplanner.android.data.TaskRecurrence
-import app.meldeplanner.android.surfaces.Reminders
 import uniffi.melde_ffi.FfiPriority
 import uniffi.melde_ffi.FfiRecurrence
 import uniffi.melde_ffi.FfiTask
@@ -38,12 +37,12 @@ fun AppModel.upsert(task: SchoolTask) {
         val i = d.tasks.indexOfFirst { it.id == t.id }
         if (i >= 0) d.tasks[i] = t else d.tasks.add(t)
     }
-    context?.let { Reminders.schedule(it, t, subject(t.subjectID)?.name) }
+    context?.let { notify { scheduleReminder(it, t, subject(t.subjectID)?.name) } }
 }
 
 fun AppModel.deleteTask(id: String) {
     mutate { d -> d.tasks.removeAll { it.id == id } }
-    context?.let { Reminders.cancel(it, id) }
+    context?.let { notify { cancelReminder(it, id) } }
 }
 
 /**
@@ -74,9 +73,11 @@ fun AppModel.toggleDone(id: String) {
         next?.let { d.tasks.add(it) }
     }
     context?.let { ctx ->
-        if (original.isDone) Reminders.schedule(ctx, original, subject(original.subjectID)?.name)
-        else Reminders.cancel(ctx, id)
-        next?.let { Reminders.schedule(ctx, it, subject(it.subjectID)?.name) }
+        notify {
+            if (original.isDone) scheduleReminder(ctx, original, subject(original.subjectID)?.name)
+            else cancelReminder(ctx, id)
+            next?.let { scheduleReminder(ctx, it, subject(it.subjectID)?.name) }
+        }
     }
 }
 

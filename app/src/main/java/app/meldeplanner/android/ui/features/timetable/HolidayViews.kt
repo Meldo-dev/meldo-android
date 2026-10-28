@@ -31,7 +31,7 @@ import app.meldeplanner.android.ui.components.Badge
 import app.meldeplanner.android.ui.components.DS
 import app.meldeplanner.android.ui.components.LocalAppModel
 import app.meldeplanner.android.ui.components.sfSymbol
-import app.meldeplanner.android.ui.features.tasks.groupShape
+import app.meldeplanner.android.ui.form.groupShape
 import app.meldeplanner.android.ui.features.tasks.rowAnimation
 import app.meldeplanner.android.ui.navigation.MeldoScreen
 import app.meldeplanner.android.ui.theme.MeldoColors

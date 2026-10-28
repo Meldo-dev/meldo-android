@@ -1,11 +1,13 @@
-package app.meldeplanner.android.ui.features.more
+package app.meldeplanner.android.ui.components
 
 import android.content.ComponentName
 import android.content.Context
 import android.content.pm.PackageManager
 import androidx.annotation.DrawableRes
-import app.meldeplanner.android.R
+import app.meldeplanner.android.ui.R
 import app.meldeplanner.android.data.AppIconChoice
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 /**
  * Launcher icons, the counterpart of iOS alternate app icons. Each choice is an

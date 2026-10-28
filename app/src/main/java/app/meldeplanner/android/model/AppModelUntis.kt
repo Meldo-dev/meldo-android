@@ -45,6 +45,9 @@ import uniffi.melde_ffi.untisParsePeriods
 import uniffi.melde_ffi.untisWeekStart
 import java.text.Normalizer
 import java.time.Duration
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import java.time.Instant
 import java.time.LocalDate
 
@@ -66,20 +69,44 @@ val untisRefreshInterval: Duration = Duration.ofSeconds(25)
 /** How old it may get in the background: a little under the 20-minute rhythm, so an early wake-up still updates. */
 val untisBackgroundRefreshInterval: Duration = Duration.ofMinutes(18)
 
-/**
- * "server|school|user", the key it always had. A name containing "|" could make two
- * accounts share it, so those get an escaped key in their own "server#…" form.
- */
-internal fun keychainAccount(link: UntisLink): String {
-    if ('|' !in link.loginName && '|' !in link.user) return "${link.server}|${link.loginName}|${link.user}"
-    fun part(text: String) = text.replace("%", "%25").replace("|", "%7C")
-    return "${link.server}#${part(link.loginName)}|${part(link.user)}"
+/** This device's WebUntis updates (an [AppModel.part]). */
+class UntisSession {
+    /** A WebUntis update is running; automatic updates don't start a second one. */
+    var isRefreshing: Boolean by mutableStateOf(false)
+
+    /** After a failed automatic update, the next one waits until then (see refreshUntisIfStale). */
+    var retryAfter: Instant? = null
+    var failures = 0
+
+    /**
+     * Bumped by "WebUntis trennen". An import that started earlier stops writing, so it
+     * can't bring back the connection or its secret.
+     */
+    var generation = 0
 }
 
-/** The secure store, bound to the app context on first use. */
-internal fun AppModel.secrets(): SecureStore {
-    context?.let(SecureStore::init)
-    return SecureStore
+private val AppModel.untis: UntisSession get() = part(UntisSession::class, ::UntisSession)
+
+var AppModel.isRefreshingUntis: Boolean
+    get() = untis.isRefreshing
+    set(value) { untis.isRefreshing = value }
+private var AppModel.untisRetryAfter: Instant?
+    get() = untis.retryAfter
+    set(value) { untis.retryAfter = value }
+private var AppModel.untisFailures: Int
+    get() = untis.failures
+    set(value) { untis.failures = value }
+private var AppModel.untisGeneration: Int
+    get() = untis.generation
+    set(value) { untis.generation = value }
+
+/** Keeps WebUntis current: when the app opens, every 30 seconds while it is open, and in the background. */
+fun AppModel.installUntis() {
+    addConnection(object : AppModel.Connection {
+        override suspend fun refresh(model: AppModel, background: Boolean) =
+            model.refreshUntisIfStale(if (background) untisBackgroundRefreshInterval else untisRefreshInterval)
+        override val frequent get() = true
+    })
 }
 
 val AppModel.untisLink: UntisLink? get() = data.untis

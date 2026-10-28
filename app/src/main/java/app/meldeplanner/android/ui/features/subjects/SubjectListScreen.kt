@@ -72,11 +72,11 @@ import app.meldeplanner.android.ui.components.DS
 import app.meldeplanner.android.ui.components.LocalAppModel
 import app.meldeplanner.android.ui.components.SubjectIcon
 import app.meldeplanner.android.ui.components.sfSymbol
-import app.meldeplanner.android.ui.features.tasks.MorphShape
-import app.meldeplanner.android.ui.features.tasks.SelectionShapes
-import app.meldeplanner.android.ui.features.tasks.groupShape
-import app.meldeplanner.android.ui.features.tasks.rememberMorph
-import app.meldeplanner.android.ui.features.tasks.rememberSelectionProgress
+import app.meldeplanner.android.ui.form.MorphShape
+import app.meldeplanner.android.ui.form.SelectionShapes
+import app.meldeplanner.android.ui.form.groupShape
+import app.meldeplanner.android.ui.form.rememberMorph
+import app.meldeplanner.android.ui.form.rememberSelectionProgress
 import app.meldeplanner.android.ui.features.tasks.rowAnimation
 import app.meldeplanner.android.ui.navigation.LocalNavigator
 import app.meldeplanner.android.ui.navigation.MeldoScreen
