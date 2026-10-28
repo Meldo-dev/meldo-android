@@ -107,6 +107,9 @@ internal object LiveLesson {
         // subject and the notification wouldn't change, so it looks like nothing happened.
         // The preview keeps the button to show what it looks like.
         if (previewTaps != null || (!beforeStart && !stale)) builder.addAction(melden)
+        // The countdown runs on the system clock; shift it when `now` isn't the real time
+        // (the demo build's fixed school day), so it shows what is left from `now`.
+        val clockOffset = System.currentTimeMillis() - now.toEpochMilli()
         when {
             stale -> builder.setSubText(L("Stunde vorbei")).setShowWhen(false)
             // A lesson on a later day: its day and time instead of a days-long countdown.
@@ -119,12 +122,12 @@ internal object LiveLesson {
                 .setShowWhen(true)
                 .setUsesChronometer(true)
                 .setChronometerCountDown(true)
-                .setWhen(content.start.toEpochMilli())
+                .setWhen(content.start.toEpochMilli() + clockOffset)
             else -> builder
                 .setShowWhen(true)
                 .setUsesChronometer(true)
                 .setChronometerCountDown(true)
-                .setWhen(content.end.toEpochMilli())
+                .setWhen(content.end.toEpochMilli() + clockOffset)
         }
         when {
             note != null -> builder.setSubText(note)
