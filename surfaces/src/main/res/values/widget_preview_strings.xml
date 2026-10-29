@@ -17,8 +17,6 @@
     <string name="wp_hw1_due">Mathematik · morgen</string>
     <string name="wp_hw2">Vokabeln Unit 3</string>
     <string name="wp_hw2_due">Englisch · Freitag</string>
-    <string name="wp_holidays">Ferien</string>
     <string name="wp_days">12</string>
     <string name="wp_days_until">Tage bis dahin</string>
-    <string name="wp_holiday_name">Weihnachtsferien</string>
 </resources>

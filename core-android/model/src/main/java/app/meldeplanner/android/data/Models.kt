@@ -183,6 +183,14 @@ enum class DashboardCard {
     nextLesson, weekChart, nextHoliday, todos, grades,
 }
 
+/**
+ * The Start cards this build offers. Exams, news, absences and holidays came only from
+ * the WebUntis import, which is not in this build; their kinds stay so saved layouts and
+ * synced preferences keep working.
+ */
+val shownDashboardCards: List<DashboardCard> =
+    DashboardCard.entries - setOf(DashboardCard.exams, DashboardCard.news, DashboardCard.absences, DashboardCard.nextHoliday)
+
 /** Cards on the Statistik tab. */
 @Serializable
 enum class StatsCard { perDay, bySubject, trend }

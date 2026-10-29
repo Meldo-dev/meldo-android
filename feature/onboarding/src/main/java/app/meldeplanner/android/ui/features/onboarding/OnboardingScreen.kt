@@ -116,8 +116,6 @@ private fun Tour(navigator: Navigator) {
                     page == 1 -> MeldenPage()
                     page < lastPage -> FeaturePageView(features[page - 2])
                     else -> SetupPage(
-                        // The tour closes by itself once the WebUntis import succeeded.
-                        connectUntis = rememberLink(Link.Page("untis", onDone = { model.finishOnboarding() })),
                         // A saved subject is enough to start: Melden is now one tap away on Start.
                         addSubject = rememberLink(Link.NewSubject(onDone = { if (model.subjects.isNotEmpty()) model.finishOnboarding() })),
                         later = { model.finishOnboarding() },
@@ -250,7 +248,7 @@ private fun featurePages(): List<FeaturePage> = listOf(
         "tablecells", L("Stundenplan"),
         L("Hier siehst du deine Woche: welches Fach, welcher Raum, welche Lehrkraft. Wischen bringt dich zur nächsten oder letzten Woche."),
         listOf(
-            Triple("arrow.triangle.2.circlepath", L("Aus WebUntis oder selbst"), L("Verbinde WebUntis, dann kommt dein Plan von allein, mit Vertretungen und Ausfällen. Ohne WebUntis trägst du die Stunden selbst ein.")),
+            Triple("square.and.pencil", L("Einmal eintragen"), L("Trag deine Stunden einmal ein, dann kennt Meldo deine Woche.")),
             Triple("hand.tap", L("Auf eine Stunde tippen"), L("Zeigt alles zur Stunde. Von dort trägst du auch eine Hausaufgabe für dieses Fach ein.")),
             Triple("ellipsis.circle", L("Menü oben rechts"), L("„Heute“ springt zurück zum heutigen Tag. Dort erklärt Meldo auch, was die Farben bedeuten.")),
             Triple("a.circle", L("A- und B-Wochen"), L("Hat deine Schule Stunden nur jede zweite Woche? Schalte A/B-Wochen in den Einstellungen ein.")),
@@ -263,7 +261,7 @@ private fun featurePages(): List<FeaturePage> = listOf(
         listOf(
             Triple("plus.circle", L("Aufgabe eintragen"), L("Fach wählen, und Meldo schlägt als Fälligkeit die nächste Stunde in diesem Fach vor. Du kannst auch ein anderes Datum nehmen.")),
             Triple("bell", L("Erinnerungen"), L("Lass dich vorher erinnern. Aufgaben, die jede Woche wiederkommen, legt Meldo nach dem Abhaken neu an.")),
-            Triple("tray.and.arrow.down", L("Von WebUntis und Teams"), L("Bist du verbunden, landen Hausaufgaben und Teams-Aufgaben hier von selbst.")),
+            Triple("person.3", L("Von Teams"), L("Bist du mit Teams verbunden, landen deine Teams-Aufgaben hier von selbst.")),
             Triple("calendar", L("Kalender"), L("Zeigt Prüfungen, fällige Aufgaben und deine Meldungen über den ganzen Monat.")),
         ),
     ),
@@ -287,19 +285,9 @@ private fun featurePages(): List<FeaturePage> = listOf(
         ),
     ),
     FeaturePage(
-        "person.crop.circle.badge.clock", L("Abwesenheiten und Ferien"),
-        L("Mit WebUntis siehst du, wann du gefehlt hast und ob es schon entschuldigt ist."),
-        listOf(
-            Triple("checkmark.circle", L("Entschuldigt oder offen"), L("Grün ist entschuldigt, rot ist noch offen. Verspätungen zählt Meldo extra.")),
-            Triple("doc.text", L("Entschuldigung schreiben"), L("Halte eine Abwesenheit gedrückt, und Meldo füllt dir eine Entschuldigung zum Ausdrucken oder Teilen vor.")),
-            Triple("sun.horizon", L("Ferien"), L("Ferien und freie Tage kommen aus WebUntis. Dort zeigt der Stundenplan keine Stunden, also fragt Meldo auch nicht nach.")),
-        ),
-    ),
-    FeaturePage(
         "link", L("Verbindungen"),
         L("Meldo kann sich mit Diensten verbinden, die du schon nutzt. Alles ist freiwillig, und du kannst es jederzeit wieder trennen."),
         listOf(
-            Triple("arrow.triangle.2.circlepath", L("WebUntis"), L("Stundenplan, Vertretungen, Hausaufgaben, Prüfungen und Abwesenheiten deiner Schule. Du meldest dich mit deinem normalen Schul-Login an.")),
             Triple("person.3", L("Microsoft Teams"), L("Holt die Aufgaben aus deinen Teams-Klassen. Du schaltest es in den Einstellungen ein, wenn deine Schule es erlaubt.")),
             Triple("externaldrive", L("Google Drive"), L("Ein verschlüsseltes Backup in deinem eigenen Google Drive, mit all deinen Einstellungen. Beim Einrichten legst du ein Backup Passwort fest; damit öffnest du es auch auf einem neuen Gerät.")),
         ),
@@ -327,7 +315,7 @@ private fun featurePages(): List<FeaturePage> = listOf(
         L("Meldo hat kein Konto, keinen eigenen Server, keine Werbung und kein Tracking."),
         listOf(
             Triple("iphone", L("Auf deinem Gerät"), L("Alles, was du einträgst, liegt auf deinem Handy oder Tablet.")),
-            Triple("key", L("Passwörter verschlüsselt auf dem Gerät"), L("Deine Anmeldungen für WebUntis, Teams und Google bleiben verschlüsselt auf diesem Gerät und gehen nie an Meldo.")),
+            Triple("key", L("Passwörter verschlüsselt auf dem Gerät"), L("Deine Anmeldungen für Teams und Google bleiben verschlüsselt auf diesem Gerät und gehen nie an Meldo.")),
             Triple("hand.raised", L("Du entscheidest"), L("Daten verlassen dein Gerät nur, wenn du selbst eine Verbindung einschaltest. Mehr dazu steht in der Datenschutzerklärung unter Über Meldo.")),
         ),
     ),
@@ -347,7 +335,7 @@ private fun FeaturePageView(feature: FeaturePage) {
 }
 
 @Composable
-private fun SetupPage(connectUntis: (() -> Unit)?, addSubject: (() -> Unit)?, later: () -> Unit) {
+private fun SetupPage(addSubject: (() -> Unit)?, later: () -> Unit) {
     OnboardingPage {
         OnboardingTitle(L("Wie startest du?"))
         Text(
@@ -355,18 +343,6 @@ private fun SetupPage(connectUntis: (() -> Unit)?, addSubject: (() -> Unit)?, la
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         Column(Modifier.padding(top = DS.spacingS), verticalArrangement = Arrangement.spacedBy(DS.spacingM)) {
-            if (connectUntis != null) {
-                Button(onClick = connectUntis, shapes = ButtonDefaults.shapes(), modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) {
-                    Icon(sfSymbol("arrow.triangle.2.circlepath"), null, Modifier.size(20.dp))
-                    Spacer(Modifier.size(DS.spacingS))
-                    Text(L("Mit WebUntis verbinden"), fontWeight = FontWeight.SemiBold)
-                }
-                Text(
-                    L("Deine Anmeldung geht direkt an WebUntis, nie an Meldo, und bleibt verschlüsselt auf diesem Gerät."),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
             if (addSubject != null) FilledTonalButton(onClick = addSubject, shapes = ButtonDefaults.shapes(), modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) {
                 Icon(sfSymbol("plus"), null, Modifier.size(20.dp))
                 Spacer(Modifier.size(DS.spacingS))

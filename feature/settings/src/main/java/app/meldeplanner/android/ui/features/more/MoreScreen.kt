@@ -86,6 +86,7 @@ import app.meldeplanner.android.data.AppearanceChoice
 import app.meldeplanner.android.data.CardSize
 import app.meldeplanner.android.data.CardSlot
 import app.meldeplanner.android.data.DashboardCard
+import app.meldeplanner.android.data.shownDashboardCards
 import app.meldeplanner.android.data.defaultHomeLayout
 import app.meldeplanner.android.core.Notifications
 import app.meldeplanner.android.ui.components.DS
@@ -496,13 +497,14 @@ private fun sizeTitle(size: CardSize): String = when (size) {
 @Composable
 fun DashboardCardsScreen() {
     val model = LocalAppModel.current
-    val layout = model.preferences.homeLayout
-    val hidden = DashboardCard.entries.filter { kind -> layout.none { it.kind == kind } }
+    val layout = model.preferences.homeLayout.filter { it.kind in shownDashboardCards }
+    val hidden = shownDashboardCards.filter { kind -> layout.none { it.kind == kind } }
 
     fun update(change: (MutableList<CardSlot<DashboardCard>>) -> Unit) {
         val list = layout.map { it.copy() }.toMutableList()
         change(list)
-        model.setHomeLayout(list)
+        // Keeps the slots of cards this build doesn't show.
+        model.setHomeLayout(list + model.preferences.homeLayout.filter { it.kind !in shownDashboardCards })
     }
 
     MeldoScreen(L("Startseite anpassen")) { padding ->

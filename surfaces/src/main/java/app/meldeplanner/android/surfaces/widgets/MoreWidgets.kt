@@ -37,7 +37,6 @@ import app.meldeplanner.android.data.TaskKind
 import app.meldeplanner.android.surfaces.SurfaceIntents
 import uniffi.melde_ffi.timetableOccurrencesOn
 import java.time.Instant
-import java.time.temporal.ChronoUnit
 
 // Widgets that only display stored data. Port of meldo-ios/MeldeWidgets/MoreWidgets.swift.
 
@@ -262,56 +261,6 @@ private fun DueChip(text: String, overdue: Boolean, style: WidgetStyle) {
             ),
             maxLines = 1,
         )
-    }
-}
-
-// endregion
-
-// region Holidays
-
-/** "Ferien-Countdown": days until the next holidays (small). */
-class HolidayCountdownWidget : MeldoDataWidget() {
-    override val sizeMode = SizeMode.Responsive(setOf(Family.SMALL))
-    override val glow: Boolean = true
-
-    @Composable
-    override fun Content(snapshot: WidgetSnapshot, style: WidgetStyle) = HolidayCountdownView(snapshot, style)
-}
-
-class HolidayCountdownWidgetReceiver : MeldoWidgetReceiver() {
-    override val glanceAppWidget: GlanceAppWidget = HolidayCountdownWidget()
-}
-
-@Composable
-private fun HolidayCountdownView(snapshot: WidgetSnapshot, style: WidgetStyle) {
-    val calendar = snapshot.model.calendar
-    val today = calendar.startOfDay(snapshot.now)
-    val holiday = snapshot.data.holidays
-        .filter { calendar.startOfDay(it.lastDay) >= today }
-        .minByOrNull { it.firstDay }
-    if (holiday == null) {
-        Column(GlanceModifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalAlignment = Alignment.CenterVertically) {
-            SymbolBadge("sun.horizon.fill", WidgetShape.sunny, style.primary, style.onPrimary, size = 40.dp)
-            Spacer(GlanceModifier.height(WidgetSpace.gap))
-            Caption(L("Keine Ferien eingetragen"), style.secondary, weight = FontWeight.Medium, maxLines = 2)
-        }
-        return
-    }
-    val running = calendar.startOfDay(holiday.firstDay) <= today
-    val target = calendar.startOfDay(if (running) holiday.lastDay else holiday.firstDay)
-    val days = ChronoUnit.DAYS.between(calendar.localDate(today), calendar.localDate(target)).coerceAtLeast(0)
-    Column(GlanceModifier.fillMaxSize()) {
-        WidgetHeader(L("Ferien"), "sun.horizon.fill", WidgetColors.holiday, style)
-        Spacer(GlanceModifier.defaultWeight())
-        Row(GlanceModifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            HeroBadge("$days", WidgetShape.sunny, style.primary, style.onPrimary, size = 84.dp, fontSize = 44.sp)
-            Spacer(GlanceModifier.width(10.dp))
-            Box(GlanceModifier.defaultWeight()) {
-                Caption(if (running) L("Tage Ferien übrig") else L("Tage bis dahin"), style.text, size = 15.sp, weight = FontWeight.Bold, maxLines = 2)
-            }
-        }
-        Spacer(GlanceModifier.defaultWeight())
-        Caption(holiday.name, style.secondary, size = 13.sp, weight = FontWeight.Medium, maxLines = 1)
     }
 }
 

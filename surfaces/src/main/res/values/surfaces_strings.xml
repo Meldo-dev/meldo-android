@@ -12,8 +12,6 @@
     <string name="surfaces_widget_schedule_description">Deine Stunden heute, Ausfälle durchgestrichen.</string>
     <string name="surfaces_widget_homework">Hausaufgaben</string>
     <string name="surfaces_widget_homework_description">Was bald fällig ist.</string>
-    <string name="surfaces_widget_holidays">Ferien-Countdown</string>
-    <string name="surfaces_widget_holidays_description">Tage bis zu den nächsten Ferien.</string>
 
     <string name="surfaces_tile_melden">Melden</string>
     <string name="surfaces_shortcut_melden">Melden</string>

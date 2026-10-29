@@ -21,13 +21,11 @@ import androidx.compose.ui.unit.sp
 import app.meldeplanner.android.core.L
 import app.meldeplanner.android.data.CardSize
 import app.meldeplanner.android.data.TaskKind
-import app.meldeplanner.android.model.HolidayText
 import app.meldeplanner.android.model.gradeSummary
 import app.meldeplanner.android.model.gradeText
 import app.meldeplanner.android.model.overallGradeAverage
 import app.meldeplanner.android.model.tasks
 import app.meldeplanner.android.model.timetableBlocks
-import app.meldeplanner.android.model.upcomingHolidays
 import app.meldeplanner.android.ui.components.Card
 import app.meldeplanner.android.ui.components.DS
 import app.meldeplanner.android.ui.components.LocalAppModel
@@ -40,7 +38,6 @@ import app.meldeplanner.android.ui.rows.rememberTickingNow
 import app.meldeplanner.android.ui.rows.DateText
 import app.meldeplanner.android.ui.rows.CardTaskRow
 import app.meldeplanner.android.ui.rows.CardLink
-import app.meldeplanner.android.ui.rows.CardBlockStyle
 import app.meldeplanner.android.ui.rows.digits
 import app.meldeplanner.android.ui.rows.NumberText
 import app.meldeplanner.android.ui.rows.BlockRow
@@ -122,43 +119,6 @@ internal fun WeekChartMiniCard(now: Instant, size: CardSize) {
 }
 
 /** How long until the next holidays, or how long they still last. */
-@Composable
-internal fun NextHolidayCard(now: Instant, size: CardSize) {
-    val model = LocalAppModel.current
-    val calendar = model.calendar
-    val today = calendar.startOfDay(now)
-    val holiday = model.upcomingHolidays(now).firstOrNull()
-    val secondary = MaterialTheme.colorScheme.onSurfaceVariant
-    Card(title = L("Nächste Ferien"), symbol = "sun.horizon") {
-        if (holiday != null) {
-            val running = holiday.firstDay <= today
-            val target = if (running) holiday.lastDay else holiday.firstDay
-            val days = maxOf(DateText.daysBetween(today, calendar.startOfDay(target), calendar), 0L).toInt()
-            Row(horizontalArrangement = Arrangement.spacedBy(DS.spacingS), verticalAlignment = Alignment.Bottom) {
-                NumberText(days, bigNumber(size), color = CardBlockStyle.untisHoliday)
-                Text(
-                    if (running) L("Tage Ferien übrig") else L("Tage bis dahin"),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = secondary,
-                    modifier = Modifier.padding(bottom = 10.dp),
-                )
-            }
-            Text(holiday.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-            if (size != CardSize.small) {
-                Text(HolidayText.range(holiday, calendar), style = MaterialTheme.typography.bodyMedium.digits, color = secondary)
-            }
-        } else {
-            Text(
-                if (model.data.untis == null) L("Verbinde WebUntis, dann erscheinen hier die Ferien deiner Schule.")
-                else L("Keine Ferien eingetragen"),
-                style = MaterialTheme.typography.bodyMedium,
-                color = secondary,
-            )
-        }
-    }
-}
-
-/** Open to-dos (not homework), check off in place. */
 @Composable
 internal fun TodosCard(now: Instant, size: CardSize) {
     val model = LocalAppModel.current

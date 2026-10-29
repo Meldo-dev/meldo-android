@@ -83,7 +83,6 @@ internal object MeldoWidgets {
             Entry(MeldoStatsWidget(), MeldoStatsWidgetReceiver::class.java),
             Entry(TodayScheduleWidget(), TodayScheduleWidgetReceiver::class.java),
             Entry(HomeworkWidget(), HomeworkWidgetReceiver::class.java),
-            Entry(HolidayCountdownWidget(), HolidayCountdownWidgetReceiver::class.java),
         )
     }
 }

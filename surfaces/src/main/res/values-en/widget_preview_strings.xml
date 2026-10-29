@@ -17,8 +17,6 @@
     <string name="wp_hw1_due">Maths · tomorrow</string>
     <string name="wp_hw2">Vocabulary unit 3</string>
     <string name="wp_hw2_due">English · Friday</string>
-    <string name="wp_holidays">Holidays</string>
     <string name="wp_days">12</string>
     <string name="wp_days_until">days to go</string>
-    <string name="wp_holiday_name">Christmas holidays</string>
 </resources>

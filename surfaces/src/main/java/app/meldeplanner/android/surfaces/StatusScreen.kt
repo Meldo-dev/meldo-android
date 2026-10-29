@@ -180,23 +180,10 @@ fun StatusScreen() {
                 }
             }
             item(key = "connections") {
-                FormSection(header = L("Verbindungen")) {
-                    val untis = model.data.untis
-                    StatusRow(
-                        L("WebUntis"),
-                        ok = untis != null,
-                        detail = if (untis != null) {
-                            listOfNotNull(
-                                "${untis.schoolName} · ${untis.user}",
-                                untis.lastSync?.let { L("Zuletzt: %@", syncText(it, model.calendar.zone)) },
-                            ).joinToString("\n")
-                        } else {
-                            L("Nicht verbunden.")
-                        },
-                    )
+                // Only in builds with Teams, once it is switched on.
+                if (LocalFeatures.current["teams"]?.isAvailable(model) == true) FormSection(header = L("Verbindungen")) {
                     val teams = model.data.teams
-                    // Only in builds with Teams, once it is switched on.
-                    if (LocalFeatures.current["teams"]?.isAvailable(model) == true) StatusRow(
+                    StatusRow(
                         L("Microsoft Teams"),
                         ok = teams != null,
                         detail = if (teams != null) {

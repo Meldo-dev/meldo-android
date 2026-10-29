@@ -11,8 +11,7 @@
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <!-- Surfaces: alarms are cleared by a reboot; check-ins and reminders are planned again. -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    <!-- WebUntis import (school search + the school's WebUntis server), Microsoft Teams (Graph)
-         and the encrypted Google Drive backup. -->
+    <!-- Microsoft Teams (Graph) and the encrypted Google Drive backup. -->
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
@@ -118,17 +117,6 @@
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/surfaces_widget_homework" />
-        </receiver>
-        <receiver
-            android:name=".surfaces.widgets.HolidayCountdownWidgetReceiver"
-            android:exported="true"
-            android:label="@string/surfaces_widget_holidays">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-            </intent-filter>
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/surfaces_widget_holidays" />
         </receiver>
         <!-- Dokumente: shares scanned PDFs (filesDir/Scans) with other apps. -->
         <provider
