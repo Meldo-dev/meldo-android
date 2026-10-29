@@ -45,7 +45,7 @@ class MainActivity : ComponentActivity() {
                 // Pick up Meldungen logged from widgets, the tile or notifications and re-plan reminders.
                 model.reloadFromDisk()
                 model.refreshSchedules()
-                // Like iOS when the app becomes active: update WebUntis and Teams if due,
+                // Like iOS when the app becomes active: update Teams if due,
                 // then every 30 seconds while the app stays open.
                 launch { model.refreshConnections() }
                 launch { BackgroundRefresh.foregroundLoop(model) }

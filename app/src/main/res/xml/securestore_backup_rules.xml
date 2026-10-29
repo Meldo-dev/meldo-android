@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- The encrypted secrets (WebUntis password or session, Microsoft refresh token) never
-     leave the device: their Keystore key can't be copied, so a copy would be useless.
-     The WebView data (cookies and storage of the school login) holds the same session
-     in the clear, so it stays on the device too. -->
+<!-- The encrypted secrets (sign-ins) never leave the device: their Keystore key
+     can't be copied, so a copy would be useless. The WebView data stays on the
+     device too. -->
 <data-extraction-rules>
     <cloud-backup>
         <exclude domain="sharedpref" path="app.meldeplanner.securestore.xml" />

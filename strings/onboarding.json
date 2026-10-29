@@ -23,12 +23,8 @@
     "de": "Passwörter verschlüsselt auf dem Gerät",
     "en": "Passwords encrypted on the device"
   },
-  "Deine Anmeldungen für WebUntis, Teams und Google bleiben verschlüsselt auf diesem Gerät und gehen nie an Meldo.": {
-    "de": "Deine Anmeldungen für WebUntis, Teams und Google bleiben verschlüsselt auf diesem Gerät und gehen nie an Meldo.",
-    "en": "Your sign-ins for WebUntis, Teams and Google stay encrypted on this device and never go to Meldo."
-  },
-  "Deine Anmeldung geht direkt an WebUntis, nie an Meldo, und bleibt verschlüsselt auf diesem Gerät.": {
-    "de": "Deine Anmeldung geht direkt an WebUntis, nie an Meldo, und bleibt verschlüsselt auf diesem Gerät.",
-    "en": "Your sign-in goes straight to WebUntis, never to Meldo, and stays encrypted on this device."
+  "Deine Anmeldungen für Teams und Google bleiben verschlüsselt auf diesem Gerät und gehen nie an Meldo.": {
+    "de": "Deine Anmeldungen für Teams und Google bleiben verschlüsselt auf diesem Gerät und gehen nie an Meldo.",
+    "en": "Your sign-ins for Teams and Google stay encrypted on this device and never go to Meldo."
   }
 }

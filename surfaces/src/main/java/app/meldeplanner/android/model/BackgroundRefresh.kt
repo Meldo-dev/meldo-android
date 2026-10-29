@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit
 import kotlin.coroutines.coroutineContext
 
 /**
- * Keeps WebUntis (and Teams) data current in the background, the counterpart of
+ * Keeps Teams and Google Drive data current in the background, the counterpart of
  * iOS' Background App Refresh task in MeldePlannerApp.swift. Android decides the
  * exact time; WorkManager runs it about every 20 minutes when there is a network.
  */
@@ -27,7 +27,7 @@ object BackgroundRefresh {
 
     /** Plans the periodic background update; an existing schedule takes the new period. */
     fun schedule(context: Context) {
-        // WebUntis in the background every 20 minutes; Google Drive sync adds the 5-minute runs below.
+        // Teams in the background every 20 minutes; Google Drive sync adds the 5-minute runs below.
         val request = PeriodicWorkRequestBuilder<Worker>(20, TimeUnit.MINUTES)
             .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
             .build()
@@ -51,7 +51,7 @@ object BackgroundRefresh {
             .enqueueUniqueWork(SOON_WORK_NAME, ExistingWorkPolicy.REPLACE, request)
     }
 
-    /** Runs when Android wakes Meldo: sync with Google Drive, then update WebUntis and Teams if they're due. */
+    /** Runs when Android wakes Meldo: sync with Google Drive, then update Teams if it's due. */
     suspend fun run(model: AppModel) = withContext(Dispatchers.Main) {
         model.reloadFromDisk()
         // Sync first, so a disconnect made on another device is seen before refreshing.
@@ -59,8 +59,8 @@ object BackgroundRefresh {
     }
 
     /**
-     * While the app is open: sync with Google Drive and update WebUntis every 30 seconds,
-     * so other devices' changes and timetable changes arrive quickly.
+     * While the app is open: sync with Google Drive and update Teams every 30 seconds,
+     * so other devices' changes arrive quickly.
      * Call from a lifecycle-bound coroutine (e.g. `repeatOnLifecycle(STARTED)`), so it
      * stops in the background.
      */

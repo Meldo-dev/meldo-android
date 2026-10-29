@@ -3,7 +3,6 @@ package app.meldeplanner.android.ui.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.staticCompositionLocalOf
 import app.meldeplanner.android.data.TaskKind
-import app.meldeplanner.android.data.UntisAbsenceRecord
 import app.meldeplanner.android.model.AppModel
 
 // The feature registry. Every feature module exposes one or more MeldoFeature values; the
@@ -19,7 +18,7 @@ enum class Placement {
     /** A school place: one of the bar's two flexible places ([MeldoFeature.barChoice]) or under Mehr / Schule. */
     school,
 
-    /** A connected service (WebUntis, Teams, Google Drive): under Mehr / Verbindungen. */
+    /** A connected service (Teams, Google Drive): under Mehr / Verbindungen. */
     connections,
 
     /** About the app (Fächer, Einstellungen, Status, Über Meldo): under Mehr / App. */
@@ -83,7 +82,7 @@ interface MeldoFeature {
 
 /** A screen one feature opens in another; it only renders when a feature in the list answers. */
 sealed interface Link {
-    /** A feature's main page by its id. [onDone]: after the student finished there (e.g. connected WebUntis). */
+    /** A feature's main page by its id. [onDone]: after the student finished there (e.g. connected Teams). */
     data class Page(val id: String, val onDone: (() -> Unit)? = null) : Link
 
     data class NewTask(val kind: TaskKind, val subjectID: String? = null) : Link
@@ -92,9 +91,6 @@ sealed interface Link {
     data class NewSubject(val onDone: (() -> Unit)? = null) : Link
 
     data class NewLesson(val weekday: Int) : Link
-
-    /** The Entschuldigung for an absence from WebUntis. */
-    data class ExcuseNote(val absence: UntisAbsenceRecord) : Link
 }
 
 /** The app's feature list. */

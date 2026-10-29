@@ -8,7 +8,7 @@ Meldo is a free, open source school planner for students in Germany. Its core fe
 
 - Apps for iOS, iPadOS and Android. All three share one Rust core (meldo-core).
 - No backend and no account. Data stays on the device.
-- Optional integrations: WebUntis timetable import, Microsoft Teams assignments, and Google Drive backup and sync. Sync data is encrypted on the device before upload (AES-256-GCM, key from PBKDF2-SHA256) and stored in the `drive.appdata` scope.
+- Optional integrations: Microsoft Teams assignments, and Google Drive backup and sync. Sync data is encrypted on the device before upload (AES-256-GCM, key from PBKDF2-SHA256) and stored in the `drive.appdata` scope.
 - German is the default language, English is the second one.
 - Website: meldo.dev.
 
@@ -21,8 +21,7 @@ meldo-android is the Kotlin and Jetpack Compose app (Android 8 and newer, Materi
 | Path | Contents |
 |---|---|
 | `app/` | Composition root: `MainActivity`, `MeldoApp`, the feature list `MeldoFeatures.kt`, `RootScreen`, manifest, signing, R8 |
-| `feature/*` | One module per feature: timetable, participation, tasks, exams, grades, calendar, statistics, holidays, subjects, dashboard, onboarding, settings |
-| `integration/untis` | WebUntis import, Abwesenheiten |
+| `feature/*` | One module per feature: timetable, participation, tasks, exams, grades, calendar, statistics, subjects, dashboard, onboarding, settings |
 | `integration/teams` | Microsoft Teams assignments |
 | `integration/drive` | Google Drive sync, encrypted on the device (`DriveSync.kt`) |
 | `surfaces/` | Widgets, Quick Settings tile, notifications, live lesson, background refresh |
@@ -40,7 +39,7 @@ How it fits together:
 
 - Dependencies only point down: `app` to features, integrations and `surfaces`, all of them to `core-android`. A feature never depends on another feature.
 - Each feature exposes a `MeldoFeature`. The bar, tablet sidebar, Mehr and Einstellungen are built from `MeldoFeatures.kt`. Links between features go by id.
-- Grade math, timetable derivation, WebUntis parsing and statistics come from the Rust core through the generated bindings. Don't reimplement them in Kotlin.
+- Grade math, timetable derivation and statistics come from the Rust core through the generated bindings. Don't reimplement them in Kotlin.
 - Strings: shared ones in `core/l10n/Localizable.xcstrings` (edit them in meldo-core); only strings that exist on Android alone go in `strings/<feature>.json`.
 - `AppData` and the sync format stay whole in `core-android/model`. The format must match MeldoDrive in meldo-ios, so the two apps sync with each other.
 
@@ -82,4 +81,5 @@ Workflows:
 - Don't push to `main`, `beta` or `alpha`, and don't create tags or releases, unless the owner asked for it. Work on a branch and open a pull request.
 - `beta` and `alpha` differ from `main` on purpose. Don't merge `main` into them, and don't force-push.
 - Don't touch the owner's devices or real data.
+- The WebUntis import is not part of the apps for now. Don't add it back or reintroduce code for it.
 - Site: no third-party requests, cookies or trackers. Keep the `/de/` and `/en/` URLs and the redirects. Legal pages: German is authoritative, English matches it.

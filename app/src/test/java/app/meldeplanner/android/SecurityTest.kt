@@ -14,10 +14,6 @@ import app.meldeplanner.android.data.LocalStore
 import app.meldeplanner.android.data.MeldoJson
 import app.meldeplanner.android.data.Subject
 import app.meldeplanner.android.data.SyncBox
-import app.meldeplanner.android.data.UntisFailure
-import app.meldeplanner.android.data.UntisLink
-import app.meldeplanner.android.model.untisRetryDelay
-import app.meldeplanner.android.model.untisServerIsListed
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -25,11 +21,9 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.w3c.dom.Element
-import uniffi.melde_ffi.FfiUntisSchool
 import java.io.File
 import java.net.URL
 import java.nio.file.Files
-import java.time.Duration
 import java.time.Instant
 import java.util.UUID
 import javax.xml.parsers.DocumentBuilderFactory
@@ -39,52 +33,6 @@ import javax.xml.parsers.DocumentBuilderFactory
  * lower-trust party could send and checks that the fix holds. Dummy data only.
  */
 class SecurityTest {
-    // region Synced WebUntis server (lead 2)
-
-    private val link = UntisLink(server = "", loginName = "BK-Ohm", schoolName = "Berufskolleg", user = "", browserLogin = true)
-
-    @Test
-    fun aWebUntisHostOpensWithoutAsking() = runBlocking {
-        var searched = false
-        assertTrue(untisServerIsListed(link.copy(server = "nessa.webuntis.com")) { searched = true; emptyList() })
-        assertFalse(searched)
-    }
-
-    @Test
-    fun aSyncedForeignServerIsRefused() = runBlocking {
-        val search: suspend (String) -> List<FfiUntisSchool> = {
-            listOf(FfiUntisSchool(server = "untis.bk-ohm.de", loginName = "BK-Ohm", displayName = "Berufskolleg", address = ""))
-        }
-        // Planted by a device or backup writer: not what WebUntis lists for this school.
-        assertFalse(untisServerIsListed(link.copy(server = "login.example.test"), search))
-        // Lookalike names don't count as webuntis.com.
-        assertFalse(untisServerIsListed(link.copy(server = "webuntis.com.example.test"), search))
-        assertFalse(untisServerIsListed(link.copy(server = "evilwebuntis.com"), search))
-        // A self-hosted school the search lists still works.
-        assertTrue(untisServerIsListed(link.copy(server = "UNTIS.bk-ohm.de"), search))
-    }
-
-    // endregion
-
-    // region Refresh backoff (lead 4)
-
-    @Test
-    fun aWrongPasswordStopsAutomaticRetries() {
-        assertNull(untisRetryDelay(UntisFailure.WrongCredentials, 1))
-    }
-
-    @Test
-    fun failuresBackOffAndStayBounded() {
-        assertEquals(Duration.ofMinutes(30), untisRetryDelay(UntisFailure.SessionExpired, 1))
-        assertEquals(Duration.ofMinutes(30), untisRetryDelay(UntisFailure.NoLessons, 1))
-        val delays = (1..10).map { untisRetryDelay(UntisFailure.Network, it)!! }
-        assertEquals(Duration.ofMinutes(1), delays.first())
-        assertTrue(delays.zipWithNext().all { (a, b) -> b >= a })
-        assertTrue(delays.all { it <= Duration.ofMinutes(30) })
-    }
-
-    // endregion
-
     // region Drive files someone else wrote (lead 6)
 
     @Test
@@ -148,7 +96,6 @@ class SecurityTest {
             ".ui.features.untis.TeamsAuthActivity", ".surfaces.MeldenTileService",
             ".surfaces.widgets.MeldoTodayWidgetReceiver", ".surfaces.widgets.MeldoStatsWidgetReceiver",
             ".surfaces.widgets.TodayScheduleWidgetReceiver", ".surfaces.widgets.HomeworkWidgetReceiver",
-            ".surfaces.widgets.HolidayCountdownWidgetReceiver",
         )
         assertEquals(expected, exported.keys)
         // Only the system may bind the Quick Settings tile.

@@ -16,8 +16,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.semantics
@@ -34,21 +32,11 @@ import app.meldeplanner.android.ui.components.LocalAppModel
 import app.meldeplanner.android.ui.components.TimeText
 import app.meldeplanner.android.ui.theme.StateColors
 import java.time.Instant
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.material3.Button
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.ui.semantics.Role
 import app.meldeplanner.android.core.MeldoCalendar
 import app.meldeplanner.android.data.UntisAbsenceRecord
-import app.meldeplanner.android.ui.components.MeldoMenu
-import app.meldeplanner.android.ui.components.MeldoMenuItem
 import app.meldeplanner.android.ui.navigation.LocalNavigator
 import app.meldeplanner.android.model.AppModel
-import app.meldeplanner.android.ui.navigation.Link
-import app.meldeplanner.android.ui.navigation.rememberLink
 
 /** One lesson in a list, colored like the timetable. Also used by Kalender. */
 @Composable
@@ -157,7 +145,6 @@ fun UntisExamRow(exam: UntisExamRecord, now: Instant, compact: Boolean = false, 
  * [contentPadding] is the room around the content: none sideways by default, so the
  * row lines up with LessonRow inside a Card (Kalender); grouped lists pass their row inset.
  */
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun AbsenceRow(
     absence: UntisAbsenceRecord,
@@ -165,18 +152,11 @@ fun AbsenceRow(
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(vertical = DS.spacingXS),
 ) {
-    // The Entschuldigung comes from WebUntis' module; without it the row has no menu.
-    val excuse = rememberLink(Link.ExcuseNote(absence))
-    var menu by remember { mutableStateOf(false) }
     val color = if (absence.excused) StateColors.green() else StateColors.red()
     Box(modifier) {
         Row(
             Modifier
                 .fillMaxWidth()
-                .then(
-                    if (excuse != null) Modifier.combinedClickable(role = Role.Button, onClick = { menu = true }, onLongClick = { menu = true })
-                    else Modifier,
-                )
                 .padding(contentPadding)
                 .semantics(mergeDescendants = true) {},
             verticalAlignment = Alignment.Top,
@@ -201,15 +181,6 @@ fun AbsenceRow(
                 )
             }
         }
-        MeldoMenu(
-            expanded = menu,
-            onDismiss = { menu = false },
-            groups = listOf(
-                listOf(
-                    MeldoMenuItem(L("Entschuldigung erstellen"), symbol = "doc.text") { excuse?.invoke() },
-                ),
-            ),
-        )
     }
 }
 

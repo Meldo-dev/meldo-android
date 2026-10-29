@@ -25,7 +25,6 @@ include(
     ":feature:dashboard",
     ":feature:exams",
     ":feature:grades",
-    ":feature:holidays",
     ":feature:onboarding",
     ":feature:participation",
     ":feature:settings",
@@ -36,7 +35,7 @@ include(
 )
 
 // Connected services.
-include(":integration:untis", ":integration:teams", ":integration:drive")
+include(":integration:teams", ":integration:drive")
 
 // Widgets, the tile, notifications and background refresh.
 include(":surfaces")
