@@ -281,6 +281,9 @@ object DriveSync {
         }
         currentCoroutineContext().ensureActive()
         val sealed = SyncBox.seal(MeldoJson.encodeToString(AppData.serializer(), merged).toByteArray(Charsets.UTF_8), key, context(DATA_NAME))
+        // Every device reads a larger file as damaged and replaces it with its own data, so one
+        // this large is never uploaded: that would cost the other devices their changes.
+        if (sealed.size > MAX_DATA_BYTES) throw DriveProblem.TooLarge
         // shortcut: Drive has no conditional write, so two devices saving at the same moment can
         // overwrite each other's upload. Nothing is lost: each keeps its data and merges next time.
         if (existing != null) {
