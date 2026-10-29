@@ -8,8 +8,6 @@
     <string name="surfaces_widget_schedule_description">Your lessons today, cancellations crossed out.</string>
     <string name="surfaces_widget_homework">Homework</string>
     <string name="surfaces_widget_homework_description">What\'s due soon.</string>
-    <string name="surfaces_widget_holidays">Holiday countdown</string>
-    <string name="surfaces_widget_holidays_description">Days until the next holidays.</string>
 
     <string name="surfaces_tile_melden">Raise hand</string>
     <string name="surfaces_shortcut_melden">Raise hand</string>

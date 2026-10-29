@@ -78,13 +78,12 @@ import androidx.compose.ui.unit.dp
 import app.meldeplanner.android.core.L
 import app.meldeplanner.android.data.CardSize
 import app.meldeplanner.android.data.DashboardCard
-import app.meldeplanner.android.data.UntisExamRecord
+import app.meldeplanner.android.data.shownDashboardCards
 import app.meldeplanner.android.model.HolidayText
 import app.meldeplanner.android.model.TimetableBlock
 import app.meldeplanner.android.model.holiday
 import app.meldeplanner.android.model.homeworkStreak
 import app.meldeplanner.android.model.timetableBlocks
-import app.meldeplanner.android.model.upcomingUntisExams
 import app.meldeplanner.android.ui.components.Badge
 import app.meldeplanner.android.ui.components.Card
 import app.meldeplanner.android.ui.components.CustomizableCardGrid
@@ -104,11 +103,9 @@ import uniffi.melde_ffi.FfiOccurrence
 import java.time.Instant
 import app.meldeplanner.android.ui.rows.rememberTickingNow
 import app.meldeplanner.android.ui.rows.DateText
-import app.meldeplanner.android.ui.rows.CardLink
 import app.meldeplanner.android.ui.rows.CardBlockStyle
 import app.meldeplanner.android.ui.rows.digits
 import app.meldeplanner.android.ui.rows.NumberText
-import app.meldeplanner.android.ui.rows.UntisExamRow
 import app.meldeplanner.android.ui.rows.BlockRow
 import app.meldeplanner.android.ui.navigation.Link
 import app.meldeplanner.android.ui.navigation.rememberLink
@@ -144,7 +141,6 @@ fun DashboardScreen() {
             if (!setUp) {
                 GettingStartedCard(
                     addSubject = rememberLink(Link.NewSubject()),
-                    connectUntis = rememberLink(Link.Page("untis")),
                     modifier = Modifier.widthIn(max = 560.dp),
                 )
             } else {
@@ -153,13 +149,14 @@ fun DashboardScreen() {
                     CheckInPromptCard()
                 }
                 CustomizableCardGrid(
-                    slots = model.preferences.homeLayout,
+                    slots = model.preferences.homeLayout.filter { it.kind in shownDashboardCards },
                     editing = editing,
                     onEditingChange = { editing = it },
                     title = ::dashboardCardTitle,
                     symbol = ::dashboardCardSymbol,
-                    allKinds = DashboardCard.entries,
-                    save = { model.setHomeLayout(it) },
+                    allKinds = shownDashboardCards,
+                    // Keeps the slots of cards this build doesn't show.
+                    save = { model.setHomeLayout(it + model.preferences.homeLayout.filter { slot -> slot.kind !in shownDashboardCards }) },
                 ) { card, size ->
                     DashboardCardView(card, size, now)
                 }
@@ -177,14 +174,11 @@ private fun DashboardCardView(card: DashboardCard, size: CardSize, now: Instant)
         DashboardCard.participation -> WeekParticipationCard(now, size)
         DashboardCard.streak -> StreakCard(now, size)
         DashboardCard.homework -> HomeworkCard(now, size)
-        DashboardCard.exams -> UpcomingExamsCard(now, size)
-        DashboardCard.news -> SchoolNewsCard(size)
-        DashboardCard.absences -> AbsencesCard(size)
         DashboardCard.nextLesson -> NextLessonCard(now, size)
         DashboardCard.weekChart -> WeekChartMiniCard(now, size)
-        DashboardCard.nextHoliday -> NextHolidayCard(now, size)
         DashboardCard.todos -> TodosCard(now, size)
         DashboardCard.grades -> GradesCard(size)
+        DashboardCard.exams, DashboardCard.news, DashboardCard.absences, DashboardCard.nextHoliday -> Unit
     }
 }
 
@@ -232,7 +226,7 @@ private fun greeting(now: Instant): String {
 }
 
 @Composable
-private fun GettingStartedCard(addSubject: (() -> Unit)?, connectUntis: (() -> Unit)?, modifier: Modifier = Modifier) {
+private fun GettingStartedCard(addSubject: (() -> Unit)?, modifier: Modifier = Modifier) {
     Card(modifier, title = L("Los geht's"), symbol = "sparkles") {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(DS.spacingL)) {
             Mascot(MascotMood.wave, 88.dp)
@@ -246,11 +240,6 @@ private fun GettingStartedCard(addSubject: (() -> Unit)?, connectUntis: (() -> U
             Icon(sfSymbol("plus"), null, Modifier.size(18.dp))
             Spacer(Modifier.width(DS.spacingS))
             Text(L("Erstes Fach anlegen"))
-        }
-        if (connectUntis != null) FilledTonalButton(onClick = connectUntis, shapes = ButtonDefaults.shapes(), modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) {
-            Icon(sfSymbol("arrow.triangle.2.circlepath"), null, Modifier.size(18.dp))
-            Spacer(Modifier.width(DS.spacingS))
-            Text(L("Mit WebUntis verbinden"))
         }
     }
 }
@@ -635,108 +624,6 @@ private fun StreakCard(now: Instant, size: CardSize) {
                 Icon(sfSymbol("book"), null, Modifier.size(16.dp), tint = tint)
                 Text(L("%lld Tage pünktlich in Folge", homework), style = MaterialTheme.typography.bodyMedium, color = tint)
             }
-        }
-    }
-}
-
-// endregion
-
-// region Exams, news, absences
-
-@Composable
-private fun UpcomingExamsCard(now: Instant, size: CardSize) {
-    val model = LocalAppModel.current
-    val exams = model.upcomingUntisExams(now)
-    Card(title = L("Prüfungen"), symbol = "pencil.and.list.clipboard") {
-        if (exams.isEmpty()) {
-            Text(
-                if (model.data.untis == null) L("Verbinde WebUntis, dann erscheinen hier deine Prüfungstermine.")
-                else L("Keine Prüfungen eingetragen."),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        } else {
-            val limit = when (size) {
-                CardSize.small -> 1
-                CardSize.medium -> 3
-                CardSize.large -> 8
-            }
-            Column(verticalArrangement = Arrangement.spacedBy(DS.spacingS)) {
-                exams.take(limit).forEach { UntisExamRow(it, now, compact = size == CardSize.small) }
-            }
-        }
-    }
-}
-
-@Composable
-private fun SchoolNewsCard(size: CardSize) {
-    val model = LocalAppModel.current
-    val news = model.data.untisExtras?.news ?: emptyList()
-    val secondary = MaterialTheme.colorScheme.onSurfaceVariant
-    Card(title = L("Nachrichten"), symbol = "megaphone") {
-        if (news.isEmpty()) {
-            Text(
-                if (model.data.untis == null) L("Verbinde WebUntis, um Nachrichten deiner Schule zu sehen.")
-                else L("Heute keine Nachrichten von der Schule."),
-                style = MaterialTheme.typography.bodyMedium,
-                color = secondary,
-            )
-        } else {
-            val limit = when (size) {
-                CardSize.large -> 6
-                CardSize.medium -> 2
-                CardSize.small -> 1
-            }
-            news.take(limit).forEach { message ->
-                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                    if (message.subject.isNotEmpty()) {
-                        Text(message.subject, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
-                    }
-                    if (size != CardSize.small) {
-                        Text(
-                            message.text,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = secondary,
-                            maxLines = if (size == CardSize.large) Int.MAX_VALUE else 3,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun AbsencesCard(@Suppress("UNUSED_PARAMETER") size: CardSize) {
-    val model = LocalAppModel.current
-    val navigator = LocalNavigator.current
-    val absences = model.data.untisExtras?.absences ?: emptyList()
-    val open = absences.count { !it.excused }
-    Card(title = L("Abwesenheiten"), symbol = "person.crop.circle.badge.clock") {
-        if (model.data.untis == null) {
-            Text(
-                L("Verbinde WebUntis, um deine Fehlzeiten zu sehen."),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        } else {
-            Row(horizontalArrangement = Arrangement.spacedBy(DS.spacingS), verticalAlignment = Alignment.Bottom) {
-                NumberText(absences.size, MaterialTheme.typography.headlineLarge)
-                Text(
-                    L("in diesem Schuljahr"),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(bottom = 6.dp),
-                )
-            }
-            if (open > 0) {
-                Row(horizontalArrangement = Arrangement.spacedBy(DS.spacingXS), verticalAlignment = Alignment.CenterVertically) {
-                    Icon(sfSymbol("exclamationmark.circle"), null, Modifier.size(16.dp), tint = StateColors.red())
-                    Text(L("%lld nicht entschuldigt", open), style = MaterialTheme.typography.bodyMedium, color = StateColors.red())
-                }
-            }
-            rememberLink(Link.Page("absences"))?.let { CardLink(L("Alle"), onClick = it) }
         }
     }
 }

@@ -210,7 +210,7 @@ private fun ExamList(selected: String?, onSelect: ((String) -> Unit)?, onDeleted
                 }
                 item(key = "upcoming-footer") {
                     Text(
-                        L("Termine aus WebUntis. Zurückgegebene Arbeiten scannst du unten ein."),
+                        L("Zurückgegebene Arbeiten scannst du unten ein."),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = meldoAnimateItem().padding(start = DS.spacingL, end = DS.spacingL, top = DS.spacingS),

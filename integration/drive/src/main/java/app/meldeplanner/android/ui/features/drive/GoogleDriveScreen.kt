@@ -383,7 +383,7 @@ fun GoogleDriveScreen() {
                             ConnectSection(
                                 footer = listOfNotNull(
                                     model.driveProblem,
-                                    L("Meldo sichert nach jeder Änderung und beim Öffnen. Passwörter für WebUntis und Teams bleiben auf jedem Gerät."),
+                                    L("Meldo sichert nach jeder Änderung und beim Öffnen. Die Anmeldung bei Teams bleibt auf jedem Gerät."),
                                 ).joinToString("\n\n"),
                             ) {
                                 val last = model.lastDriveSync
