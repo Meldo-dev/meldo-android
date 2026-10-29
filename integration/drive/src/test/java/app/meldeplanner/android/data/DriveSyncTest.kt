@@ -153,6 +153,28 @@ class DriveSyncTest {
         assertTrue(phone.store.load().exams.isEmpty())
     }
 
+    /** A document this device can't store under its name (too long here) is skipped; the rest still syncs. */
+    @Test
+    fun aDocumentThatCantBeStoredDoesNotStopTheOthers() = runBlocking {
+        val drive = MemoryDrive()
+        val (file, key) = BackupKey.create("gemeinsam-1")
+        val keyID = DriveSync.keyID(DriveSync.storeKeyFile(file, drive))
+        val phone = device()
+        val tablet = device()
+        val date = Instant.parse("2026-10-12T08:00:00Z")
+        // 250 bytes fit on the phone, but not with the tablet's ".download" suffix.
+        val long = ExamDocument(title = "lang", date = date, fileName = "Other/Exams/" + "a".repeat(246) + ".pdf", pageCount = 1)
+        val ok = ExamDocument(title = "ok", date = date, fileName = "Other/Exams/ok.pdf", pageCount = 1)
+        for (exam in listOf(long, ok)) {
+            File(phone.scans, exam.fileName).apply { parentFile?.mkdirs() }.writeBytes("%PDF ${exam.title}".toByteArray())
+            phone.store.update { it.exams.add(exam) }
+        }
+        DriveSync.run(phone.store, drive, key, keyID, phone.documents)
+
+        DriveSync.run(tablet.store, drive, key, keyID, tablet.documents)
+        assertEquals("%PDF ok", File(tablet.scans, ok.fileName).readText())
+    }
+
     @Test
     fun aReplacedKeyStopsTheSync() = runBlocking {
         val drive = MemoryDrive()

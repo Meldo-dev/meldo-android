@@ -5,7 +5,6 @@ import kotlinx.coroutines.ensureActive
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import java.io.File
-import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.LinkOption
 import java.security.GeneralSecurityException
@@ -365,6 +364,7 @@ object DriveSync {
                 // The synced name is lower-trust input: it must stay inside the scans folder.
                 if (!DocumentFolder.isSafeName(document.fileName)) continue
                 val target = folder.scans()?.let { File(it, document.fileName) } ?: continue
+                if (target.exists()) continue
                 val pdf = try {
                     SyncBox.open(drive.read(remote.id, MAX_FILE_BYTES), key, context(name))
                 } catch (e: DriveProblem.TooLarge) {
@@ -383,16 +383,21 @@ object DriveSync {
                 }
                 // A file added here while downloading (same name) is never replaced.
                 if (target.exists()) continue
+                // A name this device can't store (too long, or below a file) skips that document only;
+                // the others and the cleanup below still run.
                 target.parentFile?.mkdirs()
                 val temp = File(target.parentFile, ".${target.name}.download")
-                temp.writeBytes(pdf)
-                if (!temp.renameTo(target)) {
+                val stored = runCatching { temp.writeBytes(pdf) }.isSuccess && temp.renameTo(target)
+                if (!stored) {
                     temp.delete()
-                    throw IOException("could not store ${target.name}")
+                    continue
                 }
             } else if (remote == null && hasLocal && local != null) {
                 if (!folder.isUploadable(local)) continue
-                drive.create(name, SyncBox.seal(local.readBytes(), key, context(name)))
+                val sealed = SyncBox.seal(local.readBytes(), key, context(name))
+                // Other devices delete a larger file as not Meldo's, so it would never arrive.
+                if (sealed.size > MAX_FILE_BYTES) continue
+                drive.create(name, sealed)
             }
         }
         for (entry in data.sync.tombstones.keys) {
