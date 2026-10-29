@@ -41,7 +41,15 @@ fun AppModel.upsert(task: SchoolTask) {
 }
 
 fun AppModel.deleteTask(id: String) {
-    mutate { d -> d.tasks.removeAll { it.id == id } }
+    mutate { d ->
+        // Remember a deleted import, so the next WebUntis or Teams refresh (here or on another
+        // device) doesn't bring it back. iOS keeps the same list.
+        d.tasks.firstOrNull { it.id == id }?.let { t ->
+            t.untisID?.let { d.dismissedImports.add("untis:$it") }
+            t.teamsID?.let { d.dismissedImports.add("teams:$it") }
+        }
+        d.tasks.removeAll { it.id == id }
+    }
     context?.let { notify { cancelReminder(it, id) } }
 }
 

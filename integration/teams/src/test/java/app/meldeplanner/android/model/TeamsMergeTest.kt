@@ -44,6 +44,17 @@ class TeamsMergeTest {
         assertEquals(0, TeamsMerge.addAssignments(d, assignments, now, calendar))
     }
 
+    /** An assignment the student deleted (here or on iOS) stays deleted on the next import. */
+    @Test
+    fun deletedAssignmentsAreNotImportedAgain() {
+        val d = AppData()
+        d.teams = TeamsLink(account = "max@schule.de")
+        d.dismissedImports.add("teams:a1")
+        val assignments = listOf(TeamsClient.Assignment("a1", "Zellaufbau", "Q1 Biologie GK", null, "", null))
+        assertEquals(0, TeamsMerge.addAssignments(d, assignments, now, calendar))
+        assertTrue(d.tasks.isEmpty())
+    }
+
     @Test
     fun teamsCallbackAndHtml() {
         assertEquals("M.R3_BAY", TeamsClient.code("meldeplanner://auth?code=M.R3_BAY&state=x", "x"))

@@ -109,7 +109,7 @@ internal object TeamsMerge {
         var added = 0
         val seen = d.tasks.mapNotNull { it.teamsID }.toMutableSet()
         for (a in assignments) {
-            if (a.id in seen || a.title.isEmpty()) continue
+            if (a.id in seen || a.title.isEmpty() || "teams:${a.id}" in d.dismissedImports) continue
             // Foundation's contains is false for an empty needle; Kotlin's is true, hence the checks.
             fun mentions(part: String?) = !part.isNullOrEmpty() && a.className.contains(part, ignoreCase = true)
             val subject = d.subjects.firstOrNull { subject ->
