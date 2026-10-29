@@ -407,6 +407,7 @@ private fun WeeklyGoalSheet(onDismiss: () -> Unit) {
 @Composable
 fun AboutScreen() {
     val context = LocalContext.current
+    val uriHandler = androidx.compose.ui.platform.LocalUriHandler.current
     val model = LocalAppModel.current
     val navigator = LocalNavigator.current
     val version = remember(context) {
@@ -429,7 +430,10 @@ fun AboutScreen() {
                         L("Deine Daten bleiben auf deinem Gerät. Meldo hat keinen eigenen Server, keine Werbung und kein Tracking."),
                         MaterialTheme.colorScheme.onSurface,
                     )
-                    NavRow(L("Datenschutzerklärung")) { navigator.push { PrivacyPolicyScreen() } }
+                    // The legal texts live on meldo.dev, in the app language, so they can't drift apart.
+                    val language = model.data.preferences.language.code
+                    NavRow(L("Datenschutzerklärung")) { uriHandler.openUri("https://meldo.dev/$language/privacy") }
+                    NavRow(L("Nutzungsbedingungen")) { uriHandler.openUri("https://meldo.dev/$language/terms") }
                 }
             }
             item {
