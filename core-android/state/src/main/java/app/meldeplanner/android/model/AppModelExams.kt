@@ -138,7 +138,9 @@ fun AppModel.organizeDocuments() {
 fun AppModel.deleteExam(id: String) {
     val context = context
     val exam = exam(id)
-    if (context != null && exam != null) {
+    // Another exam can use the same file name (merged from another device): keep the file then, as iOS does.
+    val shared = exam != null && data.exams.any { it.id != id && it.fileName == exam.fileName }
+    if (context != null && exam != null && !shared) {
         ExamFiles.locate(context, exam.fileName)?.delete()
         scope.launch(Dispatchers.IO) { ScanMirror.remove(context, id) }
     }
