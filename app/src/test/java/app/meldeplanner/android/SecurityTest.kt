@@ -88,7 +88,7 @@ class SecurityTest {
     // region Drive files someone else wrote (lead 6)
 
     @Test
-    fun aFileTooBigForMemoryIsRemovedNotRetried() = runBlocking {
+    fun aFileTooBigForMemoryIsSkippedNotDeleted() = runBlocking {
         val drive = FakeDrive()
         val (file, key) = BackupKey.create("passwort-123")
         val keyID = DriveSync.keyID(DriveSync.storeKeyFile(file, drive))
@@ -97,11 +97,12 @@ class SecurityTest {
         val scans = File(dir, "Scans").apply { mkdirs() }
         val exam = ExamDocument(title = "Klausur", date = Instant.parse("2026-10-12T08:00:00Z"), fileName = "Mathe/1.pdf", pageCount = 1)
         store.update { it.exams.add(exam) }
-        // The exam's PDF in Drive was replaced by something this device can't hold in memory.
-        val planted = drive.create(DriveSync.fileName(exam.id), ByteArray(16))
-        drive.outOfMemory = setOf(planted.id)
+        // The exam's PDF in Drive is more than this device can hold in memory. It may be a real
+        // scan and Drive may hold its only copy: sync goes on without it and never deletes it.
+        val big = drive.create(DriveSync.fileName(exam.id), ByteArray(16))
+        drive.outOfMemory = setOf(big.id)
         DriveSync.run(store, drive, key, keyID, DocumentFolder.inside(scans))
-        assertTrue(drive.list().none { it.id == planted.id })
+        assertTrue(drive.list().any { it.id == big.id })
         assertFalse(File(scans, exam.fileName).exists())
     }
 
