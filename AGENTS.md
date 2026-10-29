@@ -59,7 +59,7 @@ Drive and Teams need `MELDO_GOOGLE_CLIENT_ID` and `MELDO_TEAMS_CLIENT_ID` in `~/
 Workflows:
 
 - `android.yml`: unit tests and APK on pushes to `main` and on pull requests.
-- `release.yml`: on a `vX.Y.Z` tag on `main`, `beta` or `alpha`, builds the APK signed with the release key and publishes a GitHub pre-release. Notes come from `.github/release-notes/<tag>.md`; `{{APK_SHA256}}` is replaced with the APK hash. Only release runs get the signing key.
+- `release.yml`: on a `vX.Y.Z` tag on `main`, `beta` or `alpha`, builds the APK signed with the release key and publishes a GitHub release: Latest when the tag is on `main`, a pre-release when it is only on `beta` or `alpha`. Notes come from `.github/release-notes/<tag>.md`; `{{APK_SHA256}}` is replaced with the APK hash. Only release runs get the signing key.
 - `hygiene.yml`.
 
 ## How to commit
