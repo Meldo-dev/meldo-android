@@ -325,8 +325,9 @@ object DriveSync {
         } catch (e: DriveProblem.TooLarge) {
             return null
         } catch (e: OutOfMemoryError) {
-            // More than this device can hold: treated like an oversized file.
-            return null
+            // More than this device can hold right now. That says nothing about the file, so it is
+            // never overwritten for it: sync stops and tries again later.
+            throw DriveProblem.TooLarge
         }
         val plain = runCatching { SyncBox.open(sealed, key, context(DATA_NAME)) }.getOrNull() ?: return null
         val text = String(plain, Charsets.UTF_8)
@@ -375,10 +376,8 @@ object DriveSync {
                     runCatching { drive.delete(remote.id) }
                     continue
                 } catch (e: OutOfMemoryError) {
-                    // Too big for this device's memory (a planted file near the limit): remove it like
-                    // an oversized one, instead of failing on it at every sync. The buffers are garbage
-                    // by now; a device that has the PDF uploads it again.
-                    runCatching { drive.delete(remote.id) }
+                    // Too big for this device's memory right now. It can be a real scan (up to 100 MB),
+                    // and Drive may hold its only copy, so it is skipped, never deleted.
                     continue
                 }
                 // A file added here while downloading (same name) is never replaced.
