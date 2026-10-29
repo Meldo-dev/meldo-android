@@ -29,6 +29,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedButton
@@ -343,6 +344,17 @@ private fun SetupPage(addSubject: (() -> Unit)?, later: () -> Unit) {
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         Column(Modifier.padding(top = DS.spacingS), verticalArrangement = Arrangement.spacedBy(DS.spacingM)) {
+            // Shown but off until Untis approves the WebUntis import.
+            OutlinedButton(onClick = {}, enabled = false, shapes = ButtonDefaults.shapes(), modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) {
+                Icon(sfSymbol("arrow.triangle.2.circlepath"), null, Modifier.size(20.dp))
+                Spacer(Modifier.size(DS.spacingS))
+                Text(L("Mit WebUntis verbinden"), fontWeight = FontWeight.SemiBold)
+            }
+            Text(
+                L("Wartet auf Freigabe durch Untis. Bis dahin legst du deine Fächer selbst an."),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
             if (addSubject != null) FilledTonalButton(onClick = addSubject, shapes = ButtonDefaults.shapes(), modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) {
                 Icon(sfSymbol("plus"), null, Modifier.size(20.dp))
                 Spacer(Modifier.size(DS.spacingS))
