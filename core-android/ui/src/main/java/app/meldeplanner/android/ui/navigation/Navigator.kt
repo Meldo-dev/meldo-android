@@ -231,3 +231,6 @@ private fun AmbientGlow() {
 
 /** Start and Stundenplan: the floating Melden button covers the bottom of the root screen. */
 val LocalMeldenClearance = androidx.compose.runtime.compositionLocalOf { false }
+
+/** Bumped by tapping the open tab again, like iOS (Stundenplan goes back to today). */
+val LocalTabReselections = androidx.compose.runtime.compositionLocalOf { 0 }

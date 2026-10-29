@@ -47,6 +47,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.CompositionLocalProvider
+import app.meldeplanner.android.ui.navigation.LocalTabReselections
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -86,6 +87,7 @@ fun RootScreen(model: AppModel, features: Features, deepLink: DeepLinkTarget?, o
     // The screen chosen under Einstellungen › Leiste und Startseite (tablets have every place).
     val openWide = androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp >= 840
     var tab by rememberSaveable { mutableStateOf(features.startTab(model.preferences, openWide)?.id.orEmpty()) }
+    val reselections = androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateMapOf<String, Int>() }
     var pickingSubject by remember { mutableStateOf(false) }
     val navigators = remember { mutableMapOf<String, Navigator>() }
     fun navigator(t: String) = navigators.getOrPut(t) { Navigator() }
@@ -132,7 +134,7 @@ fun RootScreen(model: AppModel, features: Features, deepLink: DeepLinkTarget?, o
                                 modifier = Modifier.padding(DS.spacingL),
                             )
                             // The bar follows Einstellungen › Leiste und Startseite; the rest is under Schule.
-                            features.tabletBar(model.preferences).forEach { DrawerItem(it, tab) { t -> tab = t } }
+                            features.tabletBar(model.preferences).forEach { DrawerItem(it, tab) { t -> if (t == tab) reselections[t] = (reselections[t] ?: 0) + 1 else tab = t } }
                             val sections = listOf(
                                 L("Schule") to features.placesOutsideBar(model.preferences, wide = true),
                                 L("Verbindungen") to features.placed(Placement.connections),
@@ -142,14 +144,14 @@ fun RootScreen(model: AppModel, features: Features, deepLink: DeepLinkTarget?, o
                                 val shown = places.filter { it.isAvailable(model) }
                                 if (shown.isEmpty()) continue
                                 SectionHeader(header)
-                                shown.forEach { DrawerItem(it, tab) { t -> tab = t } }
+                                shown.forEach { DrawerItem(it, tab) { t -> if (t == tab) reselections[t] = (reselections[t] ?: 0) + 1 else tab = t } }
                             }
                         }
                     }
                     val navInset = androidx.compose.foundation.layout.WindowInsets.navigationBars
                         .asPaddingValues().calculateBottomPadding()
                     Box(Modifier.weight(1f)) {
-                        CompositionLocalProvider(LocalBottomChrome provides navInset) { TabContent(features[tab], navigator(tab), action.takeIf { hasAction(tab) }) }
+                        CompositionLocalProvider(LocalBottomChrome provides navInset) { TabContent(features[tab], navigator(tab), action.takeIf { hasAction(tab) }, reselections[tab] ?: 0) }
                     }
                 }
             } else {
@@ -178,7 +180,7 @@ fun RootScreen(model: AppModel, features: Features, deepLink: DeepLinkTarget?, o
                 val chrome = navInset + DS.spacingS * 2 + FloatingBarHeight + if (melden) AccessoryHeight + DS.spacingS else 0.dp
                 Box(Modifier.fillMaxSize().nestedScroll(scrollWatch)) {
                     CompositionLocalProvider(LocalBottomChrome provides chrome) {
-                        TabContent(features[tab], navigator(tab), action = null)
+                        TabContent(features[tab], navigator(tab), action = null, reselections = reselections[tab] ?: 0)
                     }
                     // One morph on a spring, like iOS: the bar narrows into a circle with the selected tab
                     // while Melden slides down beside it and widens into the freed space (and back).
@@ -217,7 +219,12 @@ fun RootScreen(model: AppModel, features: Features, deepLink: DeepLinkTarget?, o
                                         .alpha((1f - p * 2f).coerceIn(0f, 1f)),
                                 ) { picked ->
                                     // Tapping the selected tab again goes back to its root, like iOS.
-                                    if (tab == picked) navigator(picked).popToRoot() else tab = picked
+                                    if (tab == picked) {
+                                        navigator(picked).popToRoot()
+                                        reselections[picked] = (reselections[picked] ?: 0) + 1
+                                    } else {
+                                        tab = picked
+                                    }
                                 }
                             }
                             if (minimized || p > 0.01f) {
@@ -273,8 +280,8 @@ private fun DrawerItem(feature: MeldoFeature, selected: String, select: (String)
  * Start and Stundenplan (phones show it in the bar's accessory instead).
  */
 @Composable
-private fun TabContent(feature: MeldoFeature?, navigator: Navigator, action: (@Composable (Boolean) -> Unit)?) {
-    CompositionLocalProvider(LocalNavigator provides navigator) {
+private fun TabContent(feature: MeldoFeature?, navigator: Navigator, action: (@Composable (Boolean) -> Unit)?, reselections: Int) {
+    CompositionLocalProvider(LocalNavigator provides navigator, LocalTabReselections provides reselections) {
         val bottomChrome = LocalBottomChrome.current
         Box(Modifier.fillMaxSize()) {
             CompositionLocalProvider(LocalMeldenClearance provides (action != null)) { navigator.Content { feature?.Page() } }

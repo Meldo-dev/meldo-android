@@ -56,6 +56,7 @@ import app.meldeplanner.android.ui.components.MeldoMenuItem
 import app.meldeplanner.android.ui.components.WeekdayText
 import app.meldeplanner.android.ui.components.sfSymbol
 import app.meldeplanner.android.ui.navigation.LocalNavigator
+import app.meldeplanner.android.ui.navigation.LocalTabReselections
 import app.meldeplanner.android.ui.navigation.MeldoScreen
 import app.meldeplanner.android.ui.theme.LocalBottomChrome
 import kotlinx.coroutines.launch
@@ -187,6 +188,10 @@ fun TimetableScreen() {
             }
         }
     }
+
+    // Tapping the Stundenplan tab again goes back to today, like iOS.
+    val reselections = LocalTabReselections.current
+    LaunchedEffect(reselections) { if (reselections > 0) jump(0, 0) }
 
     fun goTo(date: Instant) {
         val calendar = model.calendar
