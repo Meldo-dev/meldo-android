@@ -37,7 +37,9 @@ object SyncMerge {
     fun record(old: AppData, new: AppData, clock: Instant) {
         val ledger = SyncLedger(new.sync.stamps.toMutableMap(), new.sync.tombstones.toMutableMap())
         val seen = maxOf(ledger.stamps.values.maxOrNull() ?: distantPast, ledger.tombstones.values.maxOrNull() ?: distantPast)
-        val now = maxOf(clock, seen.plusMillis(1))
+        // One second, not less: stamps are saved in whole seconds, so a smaller step would be lost
+        // and the new edit would tie with the stamp it must beat.
+        val now = maxOf(clock, seen.plusSeconds(1))
         // A refresh only moving "last updated" is no edit: it must not beat a disconnect
         // (tombstone) made on another device in the meantime.
         val before = withoutSyncTimes(old)

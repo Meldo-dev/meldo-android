@@ -232,6 +232,21 @@ class DriveSyncTest {
         assertTrue(SyncMerge.merge(after, theirs).subjects.isEmpty())
     }
 
+    /** A device that has seen a stamp ahead of its clock still stamps its next edit later, after saving. */
+    @Test
+    fun anEditAfterAStampFromTheFutureStillWinsOnceSaved() {
+        val subject = Subject(name = "Bio")
+        val ahead = Instant.parse("2027-01-01T00:00:00Z")
+        val base = AppData().apply { subjects.add(subject.copy()) }
+        SyncMerge.record(AppData(), base, ahead)
+        val saved = copy(base)
+        val edited = copy(saved).apply { subjects.single().name = "Biologie" }
+        SyncMerge.record(saved, edited, Instant.parse("2026-10-01T10:00:00Z"))
+        val stored = copy(edited)
+        assertTrue(stored.sync.stamps.getValue("subjects:${subject.id}") > ahead)
+        assertEquals("Biologie", SyncMerge.merge(saved, stored).subjects.single().name)
+    }
+
     private fun copy(data: AppData) =
         MeldoJson.decodeFromString(AppData.serializer(), MeldoJson.encodeToString(AppData.serializer(), data))
 
