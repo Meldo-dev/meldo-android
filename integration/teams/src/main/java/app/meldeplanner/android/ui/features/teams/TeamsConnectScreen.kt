@@ -151,7 +151,7 @@ fun TeamsConnectScreen() {
                 }
             } else if (link != null) {
                 item {
-                    ConnectSection(footer = L("Neue Aufgaben kommen automatisch dazu, wenn du die App öffnest (höchstens alle drei Stunden).")) {
+                    ConnectSection(footer = L("Neue Aufgaben kommen automatisch dazu, beim Öffnen und im Hintergrund, höchstens alle drei Stunden.")) {
                         if (link.account.isNotEmpty()) ConnectLabeledRow(L("Konto"), link.account)
                         link.lastSync?.let { last -> ConnectLabeledRow(L("Zuletzt aktualisiert"), connectRelativeTime(last)) }
                     }
