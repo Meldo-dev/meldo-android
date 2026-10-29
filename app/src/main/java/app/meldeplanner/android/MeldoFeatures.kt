@@ -8,6 +8,7 @@ import app.meldeplanner.android.ui.features.more.AboutFeature
 import app.meldeplanner.android.ui.features.drive.DriveFeature
 import app.meldeplanner.android.ui.features.more.MoreFeature
 import app.meldeplanner.android.ui.features.more.SettingsFeature
+import app.meldeplanner.android.ui.features.more.UntisFeature
 import app.meldeplanner.android.surfaces.StatusFeature
 import app.meldeplanner.android.ui.features.onboarding.OnboardingFeature
 import app.meldeplanner.android.ui.features.participation.ParticipationFeature
@@ -35,6 +36,7 @@ val meldoFeatures = Features(
         StatisticsFeature,
         ExamsFeature,
         // Connections.
+        UntisFeature,
         TeamsFeature(clientID = BuildConfig.TEAMS_CLIENT_ID),
         DriveFeature(clientID = BuildConfig.GOOGLE_CLIENT_ID),
         // App.

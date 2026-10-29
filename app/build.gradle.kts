@@ -10,8 +10,8 @@ android {
 
     defaultConfig {
         applicationId = "app.meldeplanner.android"
-        versionCode = 4
-        versionName = "0.0.2"
+        versionCode = 5
+        versionName = "0.0.2.5"
         // Only the ABIs the Rust core is built for.
         ndk { abiFilters += listOf("arm64-v8a", "x86_64") }
         manifestPlaceholders["teamsRedirectScheme"] = "meldeplanner"
