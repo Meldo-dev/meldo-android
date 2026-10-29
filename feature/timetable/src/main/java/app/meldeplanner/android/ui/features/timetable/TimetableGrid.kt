@@ -92,7 +92,7 @@ private val tabularDigits = TextStyle(fontFeatureSettings = "tnum")
 
 /** Vertical scale of the grid: which minutes are shown and how tall they are. */
 internal data class GridMetrics(val start: Int, val end: Int, val dpPerMinute: Float) {
-    fun y(minute: Int): Dp = ((minute - start) * dpPerMinute).dp
+    fun y(minute: Int): Dp = ((minute.coerceIn(start, end) - start) * dpPerMinute).dp
     val height: Dp get() = y(end)
 
     companion object {
@@ -101,7 +101,11 @@ internal data class GridMetrics(val start: Int, val end: Int, val dpPerMinute: F
             val first = minOf(bells.firstOrNull()?.startMinute ?: (8 * 60), blocks.minOfOrNull { it.startMinute } ?: (8 * 60))
             val sixth = bells.take(6).lastOrNull()?.endMinute ?: (13 * 60)
             val last = maxOf(sixth, blocks.maxOfOrNull { it.endMinute } ?: sixth)
-            return GridMetrics(first, last, dpPerMinute)
+            // Minutes come from other devices too. Kept within one day, so a nonsense value can't make
+            // the grid taller than a layout can measure.
+            val day = 24 * 60
+            val top = first.coerceIn(0, day)
+            return GridMetrics(top, last.coerceIn(top, day), dpPerMinute)
         }
     }
 }
