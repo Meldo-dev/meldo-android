@@ -3,9 +3,8 @@ name: Android
 on:
   push:
     branches: [main]
-    paths-ignore: ["**.md"]
+  # Runs on every pull request: it is a required check, so it must never be skipped.
   pull_request:
-    paths-ignore: ["**.md"]
   workflow_dispatch:
   # Also run by release.yml, which publishes the build as a GitHub Release.
   workflow_call:
