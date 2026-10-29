@@ -329,14 +329,24 @@ object DriveSync {
             // never overwritten for it: sync stops and tries again later.
             throw DriveProblem.TooLarge
         }
-        val plain = runCatching { SyncBox.open(sealed, key, context(DATA_NAME)) }.getOrNull() ?: return null
+        val plain = orNull { SyncBox.open(sealed, key, context(DATA_NAME)) } ?: return null
         val text = String(plain, Charsets.UTF_8)
         // A blob that names a newer schema really is a newer Meldo: never overwrite it. One that
         // opens with our key but can't be decoded as current data — and names no newer schema — is
         // corrupt, not newer: return null so it's overwritten instead of wedging sync for every device.
-        val probe = runCatching { MeldoJson.decodeFromString(SchemaProbe.serializer(), text) }.getOrNull()
+        val probe = orNull { MeldoJson.decodeFromString(SchemaProbe.serializer(), text) }
         if (probe != null && probe.schemaVersion > AppData.CURRENT_SCHEMA_VERSION) throw DriveProblem.NewerVersion
-        return runCatching { MeldoJson.decodeFromString(AppData.serializer(), text) }.getOrNull()
+        return orNull { MeldoJson.decodeFromString(AppData.serializer(), text) }
+    }
+
+    /** Null when [block] fails on the file itself. Running out of memory is this device's problem,
+     *  not the file's, so it stops sync instead of letting the file be overwritten. */
+    private inline fun <T> orNull(block: () -> T): T? = try {
+        block()
+    } catch (e: OutOfMemoryError) {
+        throw DriveProblem.TooLarge
+    } catch (e: Exception) {
+        null
     }
 
     /** Just the schemaVersion of a sealed data blob, to tell a genuinely newer Meldo from a corrupt file. */
