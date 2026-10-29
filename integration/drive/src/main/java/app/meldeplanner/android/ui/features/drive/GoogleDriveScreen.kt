@@ -6,6 +6,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -70,6 +71,7 @@ import app.meldeplanner.android.ui.rows.ConnectLabeledRow
 import app.meldeplanner.android.ui.rows.ConnectList
 import app.meldeplanner.android.ui.rows.ConnectNote
 import app.meldeplanner.android.ui.rows.ConnectSection
+import app.meldeplanner.android.ui.rows.FormFooter
 import app.meldeplanner.android.ui.rows.FormSection
 import app.meldeplanner.android.ui.rows.connectRelativeTime
 import app.meldeplanner.android.ui.rows.meldoAnimateItem
@@ -296,6 +298,11 @@ fun GoogleDriveScreen() {
                                 }
                                 Spacer(Modifier.size(DS.spacingS))
                                 Text(L("Mit Google anmelden"), fontWeight = FontWeight.SemiBold)
+                            }
+                        }
+                        item(key = "sign-in-footer") {
+                            Box(Modifier.padding(horizontal = DS.spacingL)) {
+                                FormFooter(L("Meldo fragt bei Google nur nach seinem versteckten App-Ordner und der E-Mail-Adresse deines Kontos. Die Adresse zeigt Meldo nur hier an."))
                             }
                         }
                     }
